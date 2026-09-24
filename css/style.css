@@ -135,4 +135,270 @@ html.cris-unlocked #cris-auth-screen {
   box-shadow: 0 0 12px rgba(244, 63, 94, 0.6) !important;
 }
 
+/* ================================================================
+   MOBILE UX OVERHAUL — Solo pantallas < md (768px)
+   ================================================================ */
 
+/* iOS safe area support */
+@supports (padding: env(safe-area-inset-bottom)) {
+  body {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+}
+
+/* --- MOBILE: Ocultar sidebar completa, usar bottom nav --- */
+@media (max-width: 767px) {
+  /* Sidebar: ocultar en móvil */
+  body > div.flex-1 > aside {
+    display: none !important;
+  }
+
+  /* Header global: compactar */
+  #cris-global-bar {
+    height: 48px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  /* Header: ocultar badge PLATAFORMA PRINCIPAL y el dropdown de subproyectos */
+  #cris-global-bar .text-\[9px\].font-extrabold.uppercase {
+    display: none !important;
+  }
+  #subprojects-dropdown-container {
+    display: none !important;
+  }
+  /* Desktop nav buttons: ya están hidden en md:flex */
+
+  /* Perfil: reducir en móvil */
+  #cris-global-bar .hidden.sm\:block {
+    display: none !important;
+  }
+
+  /* Area principal: padding bottom para dejar espacio a la bottom nav */
+  main {
+    padding: 12px !important;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+    max-width: 100% !important;
+  }
+
+  /* Barra de contexto de estudios: compactar */
+  #study-filter-bar {
+    padding: 8px !important;
+    border-radius: 16px !important;
+    margin-bottom: 12px !important;
+    gap: 8px !important;
+  }
+  #study-filter-bar .text-xs.font-black {
+    font-size: 10px !important;
+  }
+  #study-filter-bar .text-\[10px\] {
+    display: none !important;
+  }
+
+  /* Banner de bienvenida: compactar */
+  .view-section > div:first-child > div.bg-gradient-to-r {
+    padding: 16px !important;
+    border-radius: 20px !important;
+  }
+  .view-section > div:first-child > div.bg-gradient-to-r h1 {
+    font-size: 1.25rem !important;
+  }
+
+  /* Stat cards: 2 columnas en móvil */
+  .grid.grid-cols-2.lg\:grid-cols-4 {
+    gap: 8px !important;
+  }
+  .grid.grid-cols-2.lg\:grid-cols-4 > div {
+    padding: 12px !important;
+    border-radius: 16px !important;
+  }
+  .grid.grid-cols-2.lg\:grid-cols-4 > div h3 {
+    font-size: 1.25rem !important;
+  }
+
+  /* Grids de contenido: 1 columna en móvil */
+  .grid.grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3,
+  .grid.grid-cols-1.lg\:grid-cols-3,
+  .grid.grid-cols-1.md\:grid-cols-2.xl\:grid-cols-3,
+  .grid.grid-cols-1.md\:grid-cols-2 {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Plan semanal: 2 columnas en móvil en vez de 4 */
+  #study-plan-days-container {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  /* Tarjetas de contenido: bordes más redondeados y compactos */
+  .view-section .rounded-2xl,
+  .view-section .rounded-3xl {
+    border-radius: 16px !important;
+  }
+
+  /* Sección headings: compactar en móvil */
+  .view-section h2 {
+    font-size: 1.15rem !important;
+    line-height: 1.3 !important;
+  }
+  .view-section h2 + p {
+    font-size: 11px !important;
+    margin-top: 2px !important;
+  }
+
+  /* Botones de acción (Añadir X): full width en móvil */
+  .view-section .inline-flex.items-center.justify-center.gap-2 {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* Filtros scrollables: scroll horizontal fluido */
+  .flex.items-center.gap-2.overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .flex.items-center.gap-2.overflow-x-auto::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Modals: full screen en móvil */
+  .modal-backdrop > div,
+  #modal-settings > div,
+  #modal-add-habit > div,
+  #modal-add-subproject > div {
+    max-width: 100% !important;
+    max-height: 100vh !important;
+    height: 100% !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+  }
+  .modal-backdrop,
+  #modal-add-habit,
+  #modal-add-subproject {
+    padding: 0 !important;
+  }
+
+  /* Campus virtual buttons: stack vertical en móvil */
+  .flex.items-center.gap-2.flex-wrap {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  .flex.items-center.gap-2.flex-wrap > a {
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  /* Guía rápida cards: 1 columna */
+  .grid.grid-cols-1.sm\:grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Pomodoro circle: centrar mejor */
+  #view-pomodoro .relative {
+    margin: 0 auto;
+  }
+
+  /* Calendario: compact spacing */
+  #dashboard-mini-calendar-grid {
+    gap: 2px !important;
+  }
+
+  /* Inputs en mobile: mayor tamaño para tap */
+  input[type="text"],
+  input[type="password"],
+  input[type="number"],
+  input[type="url"],
+  input[type="date"],
+  select,
+  textarea {
+    font-size: 16px !important; /* Evitar zoom en iOS */
+    min-height: 44px;
+  }
+}
+
+/* Utility: Hide scrollbar */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Touch targets optimization */
+button, a, input, select, textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* --- MOBILE BOTTOM NAV: Active states --- */
+.cris-mob-tab {
+  position: relative;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  border: none;
+  background: none;
+}
+
+.cris-mob-tab.active {
+  color: #a855f7 !important;
+}
+
+.cris-mob-tab.active::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 3px;
+  background: linear-gradient(135deg, #9333ea, #6366f1);
+  border-radius: 0 0 4px 4px;
+}
+
+/* Tab color por sección */
+.cris-mob-tab[data-mobile-nav="checklist"].active {
+  color: #06b6d4 !important;
+}
+.cris-mob-tab[data-mobile-nav="checklist"].active::after {
+  background: linear-gradient(135deg, #06b6d4, #0891b2);
+}
+
+.cris-mob-tab[data-mobile-nav="economia"].active {
+  color: #10b981 !important;
+}
+.cris-mob-tab[data-mobile-nav="economia"].active::after {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.cris-mob-tab[data-mobile-nav="menus"].active {
+  color: #f59e0b !important;
+}
+.cris-mob-tab[data-mobile-nav="menus"].active::after {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+/* --- Auth screen: iOS safe area fix --- */
+#cris-auth-screen {
+  padding-top: env(safe-area-inset-top, 16px) !important;
+  padding-bottom: env(safe-area-inset-bottom, 16px) !important;
+}
+
+/* --- Auto-reload toast notification --- */
+@keyframes slideDownToast {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+#cris-reload-toast {
+  animation: slideDownToast 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

@@ -2,8 +2,19 @@
 <html lang="es" class="h-full">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>CRIS - Plataforma Central de Proyectos & Estudios</title>
+
+  <!-- PWA / iOS Add to Home Screen -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CRIS">
+  <meta name="theme-color" content="#7e22ce">
+  <meta name="mobile-web-app-capable" content="yes">
   
   <!-- Tailwind CSS CDN con configuración de tema -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -748,36 +759,82 @@
     <main class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full min-w-0">
 
       <!-- BARRA DE CONTEXTO: CRIS > SUBPROYECTO ESTUDIOS -->
-      <div id="study-filter-bar" class="mb-6 bg-white dark:bg-slate-800 border border-purple-200/80 dark:border-purple-900/50 rounded-2xl p-3 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
-        <div class="flex items-center gap-3">
-          <a href="#cris-hub" onclick="window.crisHub && window.crisHub.navigateToHub(); return false;" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 dark:bg-purple-950/60 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-xs font-black transition group cursor-pointer border border-purple-200/60 dark:border-purple-800/40">
-            <i data-lucide="arrow-left" class="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5"></i>
-            <span>Dashboard CRIS</span>
-          </a>
-          <div>
-            <div class="flex items-center gap-1.5">
-              <span class="text-[10px] font-bold text-slate-400">CRIS /</span>
-              <span class="text-xs font-black text-purple-700 dark:text-purple-300 uppercase tracking-wider">Subproyecto: Estudios</span>
+      <div id="study-filter-bar" class="mb-6 bg-white dark:bg-slate-800 border border-purple-200/80 dark:border-purple-900/50 rounded-2xl p-3 flex flex-col gap-3 shadow-xs">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div class="flex items-center gap-3 w-full sm:w-auto">
+            <a href="#cris-hub" onclick="window.crisHub && window.crisHub.navigateToHub(); return false;" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 dark:bg-purple-950/60 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-xs font-black transition group cursor-pointer border border-purple-200/60 dark:border-purple-800/40">
+              <i data-lucide="arrow-left" class="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5"></i>
+              <span>Dashboard CRIS</span>
+            </a>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[10px] font-bold text-slate-400">CRIS /</span>
+                <span class="text-xs font-black text-purple-700 dark:text-purple-300 uppercase tracking-wider">Estudios</span>
+              </div>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">FP Marketing y Publicidad + Grado ADE (UNED)</p>
             </div>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">FP Marketing y Publicidad + Grado ADE (UNED)</p>
+          </div>
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+            <span class="text-[10px] font-bold text-slate-400 uppercase hidden md:inline">Titulación:</span>
+            <div class="grid grid-cols-3 gap-1.5 w-full sm:w-auto text-xs font-bold bg-slate-100 dark:bg-slate-700/50 p-1 rounded-xl">
+              <button data-study-filter="all" class="px-4 py-2 rounded-lg transition text-center flex items-center justify-center gap-1.5 bg-purple-600 text-white shadow-xs">
+                <i data-lucide="globe" class="w-3.5 h-3.5"></i>
+                <span>Todo</span>
+              </button>
+              <button data-study-filter="ade" class="px-4 py-2 rounded-lg transition text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-600 text-center flex items-center justify-center gap-1.5">
+                <i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i>
+                <span>ADE</span>
+              </button>
+              <button data-study-filter="marketing" class="px-4 py-2 rounded-lg transition text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-600 text-center flex items-center justify-center gap-1.5">
+                <i data-lucide="award" class="w-3.5 h-3.5"></i>
+                <span>Mkt FP</span>
+              </button>
+            </div>
           </div>
         </div>
-        <div class="flex items-center gap-2 w-full sm:w-auto">
-          <span class="text-[10px] font-bold text-slate-400 uppercase hidden md:inline">Titulación:</span>
-          <div class="grid grid-cols-3 gap-1.5 w-full sm:w-auto text-xs font-bold bg-slate-100 dark:bg-slate-700/50 p-1 rounded-xl">
-            <button data-study-filter="all" class="px-4 py-2 rounded-lg transition text-center flex items-center justify-center gap-1.5 bg-purple-600 text-white shadow-xs">
-              <i data-lucide="globe" class="w-3.5 h-3.5"></i>
-              <span>Todo</span>
-            </button>
-            <button data-study-filter="ade" class="px-4 py-2 rounded-lg transition text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-600 text-center flex items-center justify-center gap-1.5">
-              <i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i>
-              <span>ADE</span>
-            </button>
-            <button data-study-filter="marketing" class="px-4 py-2 rounded-lg transition text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-600 text-center flex items-center justify-center gap-1.5">
-              <i data-lucide="award" class="w-3.5 h-3.5"></i>
-              <span>Mkt FP</span>
-            </button>
-          </div>
+
+        <!-- SUBMENÚ HORIZONTAL MÓVIL PARA SECCIONES DE ESTUDIOS -->
+        <div id="study-mobile-subnav-container" class="md:hidden pt-2 border-t border-slate-100 dark:border-slate-700/60 overflow-x-auto flex items-center gap-1.5 scrollbar-none py-1 -mx-1 px-1" style="-webkit-overflow-scrolling: touch;">
+          <button type="button" data-nav-target="dashboard" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-purple-600 text-white shadow-xs">
+            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+            <span>Resumen</span>
+          </button>
+          <button type="button" data-nav-target="subjects" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+            <span>Asignaturas</span>
+          </button>
+          <button type="button" data-nav-target="schedule" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+            <span>Horario</span>
+          </button>
+          <button type="button" data-nav-target="calendar" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+            <span>Calendario</span>
+          </button>
+          <button type="button" data-nav-target="tasks" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            <i data-lucide="check-square" class="w-3.5 h-3.5"></i>
+            <span>Tareas</span>
+          </button>
+          <button type="button" data-nav-target="pomodoro" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            <i data-lucide="timer" class="w-3.5 h-3.5"></i>
+            <span>Pomodoro</span>
+          </button>
+          <button type="button" data-nav-target="notes" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+            <span>Apuntes</span>
+          </button>
+          <button type="button" data-nav-target="curriculum" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            <i data-lucide="network" class="w-3.5 h-3.5"></i>
+            <span>Plan</span>
+          </button>
+          <button type="button" data-nav-target="tfg" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hidden">
+            <i data-lucide="briefcase" class="w-3.5 h-3.5"></i>
+            <span>TFG</span>
+          </button>
+          <button type="button" data-nav-target="mkt-grades" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hidden">
+            <i data-lucide="award" class="w-3.5 h-3.5"></i>
+            <span>Notas Mkt</span>
+          </button>
         </div>
       </div>
 
@@ -2475,24 +2532,51 @@
     </div>
   </div>
 
+  <!-- BARRA DE NAVEGACIÓN INFERIOR MÓVIL (Solo visible en pantallas pequeñas) -->
+  <nav id="cris-mobile-nav" class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-xl border-t border-slate-700/80 shadow-[0_-4px_20px_rgba(0,0,0,0.3)]" style="padding-bottom: env(safe-area-inset-bottom, 0px);">
+    <div class="flex items-stretch justify-around px-1 h-14">
+      <button type="button" data-mobile-nav="cris-hub" class="cris-mob-tab flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-slate-400 transition-colors active:scale-95" aria-label="Inicio">
+        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+        <span class="text-[9px] font-bold leading-none">Inicio</span>
+      </button>
+      <button type="button" data-mobile-nav="dashboard" class="cris-mob-tab flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-slate-400 transition-colors active:scale-95" aria-label="Estudios">
+        <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+        <span class="text-[9px] font-bold leading-none">Estudios</span>
+      </button>
+      <button type="button" data-mobile-nav="checklist" class="cris-mob-tab flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-slate-400 transition-colors active:scale-95" aria-label="Hábitos">
+        <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+        <span class="text-[9px] font-bold leading-none">Hábitos</span>
+      </button>
+      <button type="button" data-mobile-nav="economia" class="cris-mob-tab flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-slate-400 transition-colors active:scale-95" aria-label="Economía">
+        <i data-lucide="wallet" class="w-5 h-5"></i>
+        <span class="text-[9px] font-bold leading-none">Economía</span>
+      </button>
+      <button type="button" data-mobile-nav="menus" class="cris-mob-tab flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-slate-400 transition-colors active:scale-95" aria-label="Menús">
+        <i data-lucide="utensils" class="w-5 h-5"></i>
+        <span class="text-[9px] font-bold leading-none">Menús</span>
+      </button>
+    </div>
+  </nav>
+
   <!-- Scripts de la Aplicación -->
-  <script src="js/store.js?v=40"></script>
-  <script src="js/subjects.js?v=40"></script>
-  <script src="js/curriculum.js?v=40"></script>
-  <script src="js/schedule.js?v=40"></script>
-  <script src="js/tfg.js?v=40"></script>
-  <script src="js/mkt-grades.js?v=40"></script>
-  <script src="js/calendar.js?v=40"></script>
-  <script src="js/tasks.js?v=40"></script>
-  <script src="js/pomodoro.js?v=40"></script>
-  <script src="js/notes.js?v=40"></script>
-  <script src="js/stats.js?v=40"></script>
-  <script src="js/checklist.js?v=40"></script>
-  <script src="js/economia.js?v=40"></script>
-  <script src="js/menus.js?v=40"></script>
-  <script src="js/cris-hub.js?v=40"></script>
-  <script src="js/auth.js?v=41"></script>
-  <script src="js/supabase.js?v=41"></script>
-  <script src="js/app.js?v=41"></script>
+  <script src="js/store.js?v=43"></script>
+  <script src="js/subjects.js?v=43"></script>
+  <script src="js/curriculum.js?v=43"></script>
+  <script src="js/schedule.js?v=43"></script>
+  <script src="js/tfg.js?v=43"></script>
+  <script src="js/mkt-grades.js?v=43"></script>
+  <script src="js/calendar.js?v=43"></script>
+  <script src="js/tasks.js?v=43"></script>
+  <script src="js/pomodoro.js?v=43"></script>
+  <script src="js/notes.js?v=43"></script>
+  <script src="js/stats.js?v=43"></script>
+  <script src="js/checklist.js?v=43"></script>
+  <script src="js/economia.js?v=43"></script>
+  <script src="js/menus.js?v=43"></script>
+  <script src="js/cris-hub.js?v=43"></script>
+  <script src="js/auth.js?v=43"></script>
+  <script src="js/supabase.js?v=43"></script>
+  <script src="js/app.js?v=43"></script>
 </body>
 </html>
+

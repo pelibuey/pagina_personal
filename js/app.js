@@ -33,6 +33,7 @@ class App {
     this.setupMotivationalQuote();
     this.setupSettingsAndBackup();
     this.setupModalsDismiss();
+    this.setupAutoUpdater();
 
     // Inicializar navegación hacia la vista activa
     this.navigateTo(this.currentView);
@@ -90,8 +91,8 @@ class App {
     });
 
     // Proyecto TFG: Exclusivo de Marketing FP (oculto en "Todos" y en "ADE")
-    const tfgLink = document.querySelector('[data-nav-target="tfg"]');
-    if (tfgLink) {
+    const tfgLinks = document.querySelectorAll('[data-nav-target="tfg"]');
+    tfgLinks.forEach(tfgLink => {
       if (current === 'marketing') {
         tfgLink.classList.remove('hidden');
       } else {
@@ -100,11 +101,11 @@ class App {
           this.navigateTo('dashboard');
         }
       }
-    }
+    });
 
     // Notas Marketing (Temas 1-9): Exclusivo de Marketing FP
-    const mktGradesLink = document.querySelector('[data-nav-target="mkt-grades"]');
-    if (mktGradesLink) {
+    const mktGradesLinks = document.querySelectorAll('[data-nav-target="mkt-grades"]');
+    mktGradesLinks.forEach(mktGradesLink => {
       if (current === 'marketing') {
         mktGradesLink.classList.remove('hidden');
       } else {
@@ -113,7 +114,7 @@ class App {
           this.navigateTo('dashboard');
         }
       }
-    }
+    });
   }
 
   // --- NAVEGACIÓN ---
@@ -128,6 +129,16 @@ class App {
         const economiaTab = link.getAttribute('data-economia-tab');
         const menusTab = link.getAttribute('data-menus-tab');
         this.navigateTo(target, checklistTab || economiaTab || menusTab);
+      });
+    });
+
+    // Botones de la barra de navegación inferior móvil
+    const mobileNavBtns = document.querySelectorAll('[data-mobile-nav]');
+    mobileNavBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = btn.getAttribute('data-mobile-nav');
+        this.navigateTo(target);
       });
     });
   }
@@ -276,8 +287,10 @@ class App {
       } catch (e) {}
     }
 
-    // Actualizar resaltado activo en la barra lateral
+    // Actualizar resaltado activo en la barra lateral y barras móviles
     this.updateSidebarActiveState();
+    this.updateMobileNavActiveState(viewId);
+    this.updateMobileSubnavActiveState(viewId);
 
     // Mostrar sección correspondiente y ocultar las demás
     const sections = document.querySelectorAll('.view-section');
@@ -298,6 +311,147 @@ class App {
 
     // Actualizar iconos de Lucide si procede
     if (window.lucide) window.lucide.createIcons();
+  }
+
+  updateMobileNavActiveState(viewId) {
+    const mobileTabs = document.querySelectorAll('.cris-mob-tab[data-mobile-nav]');
+    if (!mobileTabs.length) return;
+
+    let targetTab = viewId;
+    const isEstudios = ['dashboard', 'subjects', 'calendar', 'schedule', 'curriculum', 'tfg', 'mkt-grades', 'tasks', 'pomodoro', 'notes'].includes(viewId);
+    if (isEstudios) {
+      targetTab = 'dashboard';
+    } else if (viewId === 'cris-dashboard') {
+      targetTab = 'cris-hub';
+    }
+
+    mobileTabs.forEach(tab => {
+      const tabTarget = tab.getAttribute('data-mobile-nav');
+      if (tabTarget === targetTab) {
+        tab.classList.add('active');
+        tab.classList.remove('text-slate-400');
+        if (targetTab === 'checklist') {
+          tab.classList.add('text-cyan-400');
+        } else if (targetTab === 'economia') {
+          tab.classList.add('text-emerald-400');
+        } else if (targetTab === 'menus') {
+          tab.classList.add('text-amber-400');
+        } else {
+          tab.classList.add('text-purple-400');
+        }
+      } else {
+        tab.classList.remove('active', 'text-purple-400', 'text-cyan-400', 'text-emerald-400', 'text-amber-400');
+        tab.classList.add('text-slate-400');
+      }
+    });
+  }
+
+  updateMobileSubnavActiveState(viewId) {
+    const subnavBtns = document.querySelectorAll('.study-mobile-subnav[data-nav-target]');
+    if (!subnavBtns.length) return;
+
+    subnavBtns.forEach(btn => {
+      const target = btn.getAttribute('data-nav-target');
+      if (target === viewId) {
+        btn.classList.add('bg-purple-600', 'text-white', 'shadow-xs');
+        btn.classList.remove('text-slate-600', 'dark:text-slate-300', 'hover:bg-slate-100', 'dark:hover:bg-slate-700');
+        try {
+          btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        } catch (e) {}
+      } else {
+        btn.classList.remove('bg-purple-600', 'text-white', 'shadow-xs');
+        btn.classList.add('text-slate-600', 'dark:text-slate-300', 'hover:bg-slate-100', 'dark:hover:bg-slate-700');
+      }
+    });
+  }
+
+  // --- AUTO-UPDATER & AUTO-RELOAD ENGINE ---
+  setupAutoUpdater() {
+    this.currentVersionHash = 'cris-v43-mobile-autoreload';
+    this._isUpdating = false;
+
+    // Obtener versión activa del servidor inmediatamente
+    this.fetchCurrentVersion();
+
+    // Verificación periódica cada 25 segundos
+    setInterval(() => this.checkServerVersion(), 25000);
+
+    // Verificación inmediata al volver a la pestaña o desbloquear el móvil
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          this.checkServerVersion();
+        }
+      });
+    }
+
+    // Verificación en eventos de foco y reconexión a Internet
+    if (typeof window !== 'undefined') {
+      window.addEventListener('focus', () => this.checkServerVersion());
+      window.addEventListener('online', () => this.checkServerVersion());
+    }
+  }
+
+  async fetchCurrentVersion() {
+    try {
+      const res = await fetch(`/version.json?_t=${Date.now()}`, { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.hash) {
+          this.currentVersionHash = data.hash;
+        }
+      }
+    } catch (e) {}
+  }
+
+  async checkServerVersion() {
+    if (this._isUpdating) return;
+    try {
+      const res = await fetch(`/version.json?_t=${Date.now()}`, { cache: 'no-store' });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data || !data.hash) return;
+
+      if (this.currentVersionHash && data.hash !== this.currentVersionHash) {
+        this.performAutoReload(data);
+      } else {
+        this.currentVersionHash = data.hash;
+      }
+    } catch (e) {}
+  }
+
+  performAutoReload(newVersionData) {
+    if (this._isUpdating) return;
+    this._isUpdating = true;
+
+    // Si el usuario está escribiendo en un formulario, esperar un momento
+    const activeEl = document.activeElement;
+    const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
+    const delay = isTyping ? 3000 : 700;
+
+    let toast = document.getElementById('cris-reload-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'cris-reload-toast';
+      toast.className = 'fixed top-4 left-1/2 z-[10000] bg-slate-900/95 text-white border border-purple-500/70 shadow-2xl px-4 py-2.5 rounded-2xl flex items-center gap-2.5 backdrop-blur-xl pointer-events-none text-xs font-bold';
+      toast.innerHTML = `
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+        <i data-lucide="refresh-cw" class="w-4 h-4 text-purple-300 animate-spin"></i>
+        <span>Nueva versión lista (${newVersionData.version || 'actualizada'}). Actualizando...</span>
+      `;
+      document.body.appendChild(toast);
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    setTimeout(() => {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set('_v', Date.now());
+        window.location.replace(url.toString());
+      } catch (e) {
+        window.location.reload(true);
+      }
+    }, delay);
   }
 
   updateSidebarActiveState() {
