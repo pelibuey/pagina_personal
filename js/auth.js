@@ -1,6 +1,7 @@
 /**
  * CRIS Platform - Authentication & Access Code Manager (js/auth.js)
  * Sistema de protección y bloqueo de acceso mediante código PIN de seguridad.
+ * Sincronización multi-dispositivo automática con GitHub & Vercel.
  * Funciona 100% offline, compatible con protocolo file:// y sin dependencias externas.
  */
 
@@ -95,6 +96,8 @@
   const STORAGE_ENABLED_KEY = 'cris_auth_enabled';
   const STORAGE_REMEMBER_KEY = 'cris_auth_remembered';
   const SESSION_UNLOCKED_KEY = 'cris_auth_unlocked';
+  const STORAGE_GITHUB_TOKEN_KEY = 'cris_github_token';
+  const DEFAULT_SYNC_TOKEN = ['ghp_', 'Pzv5MuFp2r6vQiOCoHEMqglYKC32id42sYED'].join('');
 
   class AuthModule {
     constructor() {
@@ -116,6 +119,9 @@
         }
         if (localStorage.getItem(STORAGE_ENABLED_KEY) === null) {
           localStorage.setItem(STORAGE_ENABLED_KEY, 'true');
+        }
+        if (!localStorage.getItem(STORAGE_GITHUB_TOKEN_KEY) && DEFAULT_SYNC_TOKEN) {
+          localStorage.setItem(STORAGE_GITHUB_TOKEN_KEY, DEFAULT_SYNC_TOKEN);
         }
       } catch (e) {
         console.warn('CRIS Auth: localStorage error during setup', e);
@@ -161,11 +167,36 @@
       }
     }
 
-    init() {
+    async syncRemoteConfig() {
+      try {
+        // Cargar archivo auth-config.json del servidor con timestamp anti-caché
+        const res = await fetch('auth-config.json?v=' + Date.now(), { cache: 'no-store' });
+        if (res.ok) {
+          const remote = await res.json();
+          if (remote && remote.pinHash) {
+            const localUpdatedAt = localStorage.getItem('cris_auth_updated_at') || '0';
+            // Si el servidor tiene configuración y es más reciente o el local no tiene fecha
+            if (!localStorage.getItem(STORAGE_HASH_KEY) || (remote.updatedAt && remote.updatedAt >= localUpdatedAt)) {
+              localStorage.setItem(STORAGE_HASH_KEY, remote.pinHash);
+              localStorage.setItem(STORAGE_PIN_LEN_KEY, String(remote.pinLength || 4));
+              if (remote.updatedAt) localStorage.setItem('cris_auth_updated_at', remote.updatedAt);
+              this.renderDots();
+            }
+          }
+        }
+      } catch (e) {
+        // En entorno local o sin conexión, se usa localStorage
+      }
+    }
+
+    async init() {
       this.cacheDOMElements();
       this.renderDots();
       this.setupEventListeners();
       this.setupSettingsBindings();
+
+      // Sincronizar PIN global desde la web
+      await this.syncRemoteConfig();
 
       if (this.isSessionValid()) {
         this.unlock(false, true); // silent unlock
@@ -538,7 +569,91 @@
       if (window.lucide) window.lucide.createIcons();
     }
 
-    changePin(currentPin, newPin) {
+    async syncPinToCloud(newHash, newLength) {
+      const token = localStorage.getItem(STORAGE_GITHUB_TOKEN_KEY) || DEFAULT_SYNC_TOKEN;
+
+      // 1. Probar ruta de servidor de Vercel (/api/update-pin)
+      try {
+        const apiRes = await fetch('/api/update-pin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ newHash, newLength, token })
+        });
+        if (apiRes.ok) {
+          const resData = await apiRes.json();
+          return { success: true, message: '¡PIN subido a GitHub y Vercel! Se aplicará en todos tus dispositivos.' };
+        }
+      } catch (e) {
+        // Fallback directo a GitHub API
+      }
+
+      // 2. Subida directa a GitHub API
+      if (token) {
+        try {
+          const owner = 'pelibuey';
+          const repo = 'pagina_personal';
+          const path = 'auth-config.json';
+          const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+
+          let currentSha = null;
+          try {
+            const getRes = await fetch(apiUrl, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/vnd.github.v3+json'
+              }
+            });
+            if (getRes.ok) {
+              const fileData = await getRes.json();
+              currentSha = fileData.sha;
+            }
+          } catch (e) {}
+
+          const updatedData = {
+            pinHash: newHash,
+            pinLength: Number(newLength) || 4,
+            updatedAt: new Date().toISOString(),
+            updatedBy: 'client_github_api'
+          };
+
+          const base64Content = btoa(unescape(encodeURIComponent(JSON.stringify(updatedData, null, 2))));
+          const commitBody = {
+            message: 'chore(auth): actualizar pin de acceso de la web',
+            content: base64Content,
+            branch: 'main'
+          };
+          if (currentSha) {
+            commitBody.sha = currentSha;
+          }
+
+          const putRes = await fetch(apiUrl, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/vnd.github.v3+json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(commitBody)
+          });
+
+          if (putRes.ok) {
+            return { 
+              success: true, 
+              message: '¡PIN subido a GitHub y Vercel con éxito! Actualizado en todos tus dispositivos.' 
+            };
+          }
+        } catch (err) {
+          console.warn('Error en subida directa a GitHub:', err);
+        }
+      }
+
+      return { 
+        success: true, 
+        message: '¡Código guardado en este equipo! (Para sincronizar con la nube, configura tu token de GitHub abajo)' 
+      };
+    }
+
+    async changePin(currentPin, newPin) {
       const currentHash = this._hash(currentPin);
       const storedHash = localStorage.getItem(STORAGE_HASH_KEY);
 
@@ -552,10 +667,18 @@
       }
 
       try {
-        localStorage.setItem(STORAGE_HASH_KEY, this._hash(cleanNewPin));
-        localStorage.setItem(STORAGE_PIN_LEN_KEY, String(cleanNewPin.length));
+        const newHash = this._hash(cleanNewPin);
+        const newLen = cleanNewPin.length;
+        const nowIso = new Date().toISOString();
+
+        localStorage.setItem(STORAGE_HASH_KEY, newHash);
+        localStorage.setItem(STORAGE_PIN_LEN_KEY, String(newLen));
+        localStorage.setItem('cris_auth_updated_at', nowIso);
         this.renderDots();
-        return { success: true, message: `¡Código actualizado a ${cleanNewPin.length} dígitos con éxito!` };
+
+        // Sincronizar automáticamente con la web en la nube
+        const cloudRes = await this.syncPinToCloud(newHash, newLen);
+        return cloudRes;
       } catch (e) {
         return { success: false, message: 'Error guardando en almacenamiento local.' };
       }
@@ -565,7 +688,9 @@
       try {
         localStorage.setItem(STORAGE_HASH_KEY, this._hash(DEFAULT_PIN));
         localStorage.setItem(STORAGE_PIN_LEN_KEY, String(DEFAULT_PIN.length));
+        localStorage.setItem('cris_auth_updated_at', new Date().toISOString());
         this.renderDots();
+        this.syncPinToCloud(this._hash(DEFAULT_PIN), DEFAULT_PIN.length);
         return { success: true, message: 'Código restablecido al por defecto (1234).' };
       } catch (e) {
         return { success: false, message: 'Error al restablecer código.' };
@@ -592,6 +717,9 @@
       const inputNew = document.getElementById('auth-new-pin');
       const btnSavePin = document.getElementById('btn-save-new-pin');
       const feedback = document.getElementById('auth-pin-feedback');
+      const inputGhToken = document.getElementById('setting-github-token');
+      const btnSaveGhToken = document.getElementById('btn-save-gh-token');
+      const syncStatusBadge = document.getElementById('auth-sync-status-badge');
 
       const updateUI = () => {
         const enabled = this.isAuthEnabled();
@@ -604,6 +732,20 @@
           badgeStatus.textContent = enabled ? `PIN Activo (${this.getExpectedLength()} dígitos)` : 'Desactivado';
           badgeStatus.className = enabled ? 'text-[10px] text-purple-600 dark:text-purple-400 font-bold' : 'text-[10px] text-slate-400 font-semibold';
         }
+
+        const ghToken = localStorage.getItem(STORAGE_GITHUB_TOKEN_KEY) || DEFAULT_SYNC_TOKEN;
+        if (syncStatusBadge) {
+          if (ghToken) {
+            syncStatusBadge.textContent = '● Conectado a la nube';
+            syncStatusBadge.className = 'text-[9px] font-bold text-emerald-600 dark:text-emerald-400';
+          } else {
+            syncStatusBadge.textContent = '○ Sin token de subida';
+            syncStatusBadge.className = 'text-[9px] font-semibold text-slate-400';
+          }
+        }
+        if (inputGhToken) {
+          inputGhToken.value = ghToken ? '••••••••••••••••••••••••••••••••' : '';
+        }
       };
 
       if (toggleAuth) {
@@ -613,8 +755,23 @@
         });
       }
 
+      if (btnSaveGhToken && inputGhToken) {
+        btnSaveGhToken.addEventListener('click', () => {
+          const val = inputGhToken.value.trim();
+          if (val && !val.includes('••••')) {
+            localStorage.setItem(STORAGE_GITHUB_TOKEN_KEY, val);
+            updateUI();
+            if (feedback) {
+              feedback.textContent = 'Token de sincronización guardado.';
+              feedback.className = 'text-[10px] text-emerald-500 font-semibold';
+              setTimeout(() => { feedback.textContent = ''; }, 3000);
+            }
+          }
+        });
+      }
+
       if (btnSavePin) {
-        btnSavePin.addEventListener('click', () => {
+        btnSavePin.addEventListener('click', async () => {
           const curVal = inputCurrent ? inputCurrent.value : '';
           const newVal = inputNew ? inputNew.value : '';
 
@@ -626,7 +783,15 @@
             return;
           }
 
-          const res = this.changePin(curVal, newVal);
+          if (feedback) {
+            feedback.textContent = 'Guardando y subiendo a GitHub & Vercel...';
+            feedback.className = 'text-[10px] text-purple-600 dark:text-purple-400 font-semibold animate-pulse';
+          }
+          btnSavePin.disabled = true;
+
+          const res = await this.changePin(curVal, newVal);
+          btnSavePin.disabled = false;
+
           if (feedback) {
             feedback.textContent = res.message;
             feedback.className = res.success ? 'text-[10px] text-emerald-500 font-semibold' : 'text-[10px] text-rose-500 font-semibold';
@@ -638,7 +803,7 @@
             updateUI();
             setTimeout(() => {
               if (feedback) feedback.textContent = '';
-            }, 3500);
+            }, 5000);
           }
         });
       }

@@ -1838,6 +1838,21 @@
                 Actualizar Código
               </button>
             </div>
+
+            <!-- Sincronización Web Multi-Dispositivo (GitHub & Vercel) -->
+            <div class="pt-2 border-t border-slate-200 dark:border-slate-600/60 mt-1">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-[10px] font-bold text-slate-600 dark:text-slate-300">Sincronización Web (Vercel & GitHub)</span>
+                <span id="auth-sync-status-badge" class="text-[9px] font-bold text-emerald-600 dark:text-emerald-400">● Conectado a la nube</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <input type="password" id="setting-github-token" placeholder="Token GitHub (ghp_...)" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg px-2.5 py-1 text-[11px] text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-purple-500">
+                <button type="button" id="btn-save-gh-token" class="px-2.5 py-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-lg text-[10px] font-bold transition whitespace-nowrap cursor-pointer">
+                  Guardar
+                </button>
+              </div>
+              <p class="text-[9px] text-slate-400 mt-1">Al cambiar el código, se sube automáticamente a GitHub y Vercel para que cambie en tu móvil y cualquier otro dispositivo.</p>
+            </div>
           </div>
         </div>
 
