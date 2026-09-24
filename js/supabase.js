@@ -186,13 +186,23 @@
         }
       }
 
-      // 6. Código PIN de Seguridad
+      // 6. Código PIN de Seguridad y 2FA
       else if (key === 'auth_pin') {
         if (incomingData && incomingData.pinHash) {
           localStorage.setItem('cris_auth_pin_hash', incomingData.pinHash);
           localStorage.setItem('cris_auth_pin_len', String(incomingData.pinLength || 4));
-          if (window.authModule && typeof window.authModule.renderDots === 'function') {
-            window.authModule.renderDots();
+          if (incomingData.twoFactor) {
+            localStorage.setItem('cris_auth_2fa_enabled', incomingData.twoFactor.enabled ? 'true' : 'false');
+            if (incomingData.twoFactor.secret) {
+              localStorage.setItem('cris_auth_2fa_secret', incomingData.twoFactor.secret);
+            }
+            if (incomingData.twoFactor.recovery) {
+              localStorage.setItem('cris_auth_2fa_recovery', incomingData.twoFactor.recovery);
+            }
+          }
+          if (window.authModule) {
+            if (typeof window.authModule.renderDots === 'function') window.authModule.renderDots();
+            if (typeof window.authModule.setupSettingsBindings === 'function') window.authModule.setupSettingsBindings();
           }
         }
       }
@@ -286,13 +296,14 @@
         window.crisHub._supabaseHooked = true;
       }
 
-      // 6. Hook para authModule (PIN)
+      // 6. Hook para authModule (PIN & 2FA)
       if (window.authModule && !window.authModule._supabaseHooked) {
         const origSync = window.authModule.syncPinToCloud ? window.authModule.syncPinToCloud.bind(window.authModule) : null;
         if (origSync) {
-          window.authModule.syncPinToCloud = async (hash, len) => {
-            this.pushState('auth_pin', { pinHash: hash, pinLength: len });
-            return await origSync(hash, len);
+          window.authModule.syncPinToCloud = async (hash, len, twoFactorData) => {
+            const tf = twoFactorData || (window.authModule.get2FAConfig ? window.authModule.get2FAConfig() : null);
+            this.pushState('auth_pin', { pinHash: hash, pinLength: len, twoFactor: tf });
+            return await origSync(hash, len, tf);
           };
         }
         window.authModule._supabaseHooked = true;
@@ -313,6 +324,7 @@
         const notesData = localStorage.getItem('cris_quick_notes');
         const pinHash = localStorage.getItem('cris_auth_pin_hash');
         const pinLen = localStorage.getItem('cris_auth_pin_len');
+        const twoFactorConfig = window.authModule && window.authModule.get2FAConfig ? window.authModule.get2FAConfig() : null;
 
         const rows = [];
         if (studyData) {
@@ -331,7 +343,7 @@
           rows.push({ key: 'cris_quick_notes', data: { text: notesData } });
         }
         if (pinHash) {
-          rows.push({ key: 'auth_pin', data: { pinHash, pinLength: Number(pinLen) || 4 } });
+          rows.push({ key: 'auth_pin', data: { pinHash, pinLength: Number(pinLen) || 4, twoFactor: twoFactorConfig } });
         }
 
         if (rows.length === 0) {

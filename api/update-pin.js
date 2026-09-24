@@ -23,7 +23,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { newHash, newLength, token: clientToken } = req.body || {};
+    const { newHash, newLength, twoFactor, token: clientToken } = req.body || {};
 
     if (!newHash || typeof newHash !== 'string') {
       return res.status(400).json({ error: 'El parámetro newHash es requerido.' });
@@ -43,6 +43,7 @@ export default async function handler(req, res) {
 
     // 1. Obtener el sha actual del archivo en GitHub
     let currentSha = null;
+    let existingData = {};
     try {
       const getRes = await fetch(apiUrl, {
         headers: {
@@ -54,6 +55,11 @@ export default async function handler(req, res) {
       if (getRes.ok) {
         const fileData = await getRes.json();
         currentSha = fileData.sha;
+        if (fileData.content) {
+          try {
+            existingData = JSON.parse(Buffer.from(fileData.content, 'base64').toString('utf-8'));
+          } catch(e){}
+        }
       }
     } catch (e) {
       console.warn('No se pudo obtener SHA previo:', e);
@@ -63,6 +69,7 @@ export default async function handler(req, res) {
     const updatedData = {
       pinHash: newHash,
       pinLength: Number(newLength) || 4,
+      twoFactor: twoFactor !== undefined ? twoFactor : (existingData.twoFactor || { enabled: false }),
       updatedAt: new Date().toISOString(),
       updatedBy: 'vercel_api'
     };
