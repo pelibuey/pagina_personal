@@ -69,6 +69,9 @@
   <!-- Canvas Confetti CDN -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
+  <!-- Supabase JS Client v2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <!-- Funciones Inmediatas de Desplegables y Colapsables (Garantía Failsafe) -->
   <script>
     window.toggleSubproject = function(subprojectId, forceState) {
@@ -1774,7 +1777,7 @@
 
   <!-- Modal: Ajustes -->
   <div id="modal-settings" class="modal-backdrop fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 dark:border-slate-700">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
       <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">Configuración de CRIS</h3>
       <form id="form-settings" class="space-y-4">
         <div>
@@ -1852,6 +1855,40 @@
                 </button>
               </div>
               <p class="text-[9px] text-slate-400 mt-1">Al cambiar el código, se sube automáticamente a GitHub y Vercel para que cambie en tu móvil y cualquier otro dispositivo.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONEXIÓN SUPABASE & TELEGRAM BOT (EN TIEMPO REAL) -->
+        <div class="border-t border-slate-100 dark:border-slate-700 pt-3 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <i data-lucide="database" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
+              <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Supabase Cloud & Telegram AI</span>
+            </div>
+            <span id="supabase-sync-badge" class="text-[9px] font-semibold text-slate-400">○ Supabase no configurado</span>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-tight">Sincroniza tus estudios, tareas, exámenes, hábitos, gastos y menús en tiempo real en la nube y consúltalo por Telegram mediante la IA de Gemini Flash.</p>
+
+          <div class="bg-emerald-50/50 dark:bg-emerald-950/20 p-3 rounded-xl border border-emerald-200/60 dark:border-emerald-800/40 space-y-2">
+            <div>
+              <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5">Project URL de Supabase</label>
+              <input type="text" id="setting-supabase-url" placeholder="https://xxxxxxxx.supabase.co" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono text-[11px]">
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-0.5">Anon Key (Public API Key)</label>
+              <input type="password" id="setting-supabase-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono text-[11px]">
+            </div>
+            <div class="flex items-center justify-between pt-1">
+              <span id="supabase-feedback" class="text-[10px] font-medium"></span>
+              <div class="flex items-center gap-1.5">
+                <button type="button" id="btn-upload-local-supabase" class="px-2.5 py-1 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 rounded-lg text-[10px] font-bold transition whitespace-nowrap cursor-pointer shadow-xs" title="Sube todos tus datos guardados en este navegador a Supabase">
+                  Subir mis datos actuales
+                </button>
+                <button type="button" id="btn-save-supabase" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-xs transition active:scale-95 cursor-pointer whitespace-nowrap">
+                  Guardar Conexión
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -2254,22 +2291,23 @@
   </div>
 
   <!-- Scripts de la Aplicación -->
-  <script src="js/store.js?v=39"></script>
-  <script src="js/subjects.js?v=39"></script>
-  <script src="js/curriculum.js?v=39"></script>
-  <script src="js/schedule.js?v=39"></script>
-  <script src="js/tfg.js?v=39"></script>
-  <script src="js/mkt-grades.js?v=39"></script>
-  <script src="js/calendar.js?v=39"></script>
-  <script src="js/tasks.js?v=39"></script>
-  <script src="js/pomodoro.js?v=39"></script>
-  <script src="js/notes.js?v=39"></script>
-  <script src="js/stats.js?v=39"></script>
-  <script src="js/checklist.js?v=39"></script>
-  <script src="js/economia.js?v=39"></script>
-  <script src="js/menus.js?v=39"></script>
-  <script src="js/cris-hub.js?v=39"></script>
-  <script src="js/auth.js?v=39"></script>
-  <script src="js/app.js?v=39"></script>
+  <script src="js/store.js?v=40"></script>
+  <script src="js/subjects.js?v=40"></script>
+  <script src="js/curriculum.js?v=40"></script>
+  <script src="js/schedule.js?v=40"></script>
+  <script src="js/tfg.js?v=40"></script>
+  <script src="js/mkt-grades.js?v=40"></script>
+  <script src="js/calendar.js?v=40"></script>
+  <script src="js/tasks.js?v=40"></script>
+  <script src="js/pomodoro.js?v=40"></script>
+  <script src="js/notes.js?v=40"></script>
+  <script src="js/stats.js?v=40"></script>
+  <script src="js/checklist.js?v=40"></script>
+  <script src="js/economia.js?v=40"></script>
+  <script src="js/menus.js?v=40"></script>
+  <script src="js/cris-hub.js?v=40"></script>
+  <script src="js/auth.js?v=40"></script>
+  <script src="js/supabase.js?v=40"></script>
+  <script src="js/app.js?v=40"></script>
 </body>
 </html>
