@@ -1,0 +1,138 @@
+/* StudyFlow - Custom Styles & Polishing (Tema Morado) */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --primary-purple: #9333ea;
+  --primary-purple-dark: #7e22ce;
+  --primary-purple-light: #f3e8ff;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  accent-color: var(--primary-purple);
+}
+
+::selection {
+  background-color: #a855f7;
+  color: #ffffff;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(168, 85, 247, 0.35);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(147, 51, 234, 0.65);
+}
+
+/* Glassmorphism subtle effects */
+.glass-panel {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Pulse animation for urgent exams */
+@keyframes softPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.02); }
+}
+
+.pulse-urgent {
+  animation: softPulse 2.5s infinite ease-in-out;
+}
+
+/* Pomodoro timer styling */
+.pomodoro-ring {
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+/* Fade in for views */
+.view-section {
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Shake animation for incorrect password/PIN */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* CRIS - Inicio de Sesión con Código (Lock Screen) */
+html.cris-unlocked #cris-auth-screen {
+  display: none !important;
+}
+
+.cris-pin-dot {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 9999px;
+  border: 2px solid #475569;
+  background-color: rgba(30, 41, 59, 0.8);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cris-pin-dot.filled {
+  border-color: #a855f7 !important;
+  background-color: #9333ea !important;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.6) !important;
+  transform: scale(1.15) !important;
+}
+
+.cris-pin-dot.success {
+  border-color: #10b981 !important;
+  background-color: #10b981 !important;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.7) !important;
+  transform: scale(1.2) !important;
+}
+
+.cris-pin-dot.error {
+  border-color: #f43f5e !important;
+  background-color: #f43f5e !important;
+  box-shadow: 0 0 12px rgba(244, 63, 94, 0.6) !important;
+}
+
+

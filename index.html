@@ -1,0 +1,2260 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRIS - Plataforma Central de Proyectos & Estudios</title>
+  
+  <!-- Tailwind CSS CDN con configuración de tema -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#FAF5FF',
+              100: '#F3E8FF',
+              200: '#E9D5FF',
+              300: '#D8B4FE',
+              400: '#C084FC',
+              500: '#A855F7',
+              600: '#9333EA',
+              700: '#7E22CE',
+              800: '#6B21A8',
+              900: '#581C87'
+            },
+            blue: {
+              50: '#FAF5FF',
+              100: '#F3E8FF',
+              200: '#E9D5FF',
+              300: '#D8B4FE',
+              400: '#C084FC',
+              500: '#A855F7',
+              600: '#9333EA',
+              700: '#7E22CE',
+              800: '#6B21A8',
+              900: '#581C87'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="stylesheet" href="css/style.css?v=39">
+
+  <!-- Pre-verificación de sesión inmediata: Evita parpadeos si ya se inició sesión -->
+  <script>
+    (function() {
+      try {
+        var isAuthEnabled = localStorage.getItem('cris_auth_enabled') !== 'false';
+        var isUnlocked = sessionStorage.getItem('cris_auth_unlocked') === 'true' || 
+                         localStorage.getItem('cris_auth_remembered') === 'true';
+        if (!isAuthEnabled || isUnlocked) {
+          document.documentElement.classList.add('cris-unlocked');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- Funciones Inmediatas de Desplegables y Colapsables (Garantía Failsafe) -->
+  <script>
+    window.toggleSubproject = function(subprojectId, forceState) {
+      if (window.crisHub && typeof window.crisHub.toggleSubprojectCollapse === 'function') {
+        return window.crisHub.toggleSubprojectCollapse(subprojectId, forceState);
+      }
+      var content = document.getElementById('subproject-' + subprojectId + '-content');
+      var chevron = document.getElementById('chevron-subproject-' + subprojectId);
+      if (!content) return;
+      var isHidden = content.style.display === 'none' || content.classList.contains('hidden');
+      var willCollapse = (typeof forceState === 'boolean') ? forceState : !isHidden;
+      if (willCollapse) {
+        content.style.display = 'none';
+        content.classList.add('hidden');
+        if (chevron) {
+          chevron.style.transform = 'rotate(-90deg)';
+          chevron.classList.add('-rotate-90');
+        }
+      } else {
+        content.style.display = 'block';
+        content.classList.remove('hidden');
+        if (chevron) {
+          chevron.style.transform = 'rotate(0deg)';
+          chevron.classList.remove('-rotate-90');
+        }
+      }
+    };
+
+    window.toggleAllSubprojects = function(forceState) {
+      if (window.crisHub && typeof window.crisHub.toggleAllSubprojects === 'function') {
+        return window.crisHub.toggleAllSubprojects(forceState);
+      }
+      var cEst = document.getElementById('subproject-estudios-content');
+      var cChk = document.getElementById('subproject-checklist-content');
+      var cEco = document.getElementById('subproject-economia-content');
+      var cMen = document.getElementById('subproject-menus-content');
+      var anyOpen = (cEst && (cEst.style.display !== 'none' && !cEst.classList.contains('hidden'))) ||
+                    (cChk && (cChk.style.display !== 'none' && !cChk.classList.contains('hidden'))) ||
+                    (cEco && (cEco.style.display !== 'none' && !cEco.classList.contains('hidden'))) ||
+                    (cMen && (cMen.style.display !== 'none' && !cMen.classList.contains('hidden')));
+      var targetCollapse = (typeof forceState === 'boolean') ? forceState : anyOpen;
+      window.toggleSubproject('estudios', targetCollapse);
+      window.toggleSubproject('checklist', targetCollapse);
+      window.toggleSubproject('economia', targetCollapse);
+      window.toggleSubproject('menus', targetCollapse);
+      var btn = document.getElementById('btn-toggle-all-subprojects');
+      if (btn) btn.textContent = targetCollapse ? 'Mostrar todo' : 'Comprimir todo';
+    };
+
+    window.toggleSubprojectsDropdown = function() {
+      if (window.crisHub && typeof window.crisHub.toggleSubprojectsDropdown === 'function') {
+        return window.crisHub.toggleSubprojectsDropdown();
+      }
+      var menu = document.getElementById('subprojects-dropdown-menu');
+      var chevron = document.getElementById('chevron-subprojects-dropdown');
+      if (!menu) return;
+      var isHidden = menu.style.display === 'none' || menu.classList.contains('hidden');
+      if (isHidden) {
+        menu.style.display = 'block';
+        menu.classList.remove('hidden');
+        if (chevron) chevron.style.transform = 'rotate(180deg)';
+      } else {
+        menu.style.display = 'none';
+        menu.classList.add('hidden');
+        if (chevron) chevron.style.transform = 'rotate(0deg)';
+      }
+    };
+
+    window.closeSubprojectsDropdown = function() {
+      if (window.crisHub && typeof window.crisHub.closeSubprojectsDropdown === 'function') {
+        return window.crisHub.closeSubprojectsDropdown();
+      }
+      var menu = document.getElementById('subprojects-dropdown-menu');
+      var chevron = document.getElementById('chevron-subprojects-dropdown');
+      if (menu) {
+        menu.style.display = 'none';
+        menu.classList.add('hidden');
+      }
+      if (chevron) chevron.style.transform = 'rotate(0deg)';
+    };
+
+    document.addEventListener('click', function(e) {
+      var container = document.getElementById('subprojects-dropdown-container');
+      if (container && !container.contains(e.target)) {
+        window.closeSubprojectsDropdown();
+      }
+    });
+  </script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full flex flex-col antialiased transition-colors duration-200">
+
+  <!-- ======================================================== -->
+  <!-- INICIO DE SESIÓN CON CÓDIGO (PANTALLA DE BLOQUEO CRIS) -->
+  <!-- ======================================================== -->
+  <div id="cris-auth-screen" class="fixed inset-0 z-[9999] bg-slate-950 flex items-center justify-center p-4 transition-all duration-300">
+    <!-- Fondos decorativos y luces difuminadas -->
+    <div class="absolute inset-0 bg-gradient-to-tr from-purple-950/40 via-slate-950 to-indigo-950/30 pointer-events-none"></div>
+    <div class="absolute w-96 h-96 rounded-full bg-purple-600/10 blur-3xl -top-20 -left-20 pointer-events-none"></div>
+    <div class="absolute w-96 h-96 rounded-full bg-indigo-600/10 blur-3xl -bottom-20 -right-20 pointer-events-none"></div>
+
+    <div id="cris-auth-card" class="relative z-10 w-full max-w-[340px] sm:max-w-sm bg-slate-900/95 border border-slate-700/80 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl flex flex-col items-center">
+      
+      <!-- Icono CRIS con insignia de candado -->
+      <div class="relative mb-3">
+        <div class="w-16 h-16 rounded-3xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center font-black text-2xl text-white shadow-lg shadow-purple-600/40 ring-4 ring-purple-500/20">
+          C
+        </div>
+        <div id="cris-auth-lock-badge" class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-purple-500 text-white flex items-center justify-center shadow-md">
+          <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+        </div>
+      </div>
+
+      <!-- Títulos y Textos -->
+      <h2 class="text-xl font-black text-white tracking-tight">CRIS</h2>
+      <p class="text-[10px] font-extrabold uppercase tracking-widest text-purple-400 mt-0.5">Plataforma Central</p>
+      <p id="cris-auth-subtitle" class="text-xs text-slate-400 mt-2 text-center transition-colors">Introduce tu código de acceso</p>
+
+      <!-- Mensaje de Error / Feedback -->
+      <div id="cris-auth-error-msg" class="hidden w-full mt-3 py-1.5 px-3 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-semibold text-center animate-shake">
+        Código incorrecto
+      </div>
+
+      <!-- Campo de Entrada visible con teclado físico y cursor -->
+      <div class="w-full max-w-[260px] my-3">
+        <label for="cris-auth-input" class="block text-[11px] font-bold text-slate-300 mb-1.5 text-center">
+          Escribe tu código con el teclado:
+        </label>
+        <div class="relative">
+          <input 
+            type="password" 
+            id="cris-auth-input" 
+            inputmode="numeric" 
+            pattern="[0-9]*" 
+            maxlength="8" 
+            autocomplete="current-password" 
+            placeholder="••••" 
+            autofocus
+            class="w-full bg-slate-800/90 hover:bg-slate-800 focus:bg-slate-900 border-2 border-purple-500/70 focus:border-purple-400 rounded-2xl py-3 px-10 text-center text-2xl font-bold tracking-[0.35em] text-white placeholder:text-slate-500 placeholder:text-base placeholder:tracking-normal focus:outline-none focus:ring-4 focus:ring-purple-500/30 transition-all shadow-inner"
+            aria-label="Código de acceso"
+          >
+          <button 
+            type="button" 
+            id="btn-toggle-pin-visibility" 
+            class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-white transition rounded-xl cursor-pointer" 
+            title="Ver / Ocultar código"
+          >
+            <i data-lucide="eye" id="icon-pin-eye" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Indicadores de Dígitos (Puntos PIN sincronizados) -->
+      <div id="cris-pin-dots-container" class="mb-3 flex items-center justify-center gap-2.5">
+        <!-- Renderizados dinámicamente según longitud esperada (def: 4) -->
+        <div class="cris-pin-dot w-3.5 h-3.5 rounded-full border-2 border-slate-600 bg-slate-800/80 transition-all duration-200"></div>
+        <div class="cris-pin-dot w-3.5 h-3.5 rounded-full border-2 border-slate-600 bg-slate-800/80 transition-all duration-200"></div>
+        <div class="cris-pin-dot w-3.5 h-3.5 rounded-full border-2 border-slate-600 bg-slate-800/80 transition-all duration-200"></div>
+        <div class="cris-pin-dot w-3.5 h-3.5 rounded-full border-2 border-slate-600 bg-slate-800/80 transition-all duration-200"></div>
+      </div>
+
+      <!-- Teclado Numérico en Pantalla -->
+      <div id="cris-auth-keypad" class="grid grid-cols-3 gap-2 w-full max-w-[260px] my-1 select-none">
+        <button type="button" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer" data-key="1">1</button>
+        <button type="button" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer" data-key="2">2</button>
+        <button type="button" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer" data-key="3">3</button>
+        <button type="button" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer" data-key="4">4</button>
+        <button type="button" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer" data-key="5">5</button>
+        <button type="button" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer" data-key="6">6</button>
+        <button type="button" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer" data-key="7">7</button>
+        <button type="button" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer" data-key="8">8</button>
+        <button type="button" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer" data-key="9">9</button>
+        <button type="button" class="py-3 rounded-2xl bg-slate-800/40 hover:bg-slate-700/60 active:bg-rose-950/40 border border-slate-700/40 text-slate-400 hover:text-rose-300 font-bold text-xs uppercase tracking-wider transition active:scale-95 flex items-center justify-center cursor-pointer" data-key="clear" title="Borrar todo">C</button>
+        <button type="button" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer" data-key="0">0</button>
+        <button type="button" class="py-3 rounded-2xl bg-slate-800/40 hover:bg-slate-700/60 active:bg-slate-700 border border-slate-700/40 text-slate-400 hover:text-white transition active:scale-95 flex items-center justify-center cursor-pointer" data-key="backspace" title="Borrar último dígito">
+          <i data-lucide="delete" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Recordar sesión en este equipo -->
+      <label class="flex items-center gap-2 mt-3 text-xs text-slate-400 hover:text-slate-200 cursor-pointer select-none">
+        <input type="checkbox" id="cris-auth-remember" class="w-4 h-4 rounded text-purple-600 bg-slate-800 border-slate-700 focus:ring-purple-500">
+        <span>Mantener sesión iniciada</span>
+      </label>
+
+      <!-- Botón Desbloquear -->
+      <button type="button" id="btn-auth-unlock" class="w-full max-w-[260px] mt-3.5 py-2.5 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30 transition active:scale-95 cursor-pointer">
+        <i data-lucide="unlock" class="w-4 h-4"></i>
+        <span>Desbloquear</span>
+      </button>
+
+      <!-- Ayuda y Código por Defecto -->
+      <div class="mt-4 pt-3 border-t border-slate-800/90 w-full flex flex-col items-center gap-1.5">
+        <p class="text-[11px] text-slate-400 flex items-center justify-center gap-1.5">
+          <i data-lucide="info" class="w-3.5 h-3.5 text-purple-400"></i>
+          <span>Código por defecto: <strong class="text-purple-300 font-mono text-xs">1234</strong></span>
+        </p>
+        <button type="button" onclick="window.authModule && window.authModule.forgotPinPrompt()" class="text-[10px] text-slate-500 hover:text-purple-300 underline transition cursor-pointer">
+          ¿Has olvidado tu código?
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BARRA SUPERIOR GLOBAL: PLATAFORMA CRIS -->
+  <header id="cris-global-bar" class="w-full h-14 bg-slate-900 text-white border-b border-slate-800 px-4 flex items-center justify-between z-30 shadow-md flex-shrink-0 sticky top-0">
+    <div class="flex items-center gap-3 md:gap-5">
+      <!-- Marca Principal CRIS -->
+      <a href="#cris-hub" onclick="window.crisHub && window.crisHub.navigateToHub(); return false;" class="flex items-center gap-2.5 group cursor-pointer">
+        <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center font-black text-white text-base shadow-md shadow-purple-600/30 ring-2 ring-purple-400/30 group-hover:scale-105 transition-transform">
+          C
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <span class="font-black text-lg tracking-tight text-white group-hover:text-purple-300 transition">CRIS</span>
+            <span class="text-[9px] font-extrabold uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/30 px-1.5 py-0.5 rounded-md">PLATAFORMA PRINCIPAL</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Selector Global de Módulos / Subproyectos con Menú Desplegable -->
+      <div class="flex items-center gap-2">
+        <!-- MENÚ DESPLEGABLE PRINCIPAL DE SUBPROYECTOS -->
+        <div class="relative" id="subprojects-dropdown-container">
+          <button id="btn-subprojects-dropdown" type="button" onclick="window.toggleSubprojectsDropdown();" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 text-purple-100 border border-purple-400/40 transition text-xs font-bold cursor-pointer shadow-sm active:scale-95" title="Abrir selector desplegable de subproyectos">
+            <i data-lucide="layers" class="w-3.5 h-3.5 text-purple-300"></i>
+            <span id="dropdown-active-subproject-name">Subproyectos CRIS</span>
+            <i data-lucide="chevron-down" id="chevron-subprojects-dropdown" class="w-3.5 h-3.5 text-purple-300 transition-transform duration-200"></i>
+          </button>
+
+          <!-- Panel del Menú Desplegable Flotante -->
+          <div id="subprojects-dropdown-menu" class="hidden absolute left-0 mt-2 w-72 bg-slate-900 border border-slate-700/90 rounded-2xl shadow-2xl p-2 z-50 space-y-1 backdrop-blur-xl">
+            <div class="px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400">Plataforma Principal</div>
+            
+            <a href="#cris-hub" onclick="window.crisHub && window.crisHub.navigateToHub(); window.closeSubprojectsDropdown(); return false;" class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-800 text-white text-xs font-bold transition group">
+              <div class="flex items-center gap-2.5">
+                <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-xs">
+                  <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+                </div>
+                <div>
+                  <span class="block leading-tight text-white group-hover:text-purple-300 transition">Dashboard General</span>
+                  <span class="text-[10px] text-slate-400 font-normal">Centro de mando CRIS</span>
+                </div>
+              </div>
+              <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-purple-500/30 text-purple-300">Inicio</span>
+            </a>
+
+            <div class="px-2.5 pt-2 pb-1 text-[10px] font-black uppercase tracking-wider text-slate-400 border-t border-slate-800/80">Subproyectos Activos</div>
+
+            <a href="#dashboard" onclick="window.crisHub && window.crisHub.navigateToModule('estudios'); window.closeSubprojectsDropdown(); return false;" class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-800 text-white text-xs font-bold transition group">
+              <div class="flex items-center gap-2.5">
+                <div class="w-7 h-7 rounded-lg bg-purple-600 flex items-center justify-center text-white shadow-xs">
+                  <i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i>
+                </div>
+                <div>
+                  <span class="block leading-tight text-white group-hover:text-purple-300 transition">Subproyecto: Estudios</span>
+                  <span class="text-[10px] text-slate-400 font-normal">ADE + Marketing FP (10 módulos)</span>
+                </div>
+              </div>
+              <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-purple-500/30 text-purple-300">Activo</span>
+            </a>
+
+            <a href="#checklist" onclick="window.crisHub && window.crisHub.navigateToModule('checklist'); window.closeSubprojectsDropdown(); return false;" class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-800 text-white text-xs font-bold transition group">
+              <div class="flex items-center gap-2.5">
+                <div class="w-7 h-7 rounded-lg bg-cyan-600 flex items-center justify-center text-white shadow-xs">
+                  <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                </div>
+                <div>
+                  <span class="block leading-tight text-white group-hover:text-cyan-300 transition">Subproyecto: Habit Tracker</span>
+                  <span class="text-[10px] text-slate-400 font-normal">Hábitos diarios, racha y bienestar</span>
+                </div>
+              </div>
+              <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-cyan-500/30 text-cyan-300">Activo</span>
+            </a>
+
+            <a href="#economia" onclick="window.crisHub && window.crisHub.navigateToModule('economia'); window.closeSubprojectsDropdown(); return false;" class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-800 text-white text-xs font-bold transition group">
+              <div class="flex items-center gap-2.5">
+                <div class="w-7 h-7 rounded-lg bg-emerald-600 flex items-center justify-center text-white shadow-xs">
+                  <i data-lucide="wallet" class="w-3.5 h-3.5"></i>
+                </div>
+                <div>
+                  <span class="block leading-tight text-white group-hover:text-emerald-300 transition">Subproyecto: Gestión Económica</span>
+                  <span class="text-[10px] text-slate-400 font-normal">1.1 Personal y 1.2 De Casa</span>
+                </div>
+              </div>
+              <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-emerald-500/30 text-emerald-300">Activo</span>
+            </a>
+
+            <a href="#menus" onclick="window.crisHub && window.crisHub.navigateToModule('menus'); window.closeSubprojectsDropdown(); return false;" class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-800 text-white text-xs font-bold transition group">
+              <div class="flex items-center gap-2.5">
+                <div class="w-7 h-7 rounded-lg bg-amber-600 flex items-center justify-center text-white shadow-xs">
+                  <i data-lucide="utensils" class="w-3.5 h-3.5"></i>
+                </div>
+                <div>
+                  <span class="block leading-tight text-white group-hover:text-amber-300 transition">Subproyecto: Menús Semanales</span>
+                  <span class="text-[10px] text-slate-400 font-normal">Plan semanal, recetario y súper</span>
+                </div>
+              </div>
+              <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-amber-500/30 text-amber-300">Activo</span>
+            </a>
+
+            <div class="pt-1.5 border-t border-slate-800">
+              <button type="button" onclick="window.crisHub && window.crisHub.openAddSubprojectModal(); window.closeSubprojectsDropdown();" class="w-full flex items-center gap-2 p-2 rounded-xl hover:bg-purple-950/40 text-purple-300 hover:text-purple-200 text-xs font-bold transition text-left cursor-pointer">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>+ Añadir Nuevo Subproyecto...</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones de Acceso Rápido Directo -->
+        <nav class="hidden md:flex items-center gap-1 bg-slate-800/90 p-1 rounded-2xl border border-slate-700/60 text-xs font-semibold">
+          <button id="btn-cris-hub" onclick="window.crisHub && window.crisHub.navigateToHub()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition bg-purple-600 text-white shadow-sm font-bold cursor-pointer">
+            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+            <span>Dashboard CRIS</span>
+          </button>
+          <button id="btn-cris-estudios" onclick="window.crisHub && window.crisHub.navigateToModule('estudios')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-slate-700 cursor-pointer">
+            <i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i>
+            <span>Estudios</span>
+          </button>
+          <button id="btn-cris-checklist" onclick="window.crisHub && window.crisHub.navigateToModule('checklist')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-slate-700 cursor-pointer">
+            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>Habit Tracker</span>
+          </button>
+          <button id="btn-cris-economia" onclick="window.crisHub && window.crisHub.navigateToModule('economia')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-slate-700 cursor-pointer">
+            <i data-lucide="wallet" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>Economía</span>
+          </button>
+          <button id="btn-cris-menus" onclick="window.crisHub && window.crisHub.navigateToModule('menus')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-slate-700 cursor-pointer">
+            <i data-lucide="utensils" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span>Menús</span>
+          </button>
+          <button onclick="window.crisHub && window.crisHub.openAddSubprojectModal()" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl transition text-slate-400 hover:text-purple-300 hover:bg-slate-700/60 cursor-pointer" title="Añadir nuevo subproyecto a CRIS">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline">Nuevo</span>
+          </button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Controles de Perfil y Tema Global -->
+    <div class="flex items-center gap-2 sm:gap-3">
+      <!-- Botón Bloquear Sesión con Código -->
+      <button id="btn-lock-session" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition text-xs font-semibold cursor-pointer active:scale-95" title="Bloquear con código de acceso">
+        <i data-lucide="lock" class="w-3.5 h-3.5 text-purple-400"></i>
+        <span class="hidden sm:inline">Bloquear</span>
+      </button>
+
+      <!-- Botón Tema oscuro/claro global -->
+      <button id="btn-toggle-theme-global" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer" title="Cambiar modo claro / oscuro">
+        <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
+        <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-400"></i>
+      </button>
+
+      <!-- Perfil de Cris -->
+      <div class="flex items-center gap-2 pl-2 border-l border-slate-800">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600/40 to-indigo-600/40 border border-purple-400/40 text-purple-200 flex items-center justify-center font-black text-xs">
+          CR
+        </div>
+        <div class="hidden sm:block text-left">
+          <span class="text-xs font-black text-white block leading-tight">Cris</span>
+          <span class="text-[10px] text-slate-400 block leading-tight">Administradora</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex-1 flex flex-col md:flex-row min-h-[calc(100vh-3.5rem)]">
+
+    <!-- BARRA LATERAL (SIDEBAR): PLATAFORMA CRIS -->
+    <aside class="w-full md:w-64 bg-white dark:bg-slate-800 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700/80 flex flex-col justify-between flex-shrink-0 z-20 md:sticky md:top-14 md:h-[calc(100vh-3.5rem)] md:overflow-hidden">
+      <div class="flex-1 overflow-y-auto min-h-0">
+        <!-- Cabecera de la Marca Principal: CRIS -->
+        <div class="p-4 border-b border-slate-100 dark:border-slate-700/60">
+          <div class="flex items-center justify-between">
+            <a href="#cris-hub" onclick="window.crisHub && window.crisHub.navigateToHub(); return false;" class="flex items-center gap-2.5 group cursor-pointer">
+              <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center font-black text-base shadow-md shadow-purple-600/30 group-hover:scale-105 transition-transform">
+                C
+              </div>
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <span class="font-black text-lg text-slate-900 dark:text-white tracking-tight leading-none group-hover:text-purple-600 dark:group-hover:text-purple-400 transition">CRIS</span>
+                  <span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300">PRINCIPAL</span>
+                </div>
+                <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-0.5">Plataforma Central</p>
+              </div>
+            </a>
+            <!-- Botón Tema móvil -->
+            <button id="btn-toggle-theme" class="md:hidden p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+              <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
+              <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-400"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Acceso Principal CRIS: Dashboard Maestro -->
+        <div class="p-3 pb-1">
+          <a href="#cris-hub" data-nav-target="cris-hub" class="sidebar-nav-item flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-black bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200/80 dark:border-purple-800/40 shadow-xs hover:bg-purple-100 dark:hover:bg-purple-900/50 transition cursor-pointer">
+            <span class="flex items-center gap-2">
+              <i data-lucide="layout-dashboard" class="w-4 h-4 text-purple-600 dark:text-purple-400"></i>
+              <span>Dashboard CRIS</span>
+            </span>
+            <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-full bg-purple-600 text-white">Inicio</span>
+          </a>
+        </div>
+
+        <!-- SECCIÓN: SUBPROYECTOS DENTRO DE CRIS (COMPRIMIBLES / EXPANDIBLES) -->
+        <div class="px-3 py-2 space-y-3">
+          
+          <!-- Barra de Control de Subproyectos: Comprimir / Expandir Todo -->
+          <div class="flex items-center justify-between px-1">
+            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Subproyectos CRIS</span>
+            <button id="btn-toggle-all-subprojects" type="button" onclick="window.toggleAllSubprojects(); return false;" class="text-[10px] font-bold text-purple-600 dark:text-purple-400 hover:underline cursor-pointer">
+              Comprimir todo
+            </button>
+          </div>
+
+          <!-- SUBPROYECTO 1: ESTUDIOS -->
+          <div id="card-subproject-estudios" class="rounded-2xl bg-slate-50/70 dark:bg-slate-900/40 border border-purple-200/70 dark:border-purple-900/40 p-2 space-y-1.5 transition-all">
+            <!-- Cabecera de Estudios: Título interactivo al Dashboard + Botón de colapso -->
+            <div class="flex items-center justify-between p-1 rounded-xl hover:bg-purple-100/50 dark:hover:bg-purple-950/40 transition group">
+              <button type="button" onclick="if(window.app) window.app.navigateTo('dashboard');" class="sidebar-nav-item flex-1 flex items-center gap-2 p-1 text-left cursor-pointer rounded-lg hover:text-purple-600 transition" data-nav-target="dashboard" title="Abrir Dashboard de Estudios">
+                <div class="w-6 h-6 rounded-lg bg-purple-600 text-white flex items-center justify-center text-xs shadow-xs">
+                  <i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i>
+                </div>
+                <div class="min-w-0">
+                  <span class="text-xs font-black text-slate-900 dark:text-white block leading-tight">Estudios</span>
+                  <span id="subproject-estudios-count-label" class="text-[9px] text-purple-600 dark:text-purple-400 font-bold block">Dashboard • FP + ADE</span>
+                </div>
+              </button>
+              <button id="btn-subproject-estudios-toggle" type="button" onclick="window.toggleSubproject('estudios'); return false;" class="p-1.5 rounded-lg text-slate-400 hover:text-purple-600 hover:bg-purple-200/40 dark:hover:bg-purple-900/40 transition cursor-pointer" title="Comprimir o desplegar opciones de Estudios">
+                <i data-lucide="chevron-down" id="chevron-subproject-estudios" class="w-4 h-4 text-slate-400 group-hover:text-purple-600 transition-transform duration-200"></i>
+              </button>
+            </div>
+
+            <!-- Contenedor Desplegable de Opciones de Estudios -->
+            <div id="subproject-estudios-content" class="space-y-2 pt-1 border-t border-slate-200/60 dark:border-slate-800/80 transition-all duration-200">
+              <!-- Selector Rápido de Titulación dentro de Estudios -->
+              <div class="grid grid-cols-3 gap-1 p-1 bg-white dark:bg-slate-800 rounded-xl text-[10px] font-bold shadow-xs border border-slate-100 dark:border-slate-700/50">
+                <button data-study-filter="all" class="py-1 rounded-lg transition bg-purple-600 text-white text-center">Todo</button>
+                <button data-study-filter="ade" class="py-1 rounded-lg transition text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 text-center">ADE</button>
+                <button data-study-filter="marketing" class="py-1 rounded-lg transition text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 text-center">Mkt FP</button>
+              </div>
+
+              <!-- Menú de Herramientas de Estudios -->
+              <nav class="space-y-0.5 text-xs font-medium">
+                <a href="#dashboard" data-nav-target="dashboard" class="sidebar-nav-item flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-purple-600 dark:hover:text-purple-300 transition">
+                  <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+                  <span>Resumen Estudios</span>
+                </a>
+                <a href="#mkt-grades" data-nav-target="mkt-grades" class="sidebar-nav-item hidden flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-purple-700 dark:text-purple-300 font-bold hover:bg-white dark:hover:bg-slate-800 transition">
+                  <i data-lucide="award" class="w-3.5 h-3.5 text-purple-600"></i>
+                  <span>Notas Marketing (1-9)</span>
+                </a>
+                <a href="#subjects" data-nav-target="subjects" class="sidebar-nav-item flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-purple-600 dark:hover:text-purple-300 transition">
+                  <i data-lucide="book-marked" class="w-3.5 h-3.5"></i>
+                  <span>Materias en Curso</span>
+                </a>
+                <a href="#calendar" data-nav-target="calendar" class="sidebar-nav-item flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-purple-600 dark:hover:text-purple-300 transition">
+                  <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                  <span>Calendario</span>
+                </a>
+                <a href="#schedule" data-nav-target="schedule" class="sidebar-nav-item flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-purple-600 dark:hover:text-purple-300 transition">
+                  <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                  <span>Plan Semanal</span>
+                </a>
+                <a href="#curriculum" data-nav-target="curriculum" class="sidebar-nav-item flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-purple-600 dark:hover:text-purple-300 transition">
+                  <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                  <span>Expediente y Malla</span>
+                </a>
+                <a href="#tfg" data-nav-target="tfg" class="sidebar-nav-item hidden flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-purple-600 dark:hover:text-purple-300 transition">
+                  <i data-lucide="file-check" class="w-3.5 h-3.5 text-pink-500"></i>
+                  <span>Proyecto TFG (Mkt)</span>
+                </a>
+                <a href="#tasks" data-nav-target="tasks" class="sidebar-nav-item flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-purple-600 dark:hover:text-purple-300 transition">
+                  <i data-lucide="check-square" class="w-3.5 h-3.5"></i>
+                  <span>Tareas</span>
+                </a>
+                <a href="#pomodoro" data-nav-target="pomodoro" class="sidebar-nav-item flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-purple-600 dark:hover:text-purple-300 transition">
+                  <i data-lucide="timer" class="w-3.5 h-3.5"></i>
+                  <span>Pomodoro</span>
+                </a>
+                <a href="#notes" data-nav-target="notes" class="sidebar-nav-item flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-purple-600 dark:hover:text-purple-300 transition">
+                  <i data-lucide="folder" class="w-3.5 h-3.5"></i>
+                  <span>Apuntes</span>
+                </a>
+              </nav>
+            </div>
+          </div>
+
+          <!-- SUBPROYECTO 2: HABIT TRACKER (CIAN GLACIAR) -->
+          <div id="card-subproject-checklist" class="rounded-2xl bg-slate-50/70 dark:bg-slate-900/40 border border-cyan-200/70 dark:border-cyan-900/40 p-2 space-y-1.5 transition-all">
+            <!-- Cabecera de Habit Tracker: Título interactivo al Dashboard + Botón de colapso -->
+            <div class="flex items-center justify-between p-1 rounded-xl hover:bg-cyan-100/40 dark:hover:bg-cyan-950/40 transition group">
+              <button type="button" onclick="if(window.app) window.app.navigateTo('checklist', 'dashboard');" class="sidebar-nav-item flex-1 flex items-center gap-2 p-1 text-left cursor-pointer rounded-lg hover:text-cyan-600 transition" data-nav-target="checklist" data-checklist-tab="dashboard" title="Abrir Dashboard de Habit Tracker">
+                <div class="w-6 h-6 rounded-lg bg-cyan-600 text-white flex items-center justify-center text-xs shadow-xs">
+                  <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                </div>
+                <div class="min-w-0">
+                  <span class="text-xs font-black text-slate-900 dark:text-white block leading-tight">Habit Tracker</span>
+                  <span class="text-[9px] text-cyan-600 dark:text-cyan-400 font-bold block">Dashboard</span>
+                </div>
+              </button>
+              <button id="btn-subproject-checklist-toggle" type="button" onclick="window.toggleSubproject('checklist'); return false;" class="p-1.5 rounded-lg text-slate-400 hover:text-cyan-600 hover:bg-cyan-200/40 dark:hover:bg-cyan-900/40 transition cursor-pointer" title="Comprimir o desplegar opciones de Habit Tracker">
+                <i data-lucide="chevron-down" id="chevron-subproject-checklist" class="w-4 h-4 text-slate-400 group-hover:text-cyan-600 transition-transform duration-200"></i>
+              </button>
+            </div>
+
+            <!-- Contenedor Desplegable de Habit Tracker (solo Cuadro Semanal) -->
+            <div id="subproject-checklist-content" class="space-y-0.5 pt-1 border-t border-slate-200/60 dark:border-slate-800/80 transition-all duration-200 text-xs font-medium">
+              <a href="#checklist" data-nav-target="checklist" data-checklist-tab="cuadro" onclick="if(window.app) window.app.navigateTo('checklist', 'cuadro'); return false;" class="sidebar-nav-item flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-cyan-600 transition cursor-pointer">
+                <i data-lucide="calendar" class="w-3.5 h-3.5 text-cyan-500"></i>
+                <span>Cuadro Semanal</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- SUBPROYECTO 3: GESTIÓN ECONÓMICA -->
+          <div id="card-subproject-economia" class="rounded-2xl bg-slate-50/70 dark:bg-slate-900/40 border border-emerald-200/70 dark:border-emerald-900/40 p-2 space-y-1.5 transition-all">
+            <!-- Cabecera de Gestión Económica: Título interactivo al Dashboard + Botón de colapso -->
+            <div class="flex items-center justify-between p-1 rounded-xl hover:bg-emerald-100/40 dark:hover:bg-emerald-950/40 transition group">
+              <button type="button" onclick="if(window.app) window.app.navigateTo('economia', 'dashboard');" class="sidebar-nav-item flex-1 flex items-center gap-2 p-1 text-left cursor-pointer rounded-lg hover:text-emerald-600 transition" data-nav-target="economia" data-economia-tab="dashboard" title="Abrir Dashboard de Gestión Económica">
+                <div class="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs shadow-xs">
+                  <i data-lucide="wallet" class="w-3.5 h-3.5"></i>
+                </div>
+                <div class="min-w-0">
+                  <span class="text-xs font-black text-slate-900 dark:text-white block leading-tight">Gestión Económica</span>
+                  <span class="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold block">Dashboard</span>
+                </div>
+              </button>
+              <button id="btn-subproject-economia-toggle" type="button" onclick="window.toggleSubproject('economia'); return false;" class="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-200/40 dark:hover:bg-emerald-900/40 transition cursor-pointer" title="Comprimir o desplegar opciones de Gestión Económica">
+                <i data-lucide="chevron-down" id="chevron-subproject-economia" class="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-transform duration-200"></i>
+              </button>
+            </div>
+
+            <!-- Contenedor Desplegable de Economía -->
+            <div id="subproject-economia-content" class="space-y-0.5 pt-1 border-t border-slate-200/60 dark:border-slate-800/80 transition-all duration-200 text-xs font-medium">
+              <a href="#economia" data-nav-target="economia" data-economia-tab="personal" onclick="if(window.app) window.app.navigateTo('economia', 'personal'); return false;" class="sidebar-nav-item flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-emerald-600 transition cursor-pointer">
+                <i data-lucide="user" class="w-3.5 h-3.5 text-emerald-500"></i>
+                <span>1.1 Personal</span>
+              </a>
+              <a href="#economia" data-nav-target="economia" data-economia-tab="casa" onclick="if(window.app) window.app.navigateTo('economia', 'casa'); return false;" class="sidebar-nav-item flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-teal-600 transition cursor-pointer">
+                <i data-lucide="home" class="w-3.5 h-3.5 text-teal-500"></i>
+                <span>1.2 De Casa</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- SUBPROYECTO 4: MENÚS SEMANALES -->
+          <div id="card-subproject-menus" class="rounded-2xl bg-slate-50/70 dark:bg-slate-900/40 border border-amber-200/70 dark:border-amber-900/40 p-2 space-y-1.5 transition-all">
+            <!-- Cabecera de Menús Semanales: Título interactivo al Dashboard + Botón de colapso -->
+            <div class="flex items-center justify-between p-1 rounded-xl hover:bg-amber-100/40 dark:hover:bg-amber-950/40 transition group">
+              <button type="button" onclick="if(window.app) window.app.navigateTo('menus', 'dashboard');" class="sidebar-nav-item flex-1 flex items-center gap-2 p-1 text-left cursor-pointer rounded-lg hover:text-amber-600 transition" data-nav-target="menus" data-menus-tab="dashboard" title="Abrir Dashboard de Menús Semanales">
+                <div class="w-6 h-6 rounded-lg bg-amber-600 text-white flex items-center justify-center text-xs shadow-xs">
+                  <i data-lucide="utensils" class="w-3.5 h-3.5"></i>
+                </div>
+                <div class="min-w-0">
+                  <span class="text-xs font-black text-slate-900 dark:text-white block leading-tight">Menús Semanales</span>
+                  <span class="text-[9px] text-amber-600 dark:text-amber-400 font-bold block">Dashboard</span>
+                </div>
+              </button>
+              <button id="btn-subproject-menus-toggle" type="button" onclick="window.toggleSubproject('menus'); return false;" class="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-200/40 dark:hover:bg-amber-900/40 transition cursor-pointer" title="Comprimir o desplegar opciones de Menús Semanales">
+                <i data-lucide="chevron-down" id="chevron-subproject-menus" class="w-4 h-4 text-slate-400 group-hover:text-amber-600 transition-transform duration-200"></i>
+              </button>
+            </div>
+
+            <!-- Contenedor Desplegable de Menús -->
+            <div id="subproject-menus-content" class="space-y-0.5 pt-1 border-t border-slate-200/60 dark:border-slate-800/80 transition-all duration-200 text-xs font-medium">
+              <a href="#menus" data-nav-target="menus" data-menus-tab="semanal" onclick="if(window.app) window.app.navigateTo('menus', 'semanal'); return false;" class="sidebar-nav-item flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-amber-600 transition cursor-pointer">
+                <i data-lucide="calendar" class="w-3.5 h-3.5 text-amber-500"></i>
+                <span>Plan Semanal</span>
+              </a>
+              <a href="#menus" data-nav-target="menus" data-menus-tab="recetas" onclick="if(window.app) window.app.navigateTo('menus', 'recetas'); return false;" class="sidebar-nav-item flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-orange-500 transition cursor-pointer">
+                <i data-lucide="book-open" class="w-3.5 h-3.5 text-orange-500"></i>
+                <span>Recetario</span>
+              </a>
+              <a href="#menus" data-nav-target="menus" data-menus-tab="compra" onclick="if(window.app) window.app.navigateTo('menus', 'compra'); return false;" class="sidebar-nav-item flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-indigo-500 transition cursor-pointer">
+                <i data-lucide="shopping-cart" class="w-3.5 h-3.5 text-indigo-500"></i>
+                <span>Lista de la Compra</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- AÑADIR NUEVO SUBPROYECTO -->
+          <button type="button" onclick="window.crisHub && window.crisHub.openAddSubprojectModal()" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-300 hover:bg-purple-50/60 dark:hover:bg-purple-950/30 transition border border-dashed border-slate-300 dark:border-slate-700 cursor-pointer">
+            <i data-lucide="plus-circle" class="w-4 h-4 text-purple-500"></i>
+            <span>+ Nuevo Subproyecto en CRIS</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Pie de la barra lateral (Ajustes, Tema, Backup) Pinned al Fondo -->
+      <div class="p-3 border-t border-slate-100 dark:border-slate-700/60 space-y-1.5 bg-white dark:bg-slate-800 flex-shrink-0">
+        <div class="flex items-center justify-between px-2 py-0.5">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Modo Visual</span>
+          <button id="btn-toggle-theme-desktop" onclick="document.getElementById('btn-toggle-theme').click()" class="p-1 text-slate-500 hover:text-slate-800 dark:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer">
+            <i data-lucide="moon" class="w-3.5 h-3.5 dark:hidden"></i>
+            <i data-lucide="sun" class="w-3.5 h-3.5 hidden dark:block text-amber-400"></i>
+          </button>
+        </div>
+
+        <button id="btn-open-settings" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer">
+          <i data-lucide="settings" class="w-3.5 h-3.5 text-slate-400"></i>
+          <span>Ajustes y Tiempos</span>
+        </button>
+
+        <button id="btn-sidebar-lock" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/40 transition cursor-pointer">
+          <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+          <span>Bloquear con Código</span>
+        </button>
+
+        <button id="btn-export-data" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer">
+          <i data-lucide="download" class="w-3.5 h-3.5 text-slate-400"></i>
+          <span>Exportar Copia</span>
+        </button>
+
+        <label class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer">
+          <i data-lucide="upload" class="w-3.5 h-3.5 text-slate-400"></i>
+          <span>Restaurar Copia</span>
+          <input type="file" id="file-import-data" accept=".json" class="hidden">
+        </label>
+      </div>
+    </aside>
+
+    <!-- ÁREA DE CONTENIDO PRINCIPAL -->
+    <main class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full min-w-0">
+
+      <!-- BARRA DE CONTEXTO: CRIS > SUBPROYECTO ESTUDIOS -->
+      <div id="study-filter-bar" class="mb-6 bg-white dark:bg-slate-800 border border-purple-200/80 dark:border-purple-900/50 rounded-2xl p-3 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+        <div class="flex items-center gap-3">
+          <a href="#cris-hub" onclick="window.crisHub && window.crisHub.navigateToHub(); return false;" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 dark:bg-purple-950/60 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-xs font-black transition group cursor-pointer border border-purple-200/60 dark:border-purple-800/40">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5"></i>
+            <span>Dashboard CRIS</span>
+          </a>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] font-bold text-slate-400">CRIS /</span>
+              <span class="text-xs font-black text-purple-700 dark:text-purple-300 uppercase tracking-wider">Subproyecto: Estudios</span>
+            </div>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">FP Marketing y Publicidad + Grado ADE (UNED)</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <span class="text-[10px] font-bold text-slate-400 uppercase hidden md:inline">Titulación:</span>
+          <div class="grid grid-cols-3 gap-1.5 w-full sm:w-auto text-xs font-bold bg-slate-100 dark:bg-slate-700/50 p-1 rounded-xl">
+            <button data-study-filter="all" class="px-4 py-2 rounded-lg transition text-center flex items-center justify-center gap-1.5 bg-purple-600 text-white shadow-xs">
+              <i data-lucide="globe" class="w-3.5 h-3.5"></i>
+              <span>Todo</span>
+            </button>
+            <button data-study-filter="ade" class="px-4 py-2 rounded-lg transition text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-600 text-center flex items-center justify-center gap-1.5">
+              <i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i>
+              <span>ADE</span>
+            </button>
+            <button data-study-filter="marketing" class="px-4 py-2 rounded-lg transition text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-600 text-center flex items-center justify-center gap-1.5">
+              <i data-lucide="award" class="w-3.5 h-3.5"></i>
+              <span>Mkt FP</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- VISTA PRINCIPAL: CRIS HUB (PLATAFORMA CENTRAL) -->
+      <section id="view-cris-hub" class="view-section space-y-6">
+        <div id="cris-hub-container">
+          <!-- Renderizado dinámico por js/cris-hub.js -->
+        </div>
+      </section>
+
+      <!-- VISTA SUBPROYECTO: CHECKLIST & RUTINAS -->
+      <section id="view-checklist" class="view-section space-y-6 hidden">
+        <div id="checklist-view-container">
+          <!-- Renderizado dinámico por js/checklist.js -->
+        </div>
+      </section>
+
+      <!-- VISTA SUBPROYECTO: GESTIÓN ECONÓMICA -->
+      <section id="view-economia" class="view-section space-y-6 hidden">
+        <!-- Renderizado dinámico por js/economia.js -->
+      </section>
+
+      <!-- VISTA SUBPROYECTO: MENÚS SEMANALES -->
+      <section id="view-menus" class="view-section space-y-6 hidden">
+        <!-- Renderizado dinámico por js/menus.js -->
+      </section>
+
+      <!-- VISTA: DASHBOARD -->
+      <section id="view-dashboard" class="view-section space-y-6">
+
+        <!-- Banner de Bienvenida, Mensaje Motivacional y Rutina Diaria de Estudio -->
+        <div class="bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-700 rounded-3xl p-6 md:p-8 text-white shadow-lg relative overflow-hidden">
+          <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
+          <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="flex-1 min-w-0">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-xs font-semibold mb-3">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span>CRIS • Subproyecto: Estudios (FP Marketing + ADE UNED)</span>
+              </div>
+              <h1 class="text-2xl md:text-3xl font-black tracking-tight text-white">
+                ¡Hola, Cris! <span class="inline-block animate-wave">👋</span>
+              </h1>
+
+              <!-- Tarjeta de Mensaje Motivacional Destacado -->
+              <div class="mt-4 p-4 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 relative">
+                <div class="flex items-start gap-3">
+                  <span class="p-2 rounded-xl bg-amber-400/20 text-amber-300 flex-shrink-0 mt-0.5">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                  </span>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="text-[10px] uppercase font-bold tracking-wider text-purple-200">Mensaje Motivacional</span>
+                      <button id="btn-next-quote" onclick="window.app.nextMotivationalQuote()" title="Mostrar otra frase motivacional" class="text-xs text-purple-200 hover:text-white transition flex items-center gap-1 px-2 py-0.5 rounded-lg hover:bg-white/10">
+                        <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                        <span class="text-[11px] font-semibold">Nueva frase</span>
+                      </button>
+                    </div>
+                    <p id="motivational-quote" class="mt-1 text-white text-sm md:text-base font-semibold italic leading-snug">
+                      Cargando motivación...
+                    </p>
+                    <span id="motivational-author" class="block text-right text-xs text-purple-200 font-medium mt-1">
+                      —
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Aviso Dinámico del Plan Diario (A partir del 1 de octubre) -->
+              <div id="dashboard-study-routine-notice" class="mt-4">
+                <!-- js/app.js -->
+              </div>
+            </div>
+
+            <!-- Resumen Rápido Plan Diario -->
+            <div class="flex flex-row md:flex-col gap-3 justify-end flex-shrink-0">
+              <div id="dashboard-plan-badge-card" class="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 text-center min-w-[140px]">
+                <span class="text-[11px] font-bold text-amber-300 block uppercase tracking-wider">Plan Diario</span>
+                <span class="text-2xl font-black text-white mt-0.5 block">1 OCT</span>
+                <span class="text-[10px] text-purple-200 block">L - J • Hasta 21:00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Acceso Rápido a Campus Virtuales Oficiales (Online) -->
+        <div class="bg-white dark:bg-slate-800 p-4 md:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300 flex items-center justify-center">
+              <i data-lucide="external-link" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100">Aulas Virtuales & Plataformas Oficiales</h3>
+              <p class="text-xs text-slate-400">Accede directamente a tus campus oficiales (UNED y EducamosCLM) y a tus clases en directo (INTECCA).</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <a href="https://www.uned.es/universidad/campus/estudiantes/estudios.html" target="_blank" rel="noopener noreferrer" title="Portal de Estudios UNED (ADE)" class="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i>
+              <span>Campus ADE (UNED)</span>
+            </a>
+            <a href="https://educamosclm.castillalamancha.es/s/home" target="_blank" rel="noopener noreferrer" title="Portal EducamosCLM (FP Marketing y Publicidad)" class="px-3.5 py-2 rounded-xl bg-fuchsia-600 hover:bg-fuchsia-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
+              <span>EducamosCLM (Mkt FP)</span>
+            </a>
+            <a href="https://www.intecca.uned.es/portal/inicio" target="_blank" rel="noopener noreferrer" title="INTECCA UNED - Clases en Directo, Grabaciones y Tutorías" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="video" class="w-3.5 h-3.5"></i>
+              <span>INTECCA (Clases / Tutorías)</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- 4 Tarjetas de Estadísticas Principales -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Nota Media</p>
+              <h3 id="stat-gpa" class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">8.56</h3>
+              <span class="text-[11px] text-slate-400">Ponderada curso</span>
+            </div>
+            <div class="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+              <i data-lucide="award" class="w-5 h-5"></i>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tiempo Estudio</p>
+              <h3 id="stat-study-time" class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">1h 40m</h3>
+              <span class="text-[11px] text-slate-400">Enfoque acumulado</span>
+            </div>
+            <div class="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+              <i data-lucide="clock" class="w-5 h-5"></i>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tareas Listas</p>
+              <h3 id="stat-task-rate" class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">25%</h3>
+              <span class="text-[11px] text-slate-400">Eficacia semanal</span>
+            </div>
+            <div class="w-11 h-11 rounded-xl bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 flex items-center justify-center">
+              <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Racha Activa</p>
+              <h3 id="stat-streak" class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">3 días</h3>
+              <span class="text-[11px] text-slate-400">¡Sigue así! 🔥</span>
+            </div>
+            <div class="w-11 h-11 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+              <i data-lucide="flame" class="w-5 h-5"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fila de mini-calendario, tareas urgentes y próximos exámenes -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Mini Calendario Interactivo -->
+          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400">
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                  </span>
+                  <h3 id="dashboard-mini-calendar-title" class="font-bold text-slate-800 dark:text-slate-100 text-sm">Calendario</h3>
+                </div>
+                <div class="flex items-center gap-1">
+                  <button id="btn-mini-prev-month" title="Mes anterior" class="p-1 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                  </button>
+                  <button id="btn-mini-today" title="Hoy" class="px-2 py-0.5 text-[11px] font-bold rounded-md bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition">
+                    Hoy
+                  </button>
+                  <button id="btn-mini-next-month" title="Mes siguiente" class="p-1 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Días de la semana -->
+              <div class="grid grid-cols-7 text-center text-[10px] font-bold text-slate-400 dark:text-slate-500 mb-1.5 tracking-wider uppercase">
+                <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span>
+              </div>
+
+              <!-- Rejilla compacta de días -->
+              <div id="dashboard-mini-calendar-grid" class="grid grid-cols-7 gap-y-1 text-center text-xs">
+                <!-- Se rellena dinámicamente con calendar.js -->
+              </div>
+            </div>
+
+            <!-- Leyenda y acceso rápido al calendario completo -->
+            <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-[11px]">
+              <div class="flex items-center gap-2.5 text-slate-400 dark:text-slate-500">
+                <span class="inline-flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Examen
+                </span>
+                <span class="inline-flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Tarea
+                </span>
+              </div>
+              <button onclick="window.app.navigateTo('calendar')" class="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1">
+                <span>Ver completo</span>
+                <i data-lucide="arrow-right" class="w-3 h-3"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Tareas urgentes -->
+          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <i data-lucide="check-square" class="w-5 h-5 text-blue-600 dark:text-blue-400"></i>
+                <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base">Tareas Urgentes</h3>
+              </div>
+              <button onclick="window.app.navigateTo('tasks')" class="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                Ver todas →
+              </button>
+            </div>
+            <div id="dashboard-today-tasks" class="space-y-2 flex-1">
+              <!-- Renderizado dinámico -->
+            </div>
+          </div>
+
+          <!-- Próximos exámenes -->
+          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <i data-lucide="alert-circle" class="w-5 h-5 text-rose-500"></i>
+                <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base">Próximos Exámenes y Entregas</h3>
+              </div>
+              <button onclick="window.app.navigateTo('calendar')" class="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                Ver calendario →
+              </button>
+            </div>
+            <div id="dashboard-upcoming-exams" class="space-y-2 flex-1">
+              <!-- Renderizado dinámico -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Fila de gráfico de estudio y acceso rápido al Pomodoro -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm lg:col-span-1 flex flex-col justify-between">
+            <div>
+              <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base mb-1">Distribución de Estudio</h3>
+              <p class="text-xs text-slate-400 mb-4">Minutos dedicados por cada asignatura</p>
+              <div class="relative h-48">
+                <canvas id="study-distribution-chart"></canvas>
+              </div>
+            </div>
+            <button onclick="window.app.navigateTo('pomodoro')" class="mt-4 w-full py-2.5 bg-slate-50 dark:bg-slate-700/60 hover:bg-slate-100 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl transition flex items-center justify-center gap-2">
+              <i data-lucide="play" class="w-3.5 h-3.5"></i> Iniciar sesión de estudio
+            </button>
+          </div>
+
+          <!-- Consejos de estudio y accesos rápidos -->
+          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm lg:col-span-2">
+            <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base mb-3">Guía Rápida para el Éxito Académico</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div class="p-3.5 rounded-xl bg-blue-50/70 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30">
+                <span class="font-bold text-blue-900 dark:text-blue-200 block mb-1">1. Pomodoro Activo (25/5)</span>
+                <p class="text-blue-700 dark:text-blue-300">Estudia durante 25 minutos sin mirar el móvil. Tras 4 bloques, tómate 15 minutos completos.</p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/30">
+                <span class="font-bold text-emerald-900 dark:text-emerald-200 block mb-1">2. Control de Ponderaciones</span>
+                <p class="text-emerald-700 dark:text-emerald-300">Anota el peso (%) de cada examen para saber exactamente cuántos puntos necesitas para aprobar.</p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-violet-50/70 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-800/30">
+                <span class="font-bold text-violet-900 dark:text-violet-200 block mb-1">3. Repetición Espaciada</span>
+                <p class="text-violet-700 dark:text-violet-300">Revisa tus apuntes breves guardados en la sección "Apuntes" a las 24h y a los 7 días de cada clase.</p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-amber-50/70 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/30">
+                <span class="font-bold text-amber-900 dark:text-amber-200 block mb-1">4. Copia de Seguridad</span>
+                <p class="text-amber-700 dark:text-amber-300">Haz clic en "Exportar Copia" cada domingo para guardar un archivo `.json` de respaldo en tu Mac.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECCIÓN 2: MATERIAS Y CALIFICACIONES ================= -->
+      <section id="view-subjects" class="view-section hidden space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">Gestor de Asignaturas y Calificaciones</h2>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Control de créditos, notas parciales y cálculo automático de promedios ponderados.</p>
+          </div>
+          <button id="btn-add-subject" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition shadow-sm">
+            <i data-lucide="plus" class="w-4 h-4"></i> Nueva Asignatura
+          </button>
+        </div>
+
+        <div id="subjects-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          <!-- Renderizado por js/subjects.js -->
+        </div>
+      </section>
+
+      <!-- ================= SECCIÓN: EXPEDIENTE Y CONTROL CURRICULAR ================= -->
+      <section id="view-curriculum" class="view-section hidden space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">Expediente Académico & Malla Curricular</h2>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Control exhaustivo de asignaturas cursadas, convalidadas, en curso y pendientes.</p>
+          </div>
+          <button id="btn-add-curriculum-item" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold rounded-xl transition shadow-sm">
+            <i data-lucide="plus" class="w-4 h-4"></i> Añadir al Expediente
+          </button>
+        </div>
+
+        <!-- Selector de Titulación (Marketing FP vs ADE) -->
+        <div class="flex items-center gap-2 p-1.5 bg-slate-100 dark:bg-slate-700/60 rounded-2xl w-fit">
+          <button id="tab-cur-mkt" class="px-5 py-2 rounded-xl text-xs font-bold transition bg-purple-600 text-white shadow-sm flex items-center gap-2">
+            <i data-lucide="smartphone" class="w-3.5 h-3.5"></i> Marketing FP (17 Asignaturas)
+          </button>
+          <button id="tab-cur-ade" class="px-5 py-2 rounded-xl text-xs font-bold transition text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-600 flex items-center gap-2">
+            <i data-lucide="briefcase" class="w-3.5 h-3.5"></i> ADE (336 Créditos Totales)
+          </button>
+        </div>
+
+        <!-- Tarjeta de Progreso General del Título -->
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">Progreso del Plan de Estudios</span>
+              <h3 id="curriculum-progress-title" class="text-lg font-extrabold text-slate-800 dark:text-slate-100 mt-0.5">Cálculo por Asignaturas (17 en total • Marketing FP)</h3>
+              <p id="curriculum-progress-stats" class="text-xs text-slate-400 mt-0.5">Cargando datos del expediente...</p>
+            </div>
+            <div id="curriculum-progress-percent" class="text-3xl font-black text-purple-600 dark:text-purple-400 tabular-nums">
+              71%
+            </div>
+          </div>
+
+          <!-- Barra de Progreso -->
+          <div class="w-full bg-slate-100 dark:bg-slate-700 h-3 rounded-full overflow-hidden">
+            <div id="curriculum-progress-bar" class="bg-gradient-to-r from-purple-600 to-fuchsia-600 h-full w-0 transition-all duration-700 rounded-full"></div>
+          </div>
+
+          <!-- Mini contadores (Cálculo estricto en Asignaturas) -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+            <div class="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/30">
+              <span class="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 block">Superadas con Nota</span>
+              <span id="stat-cur-cursadas" class="text-xl font-extrabold text-emerald-800 dark:text-emerald-200 mt-0.5 block">0</span>
+              <span id="stat-cur-cursadas-sub" class="text-[10px] text-emerald-600/80 dark:text-emerald-400/80 font-medium">asignaturas</span>
+            </div>
+            <div class="p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/30">
+              <span class="text-[11px] font-bold text-indigo-700 dark:text-indigo-300 block">A Convalidar</span>
+              <span id="stat-cur-convalidadas" class="text-xl font-extrabold text-indigo-800 dark:text-indigo-200 mt-0.5 block">0</span>
+              <span id="stat-cur-convalidadas-sub" class="text-[10px] text-indigo-600/80 dark:text-indigo-400/80 font-medium">asignaturas</span>
+            </div>
+            <div class="p-3 rounded-2xl bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800/30">
+              <span class="text-[11px] font-bold text-purple-700 dark:text-purple-300 block">En Curso (Este Año)</span>
+              <span id="stat-cur-cursando" class="text-xl font-extrabold text-purple-800 dark:text-purple-200 mt-0.5 block">0</span>
+              <span id="stat-cur-cursando-sub" class="text-[10px] text-purple-600/80 dark:text-purple-400/80 font-medium">asignaturas</span>
+            </div>
+            <div class="p-3 rounded-2xl bg-slate-100 dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600">
+              <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300 block">Pendientes</span>
+              <span id="stat-cur-pendientes" class="text-xl font-extrabold text-slate-800 dark:text-slate-100 mt-0.5 block">0</span>
+              <span id="stat-cur-pendientes-sub" class="text-[10px] text-slate-500 font-medium">asignaturas</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filtro por Estado -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-1">
+          <button data-cur-filter="all" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-purple-600 text-white">Todas</button>
+          <button data-cur-filter="cursando" class="px-4 py-2 rounded-xl text-xs font-bold transition text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">En Curso</button>
+          <button data-cur-filter="cursada" class="px-4 py-2 rounded-xl text-xs font-bold transition text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">Cursadas / Superadas</button>
+          <button data-cur-filter="convalidada" class="px-4 py-2 rounded-xl text-xs font-bold transition text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">Convalidadas</button>
+          <button data-cur-filter="pendiente" class="px-4 py-2 rounded-xl text-xs font-bold transition text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">Pendientes</button>
+        </div>
+
+        <!-- Grid de Asignaturas del Expediente -->
+        <div id="curriculum-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- js/curriculum.js -->
+        </div>
+      </section>
+
+      <!-- ================= SECCIÓN: PLAN DE ESTUDIO & HORARIO ================= -->
+      <section id="view-schedule" class="view-section hidden space-y-8">
+        <div>
+          <h2 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">Plan Semanal de Estudio & Horario Lectivo</h2>
+          <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Rutina fija de estudio de lunes a jueves y parrilla de clases de ADE y Marketing.</p>
+        </div>
+
+        <!-- PARTE 1: PLAN SEMANAL DE ESTUDIO (LUNES A JUEVES HASTA 21:00) -->
+        <div class="space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+              <span class="p-2 rounded-xl bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                <i data-lucide="calendar-check" class="w-5 h-5"></i>
+              </span>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100">Sesiones de Estudio (Lunes a Jueves)</h3>
+                  <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">A partir del 1 de octubre</span>
+                </div>
+                <p class="text-xs text-slate-400">Lunes y Jueves (18:15 a 21:00) • Martes y Miércoles (18:45 a 21:00) • Límite estricto: 21:00</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold px-3 py-1 rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300">
+              9h 30m / semana
+            </span>
+          </div>
+
+          <!-- Banner Informativo de Entrada en Vigor del Plan Diario -->
+          <div id="study-plan-status-banner">
+            <!-- js/schedule.js -->
+          </div>
+
+          <div id="study-plan-days-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- js/schedule.js -->
+          </div>
+        </div>
+
+        <!-- PARTE 2: HORARIO DE CLASES LECTIVAS (SOLO ADE) -->
+        <div id="section-class-schedule" class="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+              <span class="p-2 rounded-xl bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                <i data-lucide="table" class="w-5 h-5"></i>
+              </span>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100">Horario de Clases Semanales</h3>
+                  <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300">Solo ADE</span>
+                </div>
+                <p class="text-xs text-slate-400">Distribución de clases y tutorías virtuales de ADE (UNED • INTECCA). En Marketing FP no hay clases lectivas fijas.</p>
+              </div>
+            </div>
+            <button id="btn-add-class-slot" class="inline-flex items-center justify-center gap-2 px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl transition shadow-sm">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Añadir Clase ADE
+            </button>
+          </div>
+
+          <div id="class-schedule-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+            <!-- js/schedule.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECCIÓN: PROYECTO TFG (MARKETING) ================= -->
+      <section id="view-tfg" class="view-section hidden space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded-full bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-900/40 dark:text-fuchsia-300 text-xs font-bold">FP MARKETING</span>
+              <h2 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">Proyecto Fin de Ciclo (TFG)</h2>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Control de hitos, entregas de memoria, tutorías y fecha oficial de defensa ante el tribunal.</p>
+          </div>
+          <button id="btn-edit-tfg" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold rounded-xl transition shadow-sm">
+            <i data-lucide="edit-3" class="w-4 h-4"></i> Editar Datos TFG
+          </button>
+        </div>
+
+        <!-- Ficha Resumen del Proyecto TFG -->
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm space-y-5">
+          <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+            <div class="flex-1 min-w-0">
+              <span class="text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">Título del Proyecto</span>
+              <h3 id="tfg-project-title" class="text-xl font-extrabold text-slate-800 dark:text-slate-100 mt-1">Cargando título...</h3>
+              <p id="tfg-project-tutor" class="text-xs text-slate-400 mt-1">Tutor: —</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+              <div class="p-3 rounded-2xl bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800/30 text-xs">
+                <span class="text-[10px] font-bold text-purple-500 block uppercase">Entrega Memoria</span>
+                <span id="tfg-project-deadline" class="font-bold text-slate-800 dark:text-slate-100">—</span>
+              </div>
+              <div class="p-3 rounded-2xl bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800/30 text-xs">
+                <span class="text-[10px] font-bold text-rose-500 block uppercase">Defensa Oral</span>
+                <span id="tfg-project-defense" class="font-bold text-slate-800 dark:text-slate-100">—</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Barra de Progreso de Hitos -->
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-bold text-slate-700 dark:text-slate-300">Progreso general del proyecto</span>
+              <span id="tfg-progress-text" class="font-semibold text-purple-600 dark:text-purple-400">0%</span>
+            </div>
+            <div class="w-full bg-slate-100 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden">
+              <div id="tfg-progress-bar" class="bg-gradient-to-r from-purple-600 to-fuchsia-600 h-full w-0 transition-all duration-500 rounded-full"></div>
+            </div>
+          </div>
+
+          <!-- Notas y Enlaces -->
+          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700/60 text-xs">
+            <span class="font-bold text-slate-600 dark:text-slate-300 block mb-1">Notas y Recomendaciones del Tutor:</span>
+            <p id="tfg-project-notes" class="text-slate-500 dark:text-slate-400 leading-relaxed"></p>
+          </div>
+        </div>
+
+        <!-- Lista de Hitos y Entregas -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-slate-800 dark:text-slate-100 text-sm">Hitos y Fases del TFG</h4>
+            <button id="btn-add-tfg-milestone" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition">
+              <i data-lucide="plus" class="w-3.5 h-3.5 text-purple-600"></i> Añadir Hito
+            </button>
+          </div>
+          <div id="tfg-milestones-container" class="space-y-2">
+            <!-- js/tfg.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECCIÓN: CALIFICACIONES POR TEMAS (MARKETING FP) ================= -->
+      <section id="view-mkt-grades" class="view-section hidden space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded-full bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-900/40 dark:text-fuchsia-300 text-xs font-bold uppercase">FP MARKETING</span>
+              <h2 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">Notas por Temas (1 al 9)</h2>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Control continuo de tareas y mini exámenes tema a tema (EducamosCLM).</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="window.marketingGradesModule.openWeightingsModal()" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold rounded-xl transition shadow-sm">
+              <i data-lucide="scale" class="w-4 h-4"></i> Configurar Ponderación
+            </button>
+          </div>
+        </div>
+
+        <!-- Selector de Módulo / Asignatura de Marketing FP -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-1" id="mkt-grades-subject-tabs">
+          <!-- Renderizado por js/mkt-grades.js -->
+        </div>
+
+        <!-- Resumen de Métricas del Módulo Seleccionado -->
+        <div id="mkt-grades-summary">
+          <!-- Renderizado por js/mkt-grades.js -->
+        </div>
+
+        <!-- Grid de los 9 Temas -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-extrabold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2">
+              <i data-lucide="layers" class="w-4 h-4 text-purple-600"></i>
+              <span>Desglose por Unidades Temáticas (Temas 1 al 9)</span>
+            </h3>
+            <span class="text-xs text-slate-400">Guarda automáticamente al cambiar la nota</span>
+          </div>
+
+          <div id="mkt-topics-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            <!-- Renderizado dinámicamente por js/mkt-grades.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECCIÓN 3: CALENDARIO Y EXÁMENES ================= -->
+      <section id="view-calendar" class="view-section hidden space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">Calendario y Fechas Límite</h2>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Vista mensual interactiva y cuenta regresiva de exámenes y entregas.</p>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button id="btn-sync-iphone" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-sm font-semibold rounded-xl transition shadow-sm" title="Descargar y sincronizar con la app Calendario de Mac y iPhone vía iCloud">
+              <i data-lucide="smartphone" class="w-4 h-4 text-emerald-400"></i>
+              <span>Sincronizar con iPhone (.ics)</span>
+            </button>
+            <button id="btn-add-exam" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold rounded-xl transition shadow-sm">
+              <i data-lucide="plus" class="w-4 h-4"></i> Añadir Fecha Importante
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Calendario mensual interactivo -->
+          <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <h3 id="calendar-month-year" class="text-lg font-bold text-slate-800 dark:text-slate-100 capitalize">Septiembre 2026</h3>
+              <div class="flex items-center gap-1">
+                <button id="btn-prev-month" class="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">
+                  <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                </button>
+                <button id="btn-today-month" class="px-2.5 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg">
+                  Hoy
+                </button>
+                <button id="btn-next-month" class="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">
+                  <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Cabecera de días de la semana -->
+            <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-400 mb-2">
+              <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div>
+            </div>
+
+            <!-- Grid de días -->
+            <div id="calendar-grid" class="grid grid-cols-7 gap-1">
+              <!-- Renderizado por js/calendar.js -->
+            </div>
+
+            <div class="flex items-center gap-4 mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/60 text-xs text-slate-400">
+              <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Examen / Entrega</div>
+              <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Tarea pendiente</div>
+            </div>
+          </div>
+
+          <!-- Panel lateral: Eventos del día seleccionado y lista de próximos -->
+          <div class="space-y-6">
+            <!-- Eventos del día seleccionado -->
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm">
+              <h4 id="selected-day-title" class="font-bold text-slate-800 dark:text-slate-100 text-sm mb-3">Eventos del día</h4>
+              <div id="day-events-container">
+                <!-- js/calendar.js -->
+              </div>
+            </div>
+
+            <!-- Próximos exámenes -->
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm">
+              <h4 class="font-bold text-slate-800 dark:text-slate-100 text-sm mb-3">Próximos en el Calendario</h4>
+              <div id="upcoming-exams-container" class="space-y-2.5">
+                <!-- js/calendar.js -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECCIÓN 4: TAREAS Y ENTREGAS ================= -->
+      <section id="view-tasks" class="view-section hidden space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">Gestor de Tareas y Deberes</h2>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
+              <span id="task-pending-count" class="font-bold text-blue-600 dark:text-blue-400">0</span> pendientes • 
+              <span id="task-completed-count" class="font-bold text-emerald-600 dark:text-emerald-400">0</span> completadas
+            </p>
+          </div>
+          <button id="btn-add-task" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition shadow-sm">
+            <i data-lucide="plus" class="w-4 h-4"></i> Nueva Tarea
+          </button>
+        </div>
+
+        <!-- Barra de Filtros -->
+        <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex flex-wrap items-center gap-3">
+          <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <i data-lucide="filter" class="w-3.5 h-3.5"></i> Filtrar por:
+          </div>
+
+          <select id="filter-task-subject" class="bg-slate-50 dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="all">Todas las materias</option>
+          </select>
+
+          <select id="filter-task-status" class="bg-slate-50 dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="all">Todos los estados</option>
+            <option value="pending">Solo pendientes</option>
+            <option value="completed">Solo completadas</option>
+          </select>
+
+          <select id="filter-task-priority" class="bg-slate-50 dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="all">Todas las prioridades</option>
+            <option value="high">Prioridad Alta</option>
+            <option value="medium">Prioridad Media</option>
+            <option value="low">Prioridad Baja</option>
+          </select>
+        </div>
+
+        <!-- Lista de tareas -->
+        <div id="tasks-container" class="space-y-2.5">
+          <!-- Renderizado por js/tasks.js -->
+        </div>
+      </section>
+
+      <!-- ================= SECCIÓN 5: POMODORO Y ENFOQUE ================= -->
+      <section id="view-pomodoro" class="view-section hidden space-y-6">
+        <div class="max-w-2xl mx-auto text-center">
+          <h2 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">Temporizador Pomodoro</h2>
+          <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Entrena tu concentración en bloques de 25 minutos seguidos de descansos reparadores.</p>
+
+          <!-- Tarjeta del temporizador -->
+          <div class="mt-8 bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-200/80 dark:border-slate-700/80 shadow-md flex flex-col items-center">
+            
+            <!-- Selector de modos -->
+            <div class="inline-flex p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-700/60 mb-8">
+              <button data-pomodoro-mode="pomodoro" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-blue-600 text-white shadow-sm">
+                Estudio (25m)
+              </button>
+              <button data-pomodoro-mode="shortBreak" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-600 transition">
+                Descanso Corto (5m)
+              </button>
+              <button data-pomodoro-mode="longBreak" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-600 transition">
+                Descanso Largo (15m)
+              </button>
+            </div>
+
+            <!-- Título de modo actual -->
+            <span id="pomodoro-mode-label" class="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-2">
+              Modo Concentración
+            </span>
+
+            <!-- Gran reloj digital -->
+            <div id="pomodoro-display" class="text-6xl md:text-7xl font-black tracking-tight text-slate-800 dark:text-white tabular-nums my-4">
+              25:00
+            </div>
+
+            <!-- Barra de progreso -->
+            <div class="w-full max-w-sm bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden my-4">
+              <div id="pomodoro-progress" class="bg-blue-600 h-full w-0 transition-all duration-500"></div>
+            </div>
+
+            <!-- Asignatura vinculada y notas opcionales -->
+            <div class="w-full max-w-sm space-y-3 my-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1 text-left">Asignar tiempo a:</label>
+                <select id="pomodoro-subject-select" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="">General / Sin materia</option>
+                </select>
+              </div>
+
+              <div>
+                <input type="text" id="pomodoro-task-note" placeholder="¿En qué vas a enfocarte en este bloque?" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+            </div>
+
+            <!-- Botones de Control -->
+            <div class="flex items-center gap-3 mt-4">
+              <button id="btn-pomodoro-start" class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-md hover:shadow-lg transition flex items-center gap-2">
+                <i data-lucide="play" class="w-4 h-4 fill-white"></i> Iniciar
+              </button>
+              <button id="btn-pomodoro-pause" class="hidden px-8 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm rounded-xl shadow-md hover:shadow-lg transition flex items-center gap-2">
+                <i data-lucide="pause" class="w-4 h-4 fill-white"></i> Pausar
+              </button>
+              <button id="btn-pomodoro-reset" title="Reiniciar tiempo" class="p-3 text-slate-400 hover:text-slate-700 dark:hover:text-white bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-xl transition">
+                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Historial de sesiones recientes -->
+          <div class="mt-8 bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm text-left">
+            <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm mb-3">Sesiones Recientes de Hoy</h3>
+            <div id="pomodoro-history-list" class="space-y-2">
+              <!-- js/pomodoro.js -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECCIÓN 6: APUNTES Y RECURSOS ================= -->
+      <section id="view-notes" class="view-section hidden space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">Apuntes y Enlaces de Interés</h2>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Guarda fórmulas clave, resúmenes rápidos y enlaces a Google Drive, libros o vídeos.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="btn-add-note" class="inline-flex items-center gap-2 px-3.5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl transition shadow-sm">
+              <i data-lucide="plus" class="w-4 h-4"></i> Nuevo Apunte
+            </button>
+            <button id="btn-add-resource" class="inline-flex items-center gap-2 px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl transition shadow-sm">
+              <i data-lucide="link" class="w-4 h-4"></i> Guardar Enlace
+            </button>
+          </div>
+        </div>
+
+        <!-- Pestañas y Buscador -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-700 pb-3">
+          <div class="flex items-center gap-6">
+            <button id="tab-btn-notes" class="text-sm font-bold pb-2 border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 transition">
+              Mis Apuntes Rápidos
+            </button>
+            <button id="tab-btn-resources" class="text-sm font-bold pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition">
+              Enlaces y Recursos
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2 w-full sm:w-auto">
+            <div class="relative flex-1 sm:w-60">
+              <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-3 text-slate-400"></i>
+              <input type="text" id="notes-search-input" placeholder="Buscar por palabra clave..." class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs rounded-xl pl-9 pr-3 py-2 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <select id="filter-notes-subject" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="all">Todas las materias</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Contenedor 1: Apuntes -->
+        <div id="view-notes-content">
+          <div id="notes-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            <!-- js/notes.js -->
+          </div>
+        </div>
+
+        <!-- Contenedor 2: Recursos y Enlaces -->
+        <div id="view-resources-content" class="hidden">
+          <div id="resources-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            <!-- js/notes.js -->
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ================= MODALES ================= -->
+
+  <!-- Modal: Asignatura -->
+  <div id="modal-subject" class="modal-backdrop fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 dark:border-slate-700 animate-in fade-in zoom-in-95">
+      <h3 id="modal-subject-title" class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">Nueva Asignatura</h3>
+      <form id="form-subject" class="space-y-4">
+        <input type="hidden" id="subject-id">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Titulación *</label>
+          <select id="subject-study" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+            <option value="ade">💼 Grado en ADE</option>
+            <option value="marketing">📱 Marketing y Publicidad (FP)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nombre de la Asignatura *</label>
+          <input type="text" id="subject-name" required placeholder="Ej: Contabilidad Financiera" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Código / Siglas</label>
+            <input type="text" id="subject-code" placeholder="Ej: IA-301" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Créditos ECTS (Solo ADE)</label>
+            <input type="number" step="0.5" id="subject-credits" value="6" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Color Identificador</label>
+          <input type="color" id="subject-color" value="#3B82F6" class="w-full h-10 rounded-xl cursor-pointer border border-slate-200 dark:border-slate-600 p-1 bg-slate-50 dark:bg-slate-700">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Profesor / Docente</label>
+          <input type="text" id="subject-teacher" placeholder="Ej: Dra. García" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Plataforma / Sesión Virtual</label>
+          <input type="text" id="subject-classroom" placeholder="Ej: Campus Virtual • Sesión Teams (Mar y Jue)" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Enlace al Campus Virtual / Videoclase (URL)</label>
+          <input type="url" id="subject-online-url" placeholder="https://campus.tuuniversidad.es/..." class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" data-modal-close class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition">Cancelar</button>
+          <button type="submit" class="px-4 py-2 text-xs font-semibold bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-sm transition">Guardar Asignatura</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Calificación -->
+  <div id="modal-grade" class="modal-backdrop fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-200 dark:border-slate-700">
+      <h3 id="modal-grade-title" class="text-base font-bold text-slate-800 dark:text-slate-100 mb-4">Añadir Calificación</h3>
+      <form id="form-grade" class="space-y-4">
+        <input type="hidden" id="grade-subject-id">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nombre de la Evaluación *</label>
+          <input type="text" id="grade-name" required placeholder="Ej: Examen Parcial 1" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nota (0 a 10) *</label>
+            <input type="number" step="0.1" min="0" max="10" id="grade-score" required placeholder="8.5" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Peso en la nota (%)</label>
+            <input type="number" step="1" min="0" max="100" id="grade-weight" placeholder="25" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Fecha</label>
+          <input type="date" id="grade-date" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" data-modal-close class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition">Cancelar</button>
+          <button type="submit" class="px-4 py-2 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm transition">Guardar Nota</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Tarea -->
+  <div id="modal-task" class="modal-backdrop fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 dark:border-slate-700">
+      <h3 id="modal-task-title" class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">Nueva Tarea</h3>
+      <form id="form-task" class="space-y-4">
+        <input type="hidden" id="task-id">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Título de la Tarea *</label>
+          <input type="text" id="task-title" required placeholder="Ej: Resolver ejercicios de integrales" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Materia Asociada</label>
+          <select id="task-subject" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <!-- Dinámico -->
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Fecha de Entrega</label>
+            <input type="date" id="task-due-date" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Prioridad</label>
+            <select id="task-priority" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="high">Alta (Urgente)</option>
+              <option value="medium" selected>Media</option>
+              <option value="low">Baja</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Instrucciones o Apuntes</label>
+          <textarea id="task-notes" rows="2" placeholder="Detalles de lo que debes entregar..." class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" data-modal-close class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition">Cancelar</button>
+          <button type="submit" class="px-4 py-2 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm transition">Guardar Tarea</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Examen / Evento -->
+  <div id="modal-exam" class="modal-backdrop fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 dark:border-slate-700">
+      <h3 id="modal-exam-title" class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">Nuevo Examen o Entrega</h3>
+      <form id="form-exam" class="space-y-4">
+        <input type="hidden" id="exam-id">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Título del Examen o Entrega *</label>
+          <input type="text" id="exam-title" required placeholder="Ej: Examen Final de Álgebra" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Materia</label>
+          <select id="exam-subject" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <!-- Dinámico -->
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Fecha *</label>
+            <input type="date" id="exam-date" required class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Hora</label>
+            <input type="time" id="exam-time" value="09:00" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Modalidad / Plataforma</label>
+            <input type="text" id="exam-classroom" placeholder="Ej: Campus Virtual • Test Online" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Peso en la nota (%)</label>
+            <input type="number" step="1" id="exam-weight" placeholder="30" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Temario o Material Permitido</label>
+          <textarea id="exam-notes" rows="2" placeholder="Temas 1 al 4, calculadora científica..." class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" data-modal-close class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition">Cancelar</button>
+          <button type="submit" class="px-4 py-2 text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-sm transition">Guardar Fecha</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Apunte Rápido -->
+  <div id="modal-note" class="modal-backdrop fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-200 dark:border-slate-700">
+      <h3 id="modal-note-title" class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">Nuevo Apunte</h3>
+      <form id="form-note" class="space-y-4">
+        <input type="hidden" id="note-id">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Título del Apunte *</label>
+          <input type="text" id="note-title" required placeholder="Ej: Propiedades de los Logaritmos" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Materia</label>
+          <select id="note-subject" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <!-- Dinámico -->
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Contenido / Fórmulas / Notas *</label>
+          <textarea id="note-content" rows="6" required placeholder="Escribe aquí tus fórmulas clave, pasos o resumen..." class="w-full font-mono text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-3 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" data-modal-close class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition">Cancelar</button>
+          <button type="submit" class="px-4 py-2 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm transition">Guardar Apunte</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Recurso / Enlace -->
+  <div id="modal-resource" class="modal-backdrop fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 dark:border-slate-700">
+      <h3 id="modal-resource-title" class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">Guardar Enlace o Recurso</h3>
+      <form id="form-resource" class="space-y-4">
+        <input type="hidden" id="resource-id">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Título del Recurso *</label>
+          <input type="text" id="resource-title" required placeholder="Ej: Carpeta Google Drive con Exámenes Anteriores" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">URL / Enlace Web *</label>
+          <input type="url" id="resource-url" required placeholder="https://..." class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Materia</label>
+            <select id="resource-subject" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <!-- Dinámico -->
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Categoría</label>
+            <input type="text" id="resource-category" placeholder="Ej: Drive, Libro, Vídeo" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Comentario o Descripción</label>
+          <textarea id="resource-notes" rows="2" placeholder="Qué contiene este enlace..." class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" data-modal-close class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition">Cancelar</button>
+          <button type="submit" class="px-4 py-2 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-sm transition">Guardar Enlace</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Ajustes -->
+  <div id="modal-settings" class="modal-backdrop fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 dark:border-slate-700">
+      <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">Configuración de CRIS</h3>
+      <form id="form-settings" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Tu Nombre</label>
+          <input type="text" id="setting-name" value="Estudiante" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="border-t border-slate-100 dark:border-slate-700 pt-3">
+          <p class="text-xs font-bold text-slate-700 dark:text-slate-200 mb-2">Tiempos del Pomodoro (minutos)</p>
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Estudio</label>
+              <input type="number" id="setting-work-time" min="1" max="120" value="25" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-1.5 text-sm text-slate-800 dark:text-slate-100">
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Desc. Corto</label>
+              <input type="number" id="setting-short-break" min="1" max="60" value="5" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-1.5 text-sm text-slate-800 dark:text-slate-100">
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Desc. Largo</label>
+              <input type="number" id="setting-long-break" min="1" max="60" value="15" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-1.5 text-sm text-slate-800 dark:text-slate-100">
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 pt-2">
+          <input type="checkbox" id="setting-sound" checked class="rounded text-blue-600 focus:ring-blue-500">
+          <label for="setting-sound" class="text-xs text-slate-700 dark:text-slate-300 font-medium cursor-pointer">Sonido de alarma al terminar bloques de estudio</label>
+        </div>
+        
+        <!-- SEGURIDAD Y CÓDIGO DE ACCESO -->
+        <div class="border-t border-slate-100 dark:border-slate-700 pt-3 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <i data-lucide="shield-check" class="w-4 h-4 text-purple-600 dark:text-purple-400"></i>
+              <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Inicio de Sesión con Código</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="setting-auth-enabled" class="sr-only peer" checked>
+              <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
+            </label>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-tight">Solicita un código PIN de seguridad para entrar a la plataforma al abrir la página.</p>
+
+          <div id="auth-code-change-container" class="bg-slate-50 dark:bg-slate-700/40 p-3 rounded-xl border border-slate-200 dark:border-slate-600/70 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300">Cambiar Código de Acceso</span>
+              <span class="text-[10px] text-purple-600 dark:text-purple-400 font-bold" id="auth-code-status-badge">PIN Activo</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-0.5">Código Actual</label>
+                <input type="password" id="auth-current-pin" placeholder="Actual (def: 1234)" maxlength="8" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-0.5">Nuevo Código (4-8 dígitos)</label>
+                <input type="password" id="auth-new-pin" placeholder="Nuevo PIN" maxlength="8" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+              </div>
+            </div>
+            <div class="flex items-center justify-between pt-1">
+              <span class="text-[10px] font-medium" id="auth-pin-feedback"></span>
+              <button type="button" id="btn-save-new-pin" class="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-semibold shadow-xs transition active:scale-95 cursor-pointer">
+                Actualizar Código
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-100 dark:border-slate-700 pt-3">
+          <button type="button" id="btn-reset-demo" class="text-xs text-rose-600 hover:underline">
+            Restablecer datos originales de ejemplo
+          </button>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3">
+          <button type="button" data-modal-close class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition">Cancelar</button>
+          <button type="submit" class="px-4 py-2 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm transition">Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Asignatura Expediente Curricular -->
+  <div id="modal-curriculum-item" class="modal-backdrop fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 dark:border-slate-700">
+      <h3 id="modal-curriculum-title" class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">Añadir al Expediente</h3>
+      <form id="form-curriculum-item" class="space-y-4">
+        <input type="hidden" id="cur-item-id">
+        <input type="hidden" id="cur-study-id" value="ade">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nombre de la Asignatura *</label>
+          <input type="text" id="cur-item-name" required placeholder="Ej: Dirección Financiera" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Estado en el Expediente *</label>
+            <select id="cur-item-status" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+              <option value="cursando">En Curso (Actualmente)</option>
+              <option value="cursada">Cursada / Aprobada</option>
+              <option value="convalidada">Convalidada</option>
+              <option value="pendiente">Pendiente de cursar</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Créditos ECTS (Solo ADE)</label>
+            <input type="number" step="0.5" id="cur-item-credits" value="6" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nota Final (si está aprobada)</label>
+            <input type="number" step="0.1" min="0" max="10" id="cur-item-grade" placeholder="Ej: 8.5" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Curso / Año</label>
+            <input type="text" id="cur-item-term" placeholder="Ej: 2º Año / 1º Cuatr." class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" data-modal-close class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition">Cancelar</button>
+          <button type="submit" class="px-4 py-2 text-xs font-semibold bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-sm transition">Guardar Asignatura</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Clase en Horario (Solo ADE) -->
+  <div id="modal-class-slot" class="modal-backdrop fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 dark:border-slate-700">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100">Añadir Clase al Horario</h3>
+        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300">Solo ADE</span>
+      </div>
+      <form id="form-class-slot" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Titulación</label>
+          <div class="px-3.5 py-2 rounded-xl bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800 text-xs font-bold text-purple-700 dark:text-purple-300 flex items-center justify-between">
+            <span>💼 ADE (UNED • INTECCA)</span>
+            <span class="text-[10px] bg-purple-200 dark:bg-purple-800 px-2 py-0.5 rounded">Horario Exclusivo</span>
+          </div>
+          <input type="hidden" id="class-slot-study" value="ade">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Día</label>
+            <select id="class-slot-day" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+              <option value="lunes">Lunes</option>
+              <option value="martes">Martes</option>
+              <option value="miercoles">Miércoles</option>
+              <option value="jueves">Jueves</option>
+              <option value="viernes">Viernes</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Horario (Inicio - Fin)</label>
+            <input type="text" id="class-slot-time" required placeholder="17:00 - 18:30" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Asignatura / Tutoría *</label>
+          <input type="text" id="class-slot-title" required placeholder="Ej: Macroeconomía / Tutoría ADE" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Plataforma / Sesión Virtual</label>
+          <input type="text" id="class-slot-classroom" placeholder="Ej: INTECCA • Aula Virtual UNED" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Enlace a la Clase Online / INTECCA (URL)</label>
+          <input type="url" id="class-slot-url" placeholder="https://www.intecca.uned.es/portal/inicio" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" data-modal-close class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition">Cancelar</button>
+          <button type="submit" class="px-4 py-2 text-xs font-semibold bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-sm transition">Guardar Clase</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Editar TFG -->
+  <div id="modal-tfg-edit" class="modal-backdrop fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-200 dark:border-slate-700">
+      <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">Datos del Proyecto TFG</h3>
+      <form id="form-tfg-edit" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Título del Proyecto</label>
+          <input type="text" id="edit-tfg-title" placeholder="Ej: Estrategia de Marketing Digital..." class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Tutor / Director</label>
+          <input type="text" id="edit-tfg-tutor" placeholder="Ej: Nombre del tutor/a" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Fecha Entrega Memoria</label>
+            <input type="date" id="edit-tfg-deadline" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Fecha Defensa Oral</label>
+            <input type="date" id="edit-tfg-defense" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Notas / Observaciones del Tutor</label>
+          <textarea id="edit-tfg-notes" rows="3" placeholder="Anotaciones, directrices de entrega o enlace a Google Docs..." class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-3 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" data-modal-close class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition">Cancelar</button>
+          <button type="submit" class="px-4 py-2 text-xs font-semibold bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-sm transition">Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Añadir Hito TFG -->
+  <div id="modal-tfg-milestone" class="modal-backdrop fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 dark:border-slate-700">
+      <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">Añadir Hito al Proyecto TFG</h3>
+      <form id="form-tfg-milestone" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nombre del Hito / Fase *</label>
+          <input type="text" id="milestone-name" required placeholder="Ej: Elección del tema y anteproyecto" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Fecha Objetivo / Entrega</label>
+          <input type="date" id="milestone-date" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" data-modal-close class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition">Cancelar</button>
+          <button type="submit" class="px-4 py-2 text-xs font-semibold bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-sm transition">Guardar Hito</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Sincronización con iPhone / Apple Calendar -->
+  <div id="modal-sync-iphone" class="modal-backdrop fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-5">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+            <i data-lucide="smartphone" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100">Sincronizar con tu iPhone</h3>
+            <p class="text-xs text-slate-400">Vía iCloud y la app nativa Calendario de Apple</p>
+          </div>
+        </div>
+        <button type="button" data-modal-close class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-800/50 flex items-start gap-3 text-xs text-emerald-900 dark:text-emerald-200">
+        <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+        <div>
+          <span class="font-bold block text-sm">¡Archivo descargado con éxito!</span>
+          <p class="mt-0.5 text-emerald-700 dark:text-emerald-300">Se ha generado <strong>StudyFlow_Calendario.ics</strong> con todos tus exámenes, clases y avisos.</p>
+        </div>
+      </div>
+
+      <div class="space-y-3 text-xs text-slate-600 dark:text-slate-300">
+        <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/50">
+          <span class="w-6 h-6 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center flex-shrink-0 text-xs">1</span>
+          <div>
+            <strong class="text-slate-800 dark:text-slate-100 block">Abre el archivo descargado en tu Mac</strong>
+            <p class="text-slate-400 mt-0.5">Haz clic en <code>StudyFlow_Calendario.ics</code> desde tu carpeta de Descargas o desde el navegador.</p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/50">
+          <span class="w-6 h-6 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center flex-shrink-0 text-xs">2</span>
+          <div>
+            <strong class="text-slate-800 dark:text-slate-100 block">Pulsa "Añadir" en la app Calendario</strong>
+            <p class="text-slate-400 mt-0.5">Se abrirá la app Calendario de macOS. Selecciona tu calendario de <strong>iCloud</strong> y pulsa <em>Aceptar / Añadir</em>.</p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/50">
+          <span class="w-6 h-6 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0 text-xs">3</span>
+          <div>
+            <strong class="text-slate-800 dark:text-slate-100 block">¡Listo! Se refleja en tu iPhone al instante</strong>
+            <p class="text-slate-400 mt-0.5">A través de iCloud, todos los exámenes y alarmas aparecerán en la app <strong>Calendario</strong> de tu iPhone automáticamente.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-2">
+        <button type="button" data-modal-close class="px-5 py-2.5 text-xs font-semibold bg-slate-900 hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-xl shadow-sm transition">
+          Entendido
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Ponderación Marketing FP -->
+  <div id="modal-mkt-weightings" class="modal-backdrop fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-5">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+            <i data-lucide="scale" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 id="modal-mkt-weightings-title" class="text-lg font-bold text-slate-800 dark:text-slate-100">Ponderación de Notas</h3>
+            <p class="text-xs text-slate-400">Reparto porcentual de Tareas y Mini Exámenes</p>
+          </div>
+        </div>
+        <button type="button" data-modal-close class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="form-mkt-weightings" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Peso de las Tareas (%)</label>
+          <input type="number" id="input-mkt-weight-tasks" required min="0" max="100" step="1" value="50" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 font-bold focus:outline-none focus:ring-2 focus:ring-purple-500">
+          <span class="text-[11px] text-slate-400 mt-1 block">Porcentaje que ponderan las tareas del 1 al 9.</span>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Peso de los Mini Exámenes (%)</label>
+          <input type="number" id="input-mkt-weight-exams" required min="0" max="100" step="1" value="50" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 font-bold focus:outline-none focus:ring-2 focus:ring-purple-500">
+          <span class="text-[11px] text-slate-400 mt-1 block">Porcentaje que ponderan los cuestionarios del 1 al 9.</span>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" data-modal-close class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition">Cancelar</button>
+          <button type="submit" class="px-4 py-2 text-xs font-semibold bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-sm transition">Guardar Ponderación</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: AÑADIR NUEVO SUBPROYECTO A CRIS -->
+  <div id="modal-add-cris-subproject" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-700 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700/60">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-2xl bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 flex items-center justify-center">
+            <i data-lucide="folder-plus" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-base text-slate-900 dark:text-white">Nuevo Subproyecto para CRIS</h3>
+            <p class="text-[11px] text-slate-400">Registra un nuevo espacio en tu plataforma central</p>
+          </div>
+        </div>
+        <button type="button" onclick="window.crisHub && window.crisHub.closeAddSubprojectModal()" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="window.crisHub && window.crisHub.handleAddSubprojectSubmit(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nombre del Subproyecto</label>
+          <input type="text" id="new-subproject-name" required placeholder="Ej: Trabajo, Gimnasio, Finanzas..."
+            class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Categoría</label>
+          <input type="text" id="new-subproject-category" placeholder="Ej: Profesional, Salud, Finanzas..."
+            class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Descripción / Objetivos</label>
+          <textarea id="new-subproject-desc" rows="3" placeholder="Qué quieres gestionar en este subproyecto..."
+            class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" onclick="window.crisHub && window.crisHub.closeAddSubprojectModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+            Cancelar
+          </button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-md shadow-purple-600/20 transition active:scale-95">
+            Guardar Subproyecto
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: AÑADIR NUEVO HÁBITO / CONCEPTO DIARIO -->
+  <div id="modal-add-habit" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-700 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700/60">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-300 flex items-center justify-center">
+            <i data-lucide="check-square" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-base text-slate-900 dark:text-white">Nuevo Concepto Diario</h3>
+            <p class="text-[11px] text-slate-400">Registra un hábito o rutina para seguimiento diario</p>
+          </div>
+        </div>
+        <button type="button" onclick="window.checklistModule && window.checklistModule.closeAddHabitModal()" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="window.checklistModule && window.checklistModule.handleAddHabitSubmit(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nombre del Concepto / Hábito</label>
+          <input type="text" id="new-habit-name" required placeholder="Ej: Meditación, Paseo 30 min, Estiramientos..."
+            class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Meta u Objetivo Diario</label>
+          <input type="text" id="new-habit-goal" placeholder="Ej: 15-20 min, Mañana y noche, 2L..."
+            class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Categoría</label>
+            <select id="new-habit-category" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <option value="Mente">Mente / Intelecto</option>
+              <option value="Bienestar">Bienestar / Autocuidado</option>
+              <option value="Físico">Físico / Salud</option>
+              <option value="Estudios">Estudios / Enfoque</option>
+              <option value="Hogar">Hogar / Orden</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Icono</label>
+            <select id="new-habit-icon" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <option value="check-circle">Check Circle</option>
+              <option value="book-open">Libro</option>
+              <option value="sparkles">Sparkles</option>
+              <option value="dumbbell">Pesas / Gym</option>
+              <option value="droplet">Gota de Agua</option>
+              <option value="brain">Cerebro</option>
+              <option value="footprints">Pasos</option>
+              <option value="sun">Sol</option>
+              <option value="moon">Luna</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Color Identificativo</label>
+          <select id="new-habit-color" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <option value="emerald">Verde Esmeralda</option>
+            <option value="purple">Púrpura</option>
+            <option value="blue">Azul</option>
+            <option value="amber">Ámbar</option>
+            <option value="pink">Rosa</option>
+            <option value="indigo">Índigo</option>
+          </select>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" onclick="window.checklistModule && window.checklistModule.closeAddHabitModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+            Cancelar
+          </button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition active:scale-95">
+            Añadir Concepto
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts de la Aplicación -->
+  <script src="js/store.js?v=39"></script>
+  <script src="js/subjects.js?v=39"></script>
+  <script src="js/curriculum.js?v=39"></script>
+  <script src="js/schedule.js?v=39"></script>
+  <script src="js/tfg.js?v=39"></script>
+  <script src="js/mkt-grades.js?v=39"></script>
+  <script src="js/calendar.js?v=39"></script>
+  <script src="js/tasks.js?v=39"></script>
+  <script src="js/pomodoro.js?v=39"></script>
+  <script src="js/notes.js?v=39"></script>
+  <script src="js/stats.js?v=39"></script>
+  <script src="js/checklist.js?v=39"></script>
+  <script src="js/economia.js?v=39"></script>
+  <script src="js/menus.js?v=39"></script>
+  <script src="js/cris-hub.js?v=39"></script>
+  <script src="js/auth.js?v=39"></script>
+  <script src="js/app.js?v=39"></script>
+</body>
+</html>
