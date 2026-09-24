@@ -181,7 +181,7 @@
 
   // --- Constantes del Módulo ---
   const SALT = 'cris_studyflow_v2026_salt_9x';
-  const DEFAULT_PIN = '1234';
+  const DEFAULT_PIN = '250419';
   const STORAGE_HASH_KEY = 'cris_auth_pin_hash';
   const STORAGE_PIN_LEN_KEY = 'cris_auth_pin_len';
   const STORAGE_ENABLED_KEY = 'cris_auth_enabled';
@@ -212,7 +212,9 @@
 
     ensureInitialSetup() {
       try {
-        if (!localStorage.getItem(STORAGE_HASH_KEY)) {
+        const DEPRECATED_PIN_HASH = '2f9789e1db8f96ffbcb5465a97e4bd309ae37cc9c1e45d0d114e7a2add854a21';
+        const currentHash = localStorage.getItem(STORAGE_HASH_KEY);
+        if (!currentHash || currentHash === DEPRECATED_PIN_HASH) {
           localStorage.setItem(STORAGE_HASH_KEY, this._hash(DEFAULT_PIN));
           localStorage.setItem(STORAGE_PIN_LEN_KEY, String(DEFAULT_PIN.length));
         }
@@ -353,9 +355,9 @@
     getExpectedLength() {
       try {
         const len = parseInt(localStorage.getItem(STORAGE_PIN_LEN_KEY), 10);
-        return (len >= 4 && len <= 8) ? len : 4;
+        return (len >= 4 && len <= 8) ? len : DEFAULT_PIN.length;
       } catch (e) {
-        return 4;
+        return DEFAULT_PIN.length;
       }
     }
 
@@ -638,15 +640,15 @@
 
       if (step === 'pin') {
         if (this.subtitleEl) {
-          this.subtitleEl.textContent = 'Introduce tu código de acceso';
-          this.subtitleEl.className = 'text-xs text-slate-400 mt-2 text-center';
+          this.subtitleEl.textContent = '';
+          this.subtitleEl.className = 'hidden';
         }
         if (this.lockBadge) {
           this.lockBadge.className = 'absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-purple-500 text-white flex items-center justify-center shadow-md';
           this.lockBadge.innerHTML = '<i data-lucide="lock" class="w-3.5 h-3.5"></i>';
         }
         if (this.btnUnlock) {
-          this.btnUnlock.querySelector('span').textContent = 'Continuar';
+          this.btnUnlock.querySelector('span').textContent = 'Entrar';
         }
         if (this.inputEl) {
           this.inputEl.focus();
@@ -932,8 +934,8 @@
       }
       if (this.subtitleEl) {
         if (this.currentStep === 'pin') {
-          this.subtitleEl.textContent = 'Introduce tu código de acceso';
-          this.subtitleEl.className = 'text-xs text-slate-400 mt-2 text-center';
+          this.subtitleEl.textContent = '';
+          this.subtitleEl.className = 'hidden';
         } else if (this.currentStep === 'totp') {
           this.subtitleEl.textContent = 'Paso 2: Código Google Authenticator';
           this.subtitleEl.className = 'text-xs text-cyan-400 font-bold mt-2 text-center';
@@ -1131,7 +1133,7 @@
         localStorage.setItem('cris_auth_updated_at', new Date().toISOString());
         this.renderDots();
         this.syncPinToCloud(this._hash(DEFAULT_PIN), DEFAULT_PIN.length);
-        return { success: true, message: 'Código restablecido al por defecto (1234).' };
+        return { success: true, message: 'Código restablecido al predeterminado.' };
       } catch (e) {
         return { success: false, message: 'Error al restablecer código.' };
       }
@@ -1139,7 +1141,7 @@
 
     forgotPinPrompt() {
       const confirmReset = window.confirm(
-        "¿Has olvidado tu código de acceso?\n\n¿Deseas restablecer el código al predeterminado (1234)?"
+        "¿Has olvidado tu código de acceso?\n\n¿Deseas restablecer el código al predeterminado?"
       );
       if (confirmReset) {
         const res = this.resetPinToDefault();

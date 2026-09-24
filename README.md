@@ -72,7 +72,7 @@ Bienvenido a **StudyFlow**, tu centro de control académico configurado específ
 
 ### 🔒 8. Inicio de Sesión y Bloqueo con Código PIN
 - **Acceso Protegido:** Pantalla de desbloqueo con código al abrir la plataforma.
-- **Código por defecto:** `1234` (listo para usar inmediatamente).
+- **Código por defecto:** `250419` (listo para usar inmediatamente).
 - **Personalización de Código:** Desde **Ajustes y Tiempos ⚙️** puedes cambiar tu código a cualquier PIN numérico de 4 a 8 dígitos.
 - **Entrada flexible:** Compatible tanto con el teclado físico del ordenador como con el teclado táctil/numérico en pantalla.
 - **Recordar sesión:** Casilla para mantener la sesión activa en el equipo o solicitar el código en cada visita.
