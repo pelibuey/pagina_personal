@@ -1,7 +1,7 @@
 /**
  * CRIS Platform - Authentication & 2FA Access Manager (js/auth.js)
  * Sistema de protección y bloqueo de acceso mediante código PIN de seguridad y
- * Doble Factor de Autenticación (2FA) compatible con Microsoft Authenticator (RFC 6238 TOTP).
+ * Doble Factor de Autenticación (2FA) compatible con Google Authenticator (RFC 6238 TOTP).
  * Sincronización multi-dispositivo con GitHub, Vercel y Supabase.
  * Funciona 100% offline-first y sin dependencias externas.
  */
@@ -89,7 +89,7 @@
     return result;
   }
 
-  // --- MOTOR BASE32 & TOTP (RFC 6238 - Estándar Microsoft & Google Authenticator) ---
+  // --- MOTOR BASE32 & TOTP (RFC 6238 - Estándar Google Authenticator & TOTP) ---
   const B32_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
   function base32Decode(base32) {
@@ -654,7 +654,7 @@
         }
       } else if (step === 'totp') {
         if (this.subtitleEl) {
-          this.subtitleEl.textContent = 'Paso 2: Código Microsoft Authenticator';
+          this.subtitleEl.textContent = 'Paso 2: Código Google Authenticator';
           this.subtitleEl.className = 'text-xs text-cyan-400 font-bold mt-2 text-center';
         }
         if (this.lockBadge) {
@@ -790,11 +790,11 @@
         return;
       }
 
-      // 2. Verificación de TOTP (Microsoft Authenticator)
+      // 2. Verificación de TOTP (Google Authenticator)
       if (this.currentStep === 'totp') {
         if (this.totpInputEl) this.currentTotpInput = this.totpInputEl.value.trim();
         if (!this.currentTotpInput || this.currentTotpInput.length !== 6) {
-          this.showError('Introduce los 6 dígitos de Authenticator');
+          this.showError('Introduce los 6 dígitos de Google Authenticator');
           if (this.totpInputEl) this.totpInputEl.focus();
           return;
         }
@@ -935,7 +935,7 @@
           this.subtitleEl.textContent = 'Introduce tu código de acceso';
           this.subtitleEl.className = 'text-xs text-slate-400 mt-2 text-center';
         } else if (this.currentStep === 'totp') {
-          this.subtitleEl.textContent = 'Paso 2: Código Microsoft Authenticator';
+          this.subtitleEl.textContent = 'Paso 2: Código Google Authenticator';
           this.subtitleEl.className = 'text-xs text-cyan-400 font-bold mt-2 text-center';
         }
       }
@@ -1179,11 +1179,11 @@
         // 2FA Badge & Botones
         const has2FA = this.is2FAEnabled();
         if (badge2FA) {
-          badge2FA.textContent = has2FA ? '● Activo con Authenticator' : '○ Inactivo';
+          badge2FA.textContent = has2FA ? '● Activo con Google Authenticator' : '○ Inactivo';
           badge2FA.className = has2FA ? 'text-[9px] font-bold text-emerald-500' : 'text-[9px] font-semibold text-slate-400';
         }
         if (btnOpen2FA) {
-          btnOpen2FA.textContent = has2FA ? 'Reconfigurar Authenticator' : 'Configurar Microsoft Authenticator';
+          btnOpen2FA.textContent = has2FA ? 'Reconfigurar Google Authenticator' : 'Configurar Google Authenticator';
         }
         if (btnDisable2FA) {
           btnDisable2FA.classList.toggle('hidden', !has2FA);
@@ -1318,7 +1318,7 @@
           }
 
           if (feedback) {
-            feedback.textContent = 'Verificando con Microsoft Authenticator...';
+            feedback.textContent = 'Verificando con Google Authenticator...';
             feedback.className = 'text-[11px] text-cyan-500 font-semibold animate-pulse';
           }
 

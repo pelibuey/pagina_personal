@@ -234,12 +234,12 @@
         </div>
       </div>
 
-      <!-- PASO 2: VERIFICACIÓN MICROSOFT AUTHENTICATOR (2FA) -->
+      <!-- PASO 2: VERIFICACIÓN GOOGLE AUTHENTICATOR (2FA) -->
       <div id="cris-auth-step-totp" class="hidden w-full max-w-[270px] flex-col items-center animate-fadeIn">
         <div class="w-full my-2.5 bg-slate-800/60 border border-slate-700/70 p-3 rounded-2xl text-center">
           <div class="flex items-center justify-center gap-1.5 text-cyan-400 font-bold text-xs mb-1">
             <i data-lucide="smartphone" class="w-4 h-4"></i>
-            <span>Microsoft Authenticator</span>
+            <span>Google Authenticator</span>
           </div>
           <p class="text-[11px] text-slate-300 leading-tight">Introduce los 6 dígitos que aparecen en tu app de autenticación:</p>
         </div>
@@ -254,7 +254,7 @@
             placeholder="000 000" 
             autocomplete="one-time-code"
             class="w-full bg-slate-800/90 hover:bg-slate-800 focus:bg-slate-900 border-2 border-cyan-500/80 focus:border-cyan-400 rounded-2xl py-3 px-4 text-center text-3xl font-black font-mono tracking-[0.25em] text-cyan-300 placeholder:text-slate-600 placeholder:text-xl placeholder:tracking-normal focus:outline-none focus:ring-4 focus:ring-cyan-500/30 transition-all shadow-inner"
-            aria-label="Código Microsoft Authenticator"
+            aria-label="Código Google Authenticator"
           >
         </div>
 
@@ -290,7 +290,7 @@
           >
         </div>
         <button type="button" id="btn-auth-recovery-back" class="text-[10px] text-slate-400 hover:text-white underline mt-1 cursor-pointer">
-          ← Volver a Microsoft Authenticator
+          ← Volver a Google Authenticator
         </button>
       </div>
 
@@ -1921,16 +1921,16 @@
           </div>
         </div>
 
-        <!-- DOBLE FACTOR DE AUTENTICACIÓN (2FA - MICROSOFT AUTHENTICATOR) -->
+        <!-- DOBLE FACTOR DE AUTENTICACIÓN (2FA - GOOGLE AUTHENTICATOR) -->
         <div class="border-t border-slate-100 dark:border-slate-700 pt-3 space-y-2.5">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-1.5">
               <i data-lucide="smartphone" class="w-4 h-4 text-cyan-500"></i>
-              <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Doble Factor (Microsoft Authenticator)</span>
+              <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Doble Factor (Google Authenticator)</span>
             </div>
             <span id="setting-2fa-status-badge" class="text-[9px] font-semibold text-slate-400">○ Inactivo</span>
           </div>
-          <p class="text-[11px] text-slate-400 leading-tight">Protege tu acceso requiriendo un código temporal de 6 dígitos desde la app Microsoft Authenticator en tu teléfono móvil.</p>
+          <p class="text-[11px] text-slate-400 leading-tight">Protege tu acceso requiriendo un código temporal de 6 dígitos desde la app Google Authenticator en tu teléfono móvil.</p>
 
           <div class="bg-cyan-50/40 dark:bg-cyan-950/20 p-3 rounded-xl border border-cyan-200/60 dark:border-cyan-800/40 space-y-2">
             <div class="flex items-center justify-between">
@@ -1939,7 +1939,7 @@
             </div>
             <div class="flex items-center gap-2 pt-1">
               <button type="button" id="btn-open-2fa-setup" class="flex-1 py-1.5 px-3 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-xs font-bold shadow-xs transition active:scale-95 cursor-pointer text-center">
-                Configurar Microsoft Authenticator
+                Configurar Google Authenticator
               </button>
               <button type="button" id="btn-disable-2fa" class="hidden py-1.5 px-3 bg-rose-600/10 hover:bg-rose-600/20 text-rose-500 rounded-lg text-xs font-bold border border-rose-500/30 transition cursor-pointer">
                 Desactivar
@@ -1996,18 +1996,18 @@
     </div>
   </div>
 
-  <!-- Modal: Configuración de 2FA con Microsoft Authenticator -->
+  <!-- Modal: Configuración de 2FA con Google Authenticator -->
   <div id="modal-2fa-setup" class="modal-backdrop fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700/80 rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl flex flex-col text-slate-100 max-h-[90vh] overflow-y-auto">
       
-      <!-- Encabezado con icono Microsoft Authenticator -->
+      <!-- Encabezado con icono Google Authenticator -->
       <div class="flex items-center justify-between pb-3 border-b border-slate-800">
         <div class="flex items-center gap-2.5">
           <div class="w-9 h-9 rounded-2xl bg-cyan-600/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
             <i data-lucide="shield-check" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="text-base font-bold text-white leading-tight">Microsoft Authenticator (2FA)</h3>
+            <h3 class="text-base font-bold text-white leading-tight">Google Authenticator (2FA)</h3>
             <p class="text-[11px] text-slate-400">Configuración de doble factor de seguridad</p>
           </div>
         </div>
@@ -2023,15 +2023,15 @@
         <div class="space-y-1.5 text-xs text-slate-300">
           <p class="font-bold text-cyan-400 text-[11px] uppercase tracking-wider">Pasos para vincular tu móvil:</p>
           <ol class="list-decimal list-inside space-y-1 text-[11px] text-slate-300 bg-slate-800/50 p-2.5 rounded-xl border border-slate-700/60 leading-relaxed">
-            <li>Abre <strong>Microsoft Authenticator</strong> en tu teléfono.</li>
-            <li>Pulsa en <strong>+ (Agregar cuenta)</strong> y elige <strong>"Otra cuenta"</strong>.</li>
+            <li>Abre <strong>Google Authenticator</strong> en tu teléfono.</li>
+            <li>Pulsa en el botón <strong>+ (abajo a la derecha)</strong> y elige <strong>"Escanear un código QR"</strong>.</li>
             <li>Escanea este código QR con la cámara de tu teléfono:</li>
           </ol>
         </div>
 
         <!-- Código QR -->
         <div class="flex flex-col items-center justify-center p-3 bg-white rounded-2xl shadow-inner mx-auto w-fit">
-          <img id="modal-2fa-qr-img" src="" alt="Código QR Microsoft Authenticator" class="w-44 h-44 object-contain">
+          <img id="modal-2fa-qr-img" src="" alt="Código QR Google Authenticator" class="w-44 h-44 object-contain">
         </div>
 
         <!-- Clave en texto por si no puede escanear el QR -->
@@ -2074,9 +2074,9 @@
         <div class="w-14 h-14 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center mx-auto text-2xl font-bold">
           ✓
         </div>
-        <h4 class="text-base font-bold text-white">¡Microsoft Authenticator Activado con Éxito!</h4>
+        <h4 class="text-base font-bold text-white">¡Google Authenticator Activado con Éxito!</h4>
         <p class="text-xs text-slate-300 leading-relaxed">
-          A partir de ahora, tras escribir tu PIN, se te solicitará el código temporal de 6 dígitos de Microsoft Authenticator.
+          A partir de ahora, tras escribir tu PIN, se te solicitará el código temporal de 6 dígitos de Google Authenticator.
         </p>
 
         <!-- Código de rescate -->
