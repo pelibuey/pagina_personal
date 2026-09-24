@@ -43,6 +43,7 @@ const BOT_COMMANDS = [
   { command: 'notas', description: '📌 Ver notas rápidas' },
   { command: 'nueva_nota', description: '✏️ Añadir nota: /nueva_nota [texto]' },
   { command: 'asignaturas', description: '📚 Asignaturas ADE y FP Marketing' },
+  { command: 'tiempo', description: '🌤️ El tiempo y previsión de hoy' },
   { command: 'ayuda', description: '💡 Guía y ejemplos de conversación' }
 ];
 
@@ -797,9 +798,20 @@ export default async function handler(req, res) {
     registerTelegramCommands(TELEGRAM_BOT_TOKEN).catch(() => {});
   }
 
-  // Cargar estado de Supabase para responder
-  const state = await fetchSupabaseState(SUPABASE_URL, SUPABASE_ANON_KEY);
-  const { dateFormatted, isoDate, dayName, tomorrowIsoDate, tomorrowDayName } = getSpainDateContext();
+  // Guardar chat_id del usuario para recordatorios automáticos (ej. clima 8am)
+  try {
+    const tgConfig = state['telegram_config'] || {};
+    const subs = new Set(Array.isArray(tgConfig.subscribers) ? tgConfig.subscribers : []);
+    subs.add(chatId);
+    updateSupabaseRow(SUPABASE_URL, SUPABASE_ANON_KEY, 'telegram_config', {
+      chat_id: chatId,
+      subscribers: Array.from(subs),
+      last_user: userName,
+      last_updated: new Date().toISOString()
+    }).catch(() => {});
+  } catch (e) {
+    console.warn('Error saving telegram_config:', e);
+  }
 
   // Parsear si el mensaje es un comando (/comando [argumentos])
   const cmdMatch = userText.match(/^\/([a-zA-Z0-9_]+)(?:@\w+)?(?:\s+([\s\S]*))?$/);
@@ -1263,6 +1275,33 @@ _💡 Toca el botón **"Menú"** al lado del teclado para verlos todos._`;
 
       await sendTelegramMessage(TELEGRAM_BOT_TOKEN, chatId, msg);
       return res.status(200).json({ ok: true });
+    }
+
+    // 18. /tiempo o /clima
+    if (cmd === 'tiempo' || cmd === 'clima') {
+      const location = args || 'Madrid';
+      try {
+        const resW = await fetch(`https://wttr.in/${encodeURIComponent(location)}?format=j1`, {
+          headers: { 'User-Agent': 'Mozilla/5.0' }
+        });
+        const wData = await resW.json();
+        const curr = (wData.current_condition && wData.current_condition[0]) || {};
+        const today = (wData.weather && wData.weather[0]) || {};
+        
+        let msg = `🌤️ *Pronóstico del Tiempo en ${location}:*\n\n`;
+        msg += `• Estado: *${curr.weatherDesc?.[0]?.value || 'Despejado'}*\n`;
+        msg += `• Temp. actual: *${curr.temp_C || '20'}°C* (Sensación: ${curr.FeelsLikeC || curr.temp_C || '20'}°C)\n`;
+        msg += `• Máx: *${today.maxtempC || '25'}°C* | Mín: *${today.mintempC || '15'}°C*\n`;
+        msg += `• Humedad: *${curr.humidity || '40'}%* | Viento: *${curr.windspeedKmph || '10'} km/h*\n`;
+        msg += `• Probabilidad lluvia: *${today.hourly?.[4]?.chanceofrain || '0'}%*\n`;
+        msg += `• Índice UV: *${today.uvIndex || '4'}*\n\n`;
+        msg += `_Se enviará automáticamente cada día a las 8:00 AM._`;
+        await sendTelegramMessage(TELEGRAM_BOT_TOKEN, chatId, msg);
+        return res.status(200).json({ ok: true });
+      } catch (err) {
+        await sendTelegramMessage(TELEGRAM_BOT_TOKEN, chatId, `⚠️ No se pudo consultar el tiempo en este momento.`);
+        return res.status(200).json({ ok: true });
+      }
     }
   }
 
