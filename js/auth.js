@@ -124,19 +124,112 @@
     return base32;
   }
 
-  async function hmacSha1(keyBytes, messageBytes) {
-    if (window.crypto && window.crypto.subtle) {
-      const cryptoKey = await window.crypto.subtle.importKey(
-        'raw',
-        keyBytes,
-        { name: 'HMAC', hash: { name: 'SHA-1' } },
-        false,
-        ['sign']
-      );
-      const signature = await window.crypto.subtle.sign('HMAC', cryptoKey, messageBytes);
-      return new Uint8Array(signature);
+  // --- Pure JS SHA-1 & HMAC-SHA-1 (100% Offline, safe in any browser / webview) ---
+  function jsSha1(buffer) {
+    let words = [];
+    const len = buffer.length;
+    for (let i = 0; i < len; i++) {
+      words[i >> 2] |= (buffer[i] & 0xff) << (24 - (i % 4) * 8);
     }
-    throw new Error('Web Crypto API no disponible en este navegador');
+    const bitLen = len * 8;
+    words[bitLen >> 5] |= 0x80 << (24 - (bitLen % 32));
+    words[(((bitLen + 64) >> 9) << 4) + 15] = bitLen;
+
+    let w = new Array(80);
+    let a = 1732584193, b = -271733879, c = -1732584194, d = 271733878, e = -1009589776;
+
+    for (let i = 0; i < words.length; i += 16) {
+      let olda = a, oldb = b, oldc = c, oldd = d, olde = e;
+      for (let j = 0; j < 80; j++) {
+        if (j < 16) {
+          w[j] = words[i + j] | 0;
+        } else {
+          const t = w[j - 3] ^ w[j - 8] ^ w[j - 14] ^ w[j - 16];
+          w[j] = (t << 1) | (t >>> 31);
+        }
+        let f, k;
+        if (j < 20) {
+          f = (b & c) | ((~b) & d);
+          k = 1518500249;
+        } else if (j < 40) {
+          f = b ^ c ^ d;
+          k = 1859775393;
+        } else if (j < 60) {
+          f = (b & c) | (b & d) | (c & d);
+          k = -1894007588;
+        } else {
+          f = b ^ c ^ d;
+          k = -899497514;
+        }
+        const temp = (((a << 5) | (a >>> 27)) + f + e + k + w[j]) | 0;
+        e = d;
+        d = c;
+        c = (b << 30) | (b >>> 2);
+        b = a;
+        a = temp;
+      }
+      a = (a + olda) | 0;
+      b = (b + oldb) | 0;
+      c = (c + oldc) | 0;
+      d = (d + oldd) | 0;
+      e = (e + olde) | 0;
+    }
+
+    const out = new Uint8Array(20);
+    const resultWords = [a, b, c, d, e];
+    for (let i = 0; i < 5; i++) {
+      out[i * 4] = (resultWords[i] >>> 24) & 0xff;
+      out[i * 4 + 1] = (resultWords[i] >>> 16) & 0xff;
+      out[i * 4 + 2] = (resultWords[i] >>> 8) & 0xff;
+      out[i * 4 + 3] = resultWords[i] & 0xff;
+    }
+    return out;
+  }
+
+  function jsHmacSha1(keyBytes, messageBytes) {
+    const blockSize = 64;
+    let key = keyBytes;
+    if (key.length > blockSize) {
+      key = jsSha1(key);
+    }
+    const paddedKey = new Uint8Array(blockSize);
+    paddedKey.set(key);
+
+    const oKeyPad = new Uint8Array(blockSize);
+    const iKeyPad = new Uint8Array(blockSize);
+    for (let i = 0; i < blockSize; i++) {
+      oKeyPad[i] = paddedKey[i] ^ 0x5c;
+      iKeyPad[i] = paddedKey[i] ^ 0x36;
+    }
+
+    const innerData = new Uint8Array(blockSize + messageBytes.length);
+    innerData.set(iKeyPad, 0);
+    innerData.set(messageBytes, blockSize);
+    const innerHash = jsSha1(innerData);
+
+    const outerData = new Uint8Array(blockSize + innerHash.length);
+    outerData.set(oKeyPad, 0);
+    outerData.set(innerHash, blockSize);
+    return jsSha1(outerData);
+  }
+
+  async function hmacSha1(keyBytes, messageBytes) {
+    if (typeof window !== 'undefined' && window.crypto && window.crypto.subtle) {
+      try {
+        const cryptoKey = await window.crypto.subtle.importKey(
+          'raw',
+          keyBytes,
+          { name: 'HMAC', hash: { name: 'SHA-1' } },
+          false,
+          ['sign']
+        );
+        const signature = await window.crypto.subtle.sign('HMAC', cryptoKey, messageBytes);
+        return new Uint8Array(signature);
+      } catch (e) {
+        return jsHmacSha1(keyBytes, messageBytes);
+      }
+    }
+    return jsHmacSha1(keyBytes, messageBytes);
   }
 
   async function generateTOTP(secretBase32, timeStepOffset = 0) {
@@ -168,7 +261,7 @@
     if (!/^\d{6}$/.test(cleanToken)) return false;
 
     // Ventana de tolerancia: paso actual, anterior (-30s) y siguiente (+30s)
-    for (const offset of [0, -1, 1]) {
+    for (const offset of [0, -1, 1, -2, 2]) {
       try {
         const expected = await generateTOTP(secretBase32, offset);
         if (expected === cleanToken) return true;
@@ -387,18 +480,14 @@
     isSessionValid() {
       if (!this.isAuthEnabled()) return true;
       try {
-        const twoFaSatisfied = !this.is2FAEnabled() || this.is2FADeviceRemembered();
-        
-        // Si 2FA está habilitado y el dispositivo no está recordado para 2FA,
-        // NUNCA se autoriza acceso automático; debe solicitar PIN + 2FA
-        if (this.is2FAEnabled() && !this.is2FADeviceRemembered()) {
-          return false;
-        }
-
         const sessionActive = sessionStorage.getItem(SESSION_UNLOCKED_KEY) === 'true';
+        // Si 2FA está habilitado, la sesión activa requiere haber superado 2FA
+        if (this.is2FAEnabled()) {
+          const twoFaPassed = sessionStorage.getItem('cris_auth_2fa_ok') === 'true';
+          return sessionActive && twoFaPassed;
+        }
         const pinRemembered = localStorage.getItem(STORAGE_REMEMBER_KEY) === 'true';
-
-        return (sessionActive && twoFaSatisfied) || (pinRemembered && twoFaSatisfied);
+        return sessionActive || pinRemembered;
       } catch (e) {
         return false;
       }
@@ -511,6 +600,17 @@
       });
     }
 
+    togglePinVisibility() {
+      if (!this.inputEl) return;
+      const isPass = this.inputEl.type === 'password';
+      this.inputEl.type = isPass ? 'text' : 'password';
+      if (this.btnToggleEye) {
+        this.btnToggleEye.innerHTML = isPass ? '<i data-lucide="eye-off" class="w-4 h-4"></i>' : '<i data-lucide="eye" class="w-4 h-4"></i>';
+      }
+      if (window.lucide) window.lucide.createIcons();
+      try { this.inputEl.focus(); } catch (e) {}
+    }
+
     setupEventListeners() {
       // 1. Escritura directa en PIN (TECLADO FÍSICO)
       if (this.inputEl) {
@@ -606,11 +706,7 @@
         this.btnToggleEye.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          const isPass = this.inputEl.type === 'password';
-          this.inputEl.type = isPass ? 'text' : 'password';
-          this.btnToggleEye.innerHTML = isPass ? '<i data-lucide="eye-off" class="w-4 h-4"></i>' : '<i data-lucide="eye" class="w-4 h-4"></i>';
-          if (window.lucide) window.lucide.createIcons();
-          this.inputEl.focus();
+          this.togglePinVisibility();
         });
       }
 
@@ -659,9 +755,41 @@
       this.currentStep = step;
       this.hideError();
 
-      if (this.stepPinEl) this.stepPinEl.classList.toggle('hidden', step !== 'pin');
-      if (this.stepTotpEl) this.stepTotpEl.classList.toggle('hidden', step !== 'totp');
-      if (this.stepRecoveryEl) this.stepRecoveryEl.classList.toggle('hidden', step !== 'recovery');
+      if (this.stepPinEl) {
+        if (step === 'pin') {
+          this.stepPinEl.classList.remove('hidden');
+          this.stepPinEl.classList.add('flex');
+          this.stepPinEl.style.display = 'flex';
+        } else {
+          this.stepPinEl.classList.add('hidden');
+          this.stepPinEl.classList.remove('flex');
+          this.stepPinEl.style.display = 'none';
+        }
+      }
+
+      if (this.stepTotpEl) {
+        if (step === 'totp') {
+          this.stepTotpEl.classList.remove('hidden');
+          this.stepTotpEl.classList.add('flex');
+          this.stepTotpEl.style.display = 'flex';
+        } else {
+          this.stepTotpEl.classList.add('hidden');
+          this.stepTotpEl.classList.remove('flex');
+          this.stepTotpEl.style.display = 'none';
+        }
+      }
+
+      if (this.stepRecoveryEl) {
+        if (step === 'recovery') {
+          this.stepRecoveryEl.classList.remove('hidden');
+          this.stepRecoveryEl.classList.add('flex');
+          this.stepRecoveryEl.style.display = 'flex';
+        } else {
+          this.stepRecoveryEl.classList.add('hidden');
+          this.stepRecoveryEl.classList.remove('flex');
+          this.stepRecoveryEl.style.display = 'none';
+        }
+      }
 
       const keypad = document.getElementById('cris-auth-keypad');
       if (keypad) {
@@ -678,11 +806,14 @@
           this.lockBadge.innerHTML = '<i data-lucide="lock" class="w-3.5 h-3.5"></i>';
         }
         if (this.btnUnlock) {
-          this.btnUnlock.querySelector('span').textContent = 'Entrar';
+          const span = this.btnUnlock.querySelector('span');
+          if (span) span.textContent = 'Entrar';
         }
         if (this.inputEl) {
-          this.inputEl.focus();
-          this.inputEl.select();
+          try {
+            this.inputEl.focus();
+            this.inputEl.select();
+          } catch (e) {}
         }
       } else if (step === 'totp') {
         if (this.subtitleEl) {
@@ -694,12 +825,15 @@
           this.lockBadge.innerHTML = '<i data-lucide="shield-check" class="w-3.5 h-3.5"></i>';
         }
         if (this.btnUnlock) {
-          this.btnUnlock.querySelector('span').textContent = 'Verificar 2FA y Entrar';
+          const span = this.btnUnlock.querySelector('span');
+          if (span) span.textContent = 'Verificar 2FA y Entrar';
         }
         if (this.totpInputEl) {
           this.totpInputEl.value = '';
           this.currentTotpInput = '';
-          this.totpInputEl.focus();
+          try {
+            this.totpInputEl.focus();
+          } catch (e) {}
         }
       } else if (step === 'recovery') {
         if (this.subtitleEl) {
@@ -707,11 +841,14 @@
           this.subtitleEl.className = 'text-xs text-amber-400 font-bold mt-2 text-center';
         }
         if (this.btnUnlock) {
-          this.btnUnlock.querySelector('span').textContent = 'Validar Código de Rescate';
+          const span = this.btnUnlock.querySelector('span');
+          if (span) span.textContent = 'Validar Código de Rescate';
         }
         if (this.recoveryInputEl) {
           this.recoveryInputEl.value = '';
-          this.recoveryInputEl.focus();
+          try {
+            this.recoveryInputEl.focus();
+          } catch (e) {}
         }
       }
 
@@ -806,13 +943,13 @@
         const storedHash = localStorage.getItem(STORAGE_HASH_KEY);
 
         if (inputHash === storedHash) {
-          // Si 2FA está activo y no se recordó este dispositivo -> pasar al paso 2
-          if (this.is2FAEnabled() && !this.is2FADeviceRemembered()) {
+          // Si 2FA está activo -> pasar OBLIGATORIAMENTE al paso 2 (Google Authenticator)
+          if (this.is2FAEnabled()) {
             this.isSubmitting = false;
             this.updateDots('success');
             setTimeout(() => {
               this.transitionToStep('totp');
-            }, 300);
+            }, 200);
           } else {
             this.onSuccess();
           }
@@ -836,9 +973,9 @@
         const isValid = await verifyTOTP(this.currentTotpInput, secret);
 
         if (isValid) {
-          if (this.remember2FACheckbox && this.remember2FACheckbox.checked) {
-            this.remember2FADevice(30);
-          }
+          try {
+            sessionStorage.setItem('cris_auth_2fa_ok', 'true');
+          } catch (e) {}
           this.onSuccess();
         } else {
           this.onErrorTOTP('Código 2FA incorrecto o caducado');
@@ -853,8 +990,10 @@
 
         if (val && storedRecovery && val === storedRecovery) {
           this.isSubmitting = true;
-          this.remember2FADevice(1); // 1 día de gracia
-          alert('¡Código de rescate aceptado! Has accedido a tu plataforma. Te recomendamos revisar tu 2FA en Ajustes.');
+          try {
+            sessionStorage.setItem('cris_auth_2fa_ok', 'true');
+          } catch (e) {}
+          alert('¡Código de rescate aceptado! Has accedido a tu plataforma.');
           this.onSuccess();
         } else {
           this.showError('Código de recuperación inválido');
@@ -1002,6 +1141,7 @@
       this.isLocked = true;
       try {
         sessionStorage.removeItem(SESSION_UNLOCKED_KEY);
+        sessionStorage.removeItem('cris_auth_2fa_ok');
         localStorage.removeItem(STORAGE_REMEMBER_KEY);
       } catch (e) {}
 

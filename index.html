@@ -62,10 +62,21 @@
     (function() {
       try {
         var isAuthEnabled = localStorage.getItem('cris_auth_enabled') !== 'false';
-        var isUnlocked = sessionStorage.getItem('cris_auth_unlocked') === 'true' || 
-                         localStorage.getItem('cris_auth_remembered') === 'true';
-        if (!isAuthEnabled || isUnlocked) {
+        var is2faEnabled = localStorage.getItem('cris_auth_2fa_enabled') !== 'false';
+        var sessionUnlocked = sessionStorage.getItem('cris_auth_unlocked') === 'true';
+        var twoFaOk = sessionStorage.getItem('cris_auth_2fa_ok') === 'true';
+
+        if (!isAuthEnabled) {
           document.documentElement.classList.add('cris-unlocked');
+        } else if (is2faEnabled) {
+          if (sessionUnlocked && twoFaOk) {
+            document.documentElement.classList.add('cris-unlocked');
+          }
+        } else {
+          var pinRemembered = localStorage.getItem('cris_auth_remembered') === 'true';
+          if (sessionUnlocked || pinRemembered) {
+            document.documentElement.classList.add('cris-unlocked');
+          }
         }
       } catch (e) {}
     })();
@@ -224,10 +235,11 @@
             <button 
               type="button" 
               id="btn-toggle-pin-visibility" 
+              onclick="window.authModule && window.authModule.togglePinVisibility();"
               class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-white transition rounded-xl cursor-pointer" 
               title="Ver / Ocultar código"
             >
-              <i data-lucide="eye" id="icon-pin-eye" class="w-4 h-4"></i>
+              <i data-lucide="eye" id="icon-pin-eye" class="w-4 h-4 pointer-events-none"></i>
             </button>
           </div>
         </div>
@@ -244,7 +256,7 @@
       </div>
 
       <!-- PASO 2: VERIFICACIÓN GOOGLE AUTHENTICATOR (2FA) -->
-      <div id="cris-auth-step-totp" class="hidden w-full max-w-[270px] flex-col items-center animate-fadeIn">
+      <div id="cris-auth-step-totp" class="hidden w-full max-w-[270px] flex flex-col items-center animate-fadeIn">
         <div class="w-full my-2.5 bg-slate-800/60 border border-slate-700/70 p-3 rounded-2xl text-center">
           <div class="flex items-center justify-center gap-1.5 text-cyan-400 font-bold text-xs mb-1">
             <i data-lucide="smartphone" class="w-4 h-4"></i>
@@ -268,24 +280,24 @@
         </div>
 
         <div class="flex items-center justify-between w-full px-1 text-[10px] text-slate-400">
-          <button type="button" id="btn-auth-back-to-pin" class="hover:text-purple-300 flex items-center gap-1 transition cursor-pointer">
-            <i data-lucide="arrow-left" class="w-3 h-3"></i>
+          <button type="button" id="btn-auth-back-to-pin" onclick="window.authModule && window.authModule.transitionToStep('pin');" class="hover:text-purple-300 flex items-center gap-1 transition cursor-pointer">
+            <i data-lucide="arrow-left" class="w-3 h-3 pointer-events-none"></i>
             <span>Volver al PIN</span>
           </button>
-          <button type="button" id="btn-auth-to-recovery" class="hover:text-amber-300 flex items-center gap-1 transition cursor-pointer">
+          <button type="button" id="btn-auth-to-recovery" onclick="window.authModule && window.authModule.transitionToStep('recovery');" class="hover:text-amber-300 flex items-center gap-1 transition cursor-pointer">
             <span>Usar rescate</span>
-            <i data-lucide="key" class="w-3 h-3"></i>
+            <i data-lucide="key" class="w-3 h-3 pointer-events-none"></i>
           </button>
         </div>
 
         <label class="flex items-center gap-2 mt-2.5 text-xs text-slate-400 hover:text-slate-200 cursor-pointer select-none">
-          <input type="checkbox" id="cris-auth-2fa-remember" class="w-3.5 h-3.5 rounded text-cyan-500 bg-slate-800 border-slate-700 focus:ring-cyan-400" checked>
-          <span class="text-[11px]">Recordar 2FA en este equipo (30 días)</span>
+          <input type="checkbox" id="cris-auth-2fa-remember" class="w-3.5 h-3.5 rounded text-cyan-500 bg-slate-800 border-slate-700 focus:ring-cyan-400">
+          <span class="text-[11px]">Recordar 2FA en este equipo</span>
         </label>
       </div>
 
       <!-- PASO 3: CÓDIGO DE RECUPERACIÓN / RESCATE -->
-      <div id="cris-auth-step-recovery" class="hidden w-full max-w-[270px] flex-col items-center animate-fadeIn">
+      <div id="cris-auth-step-recovery" class="hidden w-full max-w-[270px] flex flex-col items-center animate-fadeIn">
         <div class="w-full my-2 bg-amber-950/30 border border-amber-500/30 p-3 rounded-2xl text-center">
           <p class="text-xs text-amber-300 font-bold mb-1">Código de Rescate</p>
           <p class="text-[10px] text-slate-300 leading-tight">Introduce el código generado al configurar tu 2FA (ej. CRIS-XXXX-XXXX):</p>
@@ -298,7 +310,7 @@
             class="w-full bg-slate-800/90 border-2 border-amber-500/80 rounded-2xl py-2.5 px-3 text-center text-sm font-bold font-mono tracking-wider text-amber-300 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-amber-500/30 uppercase"
           >
         </div>
-        <button type="button" id="btn-auth-recovery-back" class="text-[10px] text-slate-400 hover:text-white underline mt-1 cursor-pointer">
+        <button type="button" id="btn-auth-recovery-back" onclick="window.authModule && window.authModule.transitionToStep('totp');" class="text-[10px] text-slate-400 hover:text-white underline mt-1 cursor-pointer">
           ← Volver a Google Authenticator
         </button>
       </div>
@@ -328,8 +340,8 @@
       </label>
 
       <!-- Botón Desbloquear / Continuar -->
-      <button type="button" id="btn-auth-unlock" class="w-full max-w-[260px] mt-3.5 py-2.5 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30 transition active:scale-95 cursor-pointer">
-        <i data-lucide="unlock" class="w-4 h-4"></i>
+      <button type="button" id="btn-auth-unlock" onclick="window.authModule && window.authModule.verify();" class="w-full max-w-[260px] mt-3.5 py-2.5 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30 transition active:scale-95 cursor-pointer">
+        <i data-lucide="unlock" class="w-4 h-4 pointer-events-none"></i>
         <span>Entrar</span>
       </button>
     </div>
@@ -2559,24 +2571,24 @@
   </nav>
 
   <!-- Scripts de la Aplicación -->
-  <script src="js/store.js?v=45"></script>
-  <script src="js/subjects.js?v=45"></script>
-  <script src="js/curriculum.js?v=45"></script>
-  <script src="js/schedule.js?v=45"></script>
-  <script src="js/tfg.js?v=45"></script>
-  <script src="js/mkt-grades.js?v=45"></script>
-  <script src="js/calendar.js?v=45"></script>
-  <script src="js/tasks.js?v=45"></script>
-  <script src="js/pomodoro.js?v=45"></script>
-  <script src="js/notes.js?v=45"></script>
-  <script src="js/stats.js?v=45"></script>
-  <script src="js/checklist.js?v=45"></script>
-  <script src="js/economia.js?v=45"></script>
-  <script src="js/menus.js?v=45"></script>
-  <script src="js/cris-hub.js?v=45"></script>
-  <script src="js/auth.js?v=45"></script>
-  <script src="js/supabase.js?v=45"></script>
-  <script src="js/app.js?v=45"></script>
+  <script src="js/store.js?v=46"></script>
+  <script src="js/subjects.js?v=46"></script>
+  <script src="js/curriculum.js?v=46"></script>
+  <script src="js/schedule.js?v=46"></script>
+  <script src="js/tfg.js?v=46"></script>
+  <script src="js/mkt-grades.js?v=46"></script>
+  <script src="js/calendar.js?v=46"></script>
+  <script src="js/tasks.js?v=46"></script>
+  <script src="js/pomodoro.js?v=46"></script>
+  <script src="js/notes.js?v=46"></script>
+  <script src="js/stats.js?v=46"></script>
+  <script src="js/checklist.js?v=46"></script>
+  <script src="js/economia.js?v=46"></script>
+  <script src="js/menus.js?v=46"></script>
+  <script src="js/cris-hub.js?v=46"></script>
+  <script src="js/auth.js?v=46"></script>
+  <script src="js/supabase.js?v=46"></script>
+  <script src="js/app.js?v=46"></script>
 </body>
 </html>
 

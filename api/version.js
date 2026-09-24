@@ -5,9 +5,9 @@ module.exports = (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Content-Type', 'application/json');
   return res.status(200).json({
-    version: '1.0.45',
-    buildTime: 1758748000000,
-    buildDate: '2026-09-24T23:06:40.000Z',
-    hash: 'cris-v45-mobile-touch-fix'
+    version: '1.0.46',
+    buildTime: 1758748400000,
+    buildDate: '2026-09-24T23:13:00.000Z',
+    hash: 'cris-v46-2fa-enforce-fix'
   });
 };
