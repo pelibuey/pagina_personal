@@ -10,6 +10,9 @@
   const STORAGE_SB_URL = 'cris_supabase_url';
   const STORAGE_SB_KEY = 'cris_supabase_anon_key';
 
+  const DEFAULT_SB_URL = 'https://tkivferzuavjcfgxfihp.supabase.co';
+  const DEFAULT_SB_KEY = 'sb_publishable_l6D1fMxIG5OhXhri9tw5iA_bLiMEtHG';
+
   class CrisSupabaseSync {
     constructor() {
       this.client = null;
@@ -26,8 +29,8 @@
     }
 
     init() {
-      const url = localStorage.getItem(STORAGE_SB_URL);
-      const key = localStorage.getItem(STORAGE_SB_KEY);
+      const url = localStorage.getItem(STORAGE_SB_URL) || DEFAULT_SB_URL;
+      const key = localStorage.getItem(STORAGE_SB_KEY) || DEFAULT_SB_KEY;
 
       if (url && key && window.supabase && typeof window.supabase.createClient === 'function') {
         try {
@@ -51,8 +54,8 @@
 
     getCredentials() {
       return {
-        url: localStorage.getItem(STORAGE_SB_URL) || '',
-        key: localStorage.getItem(STORAGE_SB_KEY) || ''
+        url: localStorage.getItem(STORAGE_SB_URL) || DEFAULT_SB_URL,
+        key: localStorage.getItem(STORAGE_SB_KEY) || DEFAULT_SB_KEY
       };
     }
 
