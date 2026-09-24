@@ -305,19 +305,19 @@
 
       <!-- Teclado Numérico en Pantalla (Válido para PIN y 2FA) -->
       <div id="cris-auth-keypad" class="grid grid-cols-3 gap-2 w-full max-w-[260px] my-1 select-none">
-        <button type="button" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer" data-key="1">1</button>
-        <button type="button" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer" data-key="2">2</button>
-        <button type="button" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer" data-key="3">3</button>
-        <button type="button" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer" data-key="4">4</button>
-        <button type="button" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer" data-key="5">5</button>
-        <button type="button" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer" data-key="6">6</button>
-        <button type="button" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer" data-key="7">7</button>
-        <button type="button" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer" data-key="8">8</button>
-        <button type="button" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer" data-key="9">9</button>
-        <button type="button" class="py-3 rounded-2xl bg-slate-800/40 hover:bg-slate-700/60 active:bg-rose-950/40 border border-slate-700/40 text-slate-400 hover:text-rose-300 font-bold text-xs uppercase tracking-wider transition active:scale-95 flex items-center justify-center cursor-pointer" data-key="clear" title="Borrar todo">C</button>
-        <button type="button" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer" data-key="0">0</button>
-        <button type="button" class="py-3 rounded-2xl bg-slate-800/40 hover:bg-slate-700/60 active:bg-slate-700 border border-slate-700/40 text-slate-400 hover:text-white transition active:scale-95 flex items-center justify-center cursor-pointer" data-key="backspace" title="Borrar último dígito">
-          <i data-lucide="delete" class="w-5 h-5"></i>
+        <button type="button" onclick="window.authModule && window.authModule.handleKey('1');" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer touch-manipulation" data-key="1">1</button>
+        <button type="button" onclick="window.authModule && window.authModule.handleKey('2');" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer touch-manipulation" data-key="2">2</button>
+        <button type="button" onclick="window.authModule && window.authModule.handleKey('3');" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer touch-manipulation" data-key="3">3</button>
+        <button type="button" onclick="window.authModule && window.authModule.handleKey('4');" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer touch-manipulation" data-key="4">4</button>
+        <button type="button" onclick="window.authModule && window.authModule.handleKey('5');" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer touch-manipulation" data-key="5">5</button>
+        <button type="button" onclick="window.authModule && window.authModule.handleKey('6');" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer touch-manipulation" data-key="6">6</button>
+        <button type="button" onclick="window.authModule && window.authModule.handleKey('7');" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer touch-manipulation" data-key="7">7</button>
+        <button type="button" onclick="window.authModule && window.authModule.handleKey('8');" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer touch-manipulation" data-key="8">8</button>
+        <button type="button" onclick="window.authModule && window.authModule.handleKey('9');" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer touch-manipulation" data-key="9">9</button>
+        <button type="button" onclick="window.authModule && window.authModule.handleKey('clear');" class="py-3 rounded-2xl bg-slate-800/40 hover:bg-slate-700/60 active:bg-rose-950/40 border border-slate-700/40 text-slate-400 hover:text-rose-300 font-bold text-xs uppercase tracking-wider transition active:scale-95 flex items-center justify-center cursor-pointer touch-manipulation" data-key="clear" title="Borrar todo">C</button>
+        <button type="button" onclick="window.authModule && window.authModule.handleKey('0');" class="py-3 rounded-2xl bg-slate-800/70 hover:bg-slate-700/80 active:bg-purple-600/40 border border-slate-700/60 text-white font-bold text-lg transition active:scale-95 flex items-center justify-center shadow-xs cursor-pointer touch-manipulation" data-key="0">0</button>
+        <button type="button" onclick="window.authModule && window.authModule.handleKey('backspace');" class="py-3 rounded-2xl bg-slate-800/40 hover:bg-slate-700/60 active:bg-slate-700 border border-slate-700/40 text-slate-400 hover:text-white transition active:scale-95 flex items-center justify-center cursor-pointer touch-manipulation" data-key="backspace" title="Borrar último dígito">
+          <i data-lucide="delete" class="w-5 h-5 pointer-events-none"></i>
         </button>
       </div>
 
@@ -777,63 +777,63 @@
           <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
             <span class="text-[10px] font-bold text-slate-400 uppercase hidden md:inline">Titulación:</span>
             <div class="grid grid-cols-3 gap-1.5 w-full sm:w-auto text-xs font-bold bg-slate-100 dark:bg-slate-700/50 p-1 rounded-xl">
-              <button data-study-filter="all" class="px-4 py-2 rounded-lg transition text-center flex items-center justify-center gap-1.5 bg-purple-600 text-white shadow-xs">
-                <i data-lucide="globe" class="w-3.5 h-3.5"></i>
-                <span>Todo</span>
+              <button data-study-filter="all" onclick="if(window.studyStore){ window.studyStore.setActiveStudyFilter('all'); if(window.app) window.app.updateStudySwitcher(); }" class="px-4 py-2 rounded-lg transition text-center flex items-center justify-center gap-1.5 bg-purple-600 text-white shadow-xs cursor-pointer touch-manipulation">
+                <i data-lucide="globe" class="w-3.5 h-3.5 pointer-events-none"></i>
+                <span class="pointer-events-none">Todo</span>
               </button>
-              <button data-study-filter="ade" class="px-4 py-2 rounded-lg transition text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-600 text-center flex items-center justify-center gap-1.5">
-                <i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i>
-                <span>ADE</span>
+              <button data-study-filter="ade" onclick="if(window.studyStore){ window.studyStore.setActiveStudyFilter('ade'); if(window.app) window.app.updateStudySwitcher(); }" class="px-4 py-2 rounded-lg transition text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-600 text-center flex items-center justify-center gap-1.5 cursor-pointer touch-manipulation">
+                <i data-lucide="graduation-cap" class="w-3.5 h-3.5 pointer-events-none"></i>
+                <span class="pointer-events-none">ADE</span>
               </button>
-              <button data-study-filter="marketing" class="px-4 py-2 rounded-lg transition text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-600 text-center flex items-center justify-center gap-1.5">
-                <i data-lucide="award" class="w-3.5 h-3.5"></i>
-                <span>Mkt FP</span>
+              <button data-study-filter="marketing" onclick="if(window.studyStore){ window.studyStore.setActiveStudyFilter('marketing'); if(window.app) window.app.updateStudySwitcher(); }" class="px-4 py-2 rounded-lg transition text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-600 text-center flex items-center justify-center gap-1.5 cursor-pointer touch-manipulation">
+                <i data-lucide="award" class="w-3.5 h-3.5 pointer-events-none"></i>
+                <span class="pointer-events-none">Mkt FP</span>
               </button>
             </div>
           </div>
         </div>
 
         <!-- SUBMENÚ HORIZONTAL MÓVIL PARA SECCIONES DE ESTUDIOS -->
-        <div id="study-mobile-subnav-container" class="md:hidden pt-2 border-t border-slate-100 dark:border-slate-700/60 overflow-x-auto flex items-center gap-1.5 scrollbar-none py-1 -mx-1 px-1" style="-webkit-overflow-scrolling: touch;">
-          <button type="button" data-nav-target="dashboard" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-purple-600 text-white shadow-xs">
-            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
-            <span>Resumen</span>
+        <div id="study-mobile-subnav-container" class="md:hidden pt-2 border-t border-slate-100 dark:border-slate-700/60 overflow-x-auto flex items-center gap-1.5 scrollbar-none py-1 -mx-1 px-1 select-none" style="-webkit-overflow-scrolling: touch;">
+          <button type="button" data-nav-target="dashboard" onclick="if(window.app) window.app.navigateTo('dashboard');" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-purple-600 text-white shadow-xs cursor-pointer touch-manipulation">
+            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 pointer-events-none"></i>
+            <span class="pointer-events-none">Resumen</span>
           </button>
-          <button type="button" data-nav-target="subjects" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
-            <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
-            <span>Asignaturas</span>
+          <button type="button" data-nav-target="subjects" onclick="if(window.app) window.app.navigateTo('subjects');" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer touch-manipulation">
+            <i data-lucide="book-open" class="w-3.5 h-3.5 pointer-events-none"></i>
+            <span class="pointer-events-none">Asignaturas</span>
           </button>
-          <button type="button" data-nav-target="schedule" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
-            <i data-lucide="clock" class="w-3.5 h-3.5"></i>
-            <span>Horario</span>
+          <button type="button" data-nav-target="schedule" onclick="if(window.app) window.app.navigateTo('schedule');" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer touch-manipulation">
+            <i data-lucide="clock" class="w-3.5 h-3.5 pointer-events-none"></i>
+            <span class="pointer-events-none">Horario</span>
           </button>
-          <button type="button" data-nav-target="calendar" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
-            <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
-            <span>Calendario</span>
+          <button type="button" data-nav-target="calendar" onclick="if(window.app) window.app.navigateTo('calendar');" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer touch-manipulation">
+            <i data-lucide="calendar" class="w-3.5 h-3.5 pointer-events-none"></i>
+            <span class="pointer-events-none">Calendario</span>
           </button>
-          <button type="button" data-nav-target="tasks" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
-            <i data-lucide="check-square" class="w-3.5 h-3.5"></i>
-            <span>Tareas</span>
+          <button type="button" data-nav-target="tasks" onclick="if(window.app) window.app.navigateTo('tasks');" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer touch-manipulation">
+            <i data-lucide="check-square" class="w-3.5 h-3.5 pointer-events-none"></i>
+            <span class="pointer-events-none">Tareas</span>
           </button>
-          <button type="button" data-nav-target="pomodoro" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
-            <i data-lucide="timer" class="w-3.5 h-3.5"></i>
-            <span>Pomodoro</span>
+          <button type="button" data-nav-target="pomodoro" onclick="if(window.app) window.app.navigateTo('pomodoro');" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer touch-manipulation">
+            <i data-lucide="timer" class="w-3.5 h-3.5 pointer-events-none"></i>
+            <span class="pointer-events-none">Pomodoro</span>
           </button>
-          <button type="button" data-nav-target="notes" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
-            <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
-            <span>Apuntes</span>
+          <button type="button" data-nav-target="notes" onclick="if(window.app) window.app.navigateTo('notes');" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer touch-manipulation">
+            <i data-lucide="file-text" class="w-3.5 h-3.5 pointer-events-none"></i>
+            <span class="pointer-events-none">Apuntes</span>
           </button>
-          <button type="button" data-nav-target="curriculum" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
-            <i data-lucide="network" class="w-3.5 h-3.5"></i>
-            <span>Plan</span>
+          <button type="button" data-nav-target="curriculum" onclick="if(window.app) window.app.navigateTo('curriculum');" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer touch-manipulation">
+            <i data-lucide="network" class="w-3.5 h-3.5 pointer-events-none"></i>
+            <span class="pointer-events-none">Plan</span>
           </button>
-          <button type="button" data-nav-target="tfg" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hidden">
-            <i data-lucide="briefcase" class="w-3.5 h-3.5"></i>
-            <span>TFG</span>
+          <button type="button" data-nav-target="tfg" onclick="if(window.app) window.app.navigateTo('tfg');" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer hidden touch-manipulation">
+            <i data-lucide="briefcase" class="w-3.5 h-3.5 pointer-events-none"></i>
+            <span class="pointer-events-none">TFG</span>
           </button>
-          <button type="button" data-nav-target="mkt-grades" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hidden">
-            <i data-lucide="award" class="w-3.5 h-3.5"></i>
-            <span>Notas Mkt</span>
+          <button type="button" data-nav-target="mkt-grades" onclick="if(window.app) window.app.navigateTo('mkt-grades');" class="study-mobile-subnav flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer hidden touch-manipulation">
+            <i data-lucide="award" class="w-3.5 h-3.5 pointer-events-none"></i>
+            <span class="pointer-events-none">Notas Mkt</span>
           </button>
         </div>
       </div>
@@ -2533,50 +2533,50 @@
   </div>
 
   <!-- BARRA DE NAVEGACIÓN INFERIOR MÓVIL (Solo visible en pantallas pequeñas) -->
-  <nav id="cris-mobile-nav" class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-xl border-t border-slate-700/80 shadow-[0_-4px_20px_rgba(0,0,0,0.3)]" style="padding-bottom: env(safe-area-inset-bottom, 0px);">
+  <nav id="cris-mobile-nav" class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-xl border-t border-slate-700/80 shadow-[0_-4px_20px_rgba(0,0,0,0.3)] select-none" style="padding-bottom: env(safe-area-inset-bottom, 0px);">
     <div class="flex items-stretch justify-around px-1 h-14">
-      <button type="button" data-mobile-nav="cris-hub" class="cris-mob-tab flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-slate-400 transition-colors active:scale-95" aria-label="Inicio">
-        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-        <span class="text-[9px] font-bold leading-none">Inicio</span>
+      <button type="button" data-mobile-nav="cris-hub" onclick="if(window.app) window.app.navigateTo('cris-hub');" class="cris-mob-tab flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-slate-400 transition-colors active:scale-95 cursor-pointer touch-manipulation" aria-label="Inicio">
+        <i data-lucide="layout-dashboard" class="w-5 h-5 pointer-events-none"></i>
+        <span class="text-[9px] font-bold leading-none pointer-events-none">Inicio</span>
       </button>
-      <button type="button" data-mobile-nav="dashboard" class="cris-mob-tab flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-slate-400 transition-colors active:scale-95" aria-label="Estudios">
-        <i data-lucide="graduation-cap" class="w-5 h-5"></i>
-        <span class="text-[9px] font-bold leading-none">Estudios</span>
+      <button type="button" data-mobile-nav="dashboard" onclick="if(window.app) window.app.navigateTo('dashboard');" class="cris-mob-tab flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-slate-400 transition-colors active:scale-95 cursor-pointer touch-manipulation" aria-label="Estudios">
+        <i data-lucide="graduation-cap" class="w-5 h-5 pointer-events-none"></i>
+        <span class="text-[9px] font-bold leading-none pointer-events-none">Estudios</span>
       </button>
-      <button type="button" data-mobile-nav="checklist" class="cris-mob-tab flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-slate-400 transition-colors active:scale-95" aria-label="Hábitos">
-        <i data-lucide="check-circle-2" class="w-5 h-5"></i>
-        <span class="text-[9px] font-bold leading-none">Hábitos</span>
+      <button type="button" data-mobile-nav="checklist" onclick="if(window.app) window.app.navigateTo('checklist');" class="cris-mob-tab flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-slate-400 transition-colors active:scale-95 cursor-pointer touch-manipulation" aria-label="Hábitos">
+        <i data-lucide="check-circle-2" class="w-5 h-5 pointer-events-none"></i>
+        <span class="text-[9px] font-bold leading-none pointer-events-none">Hábitos</span>
       </button>
-      <button type="button" data-mobile-nav="economia" class="cris-mob-tab flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-slate-400 transition-colors active:scale-95" aria-label="Economía">
-        <i data-lucide="wallet" class="w-5 h-5"></i>
-        <span class="text-[9px] font-bold leading-none">Economía</span>
+      <button type="button" data-mobile-nav="economia" onclick="if(window.app) window.app.navigateTo('economia');" class="cris-mob-tab flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-slate-400 transition-colors active:scale-95 cursor-pointer touch-manipulation" aria-label="Economía">
+        <i data-lucide="wallet" class="w-5 h-5 pointer-events-none"></i>
+        <span class="text-[9px] font-bold leading-none pointer-events-none">Economía</span>
       </button>
-      <button type="button" data-mobile-nav="menus" class="cris-mob-tab flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-slate-400 transition-colors active:scale-95" aria-label="Menús">
-        <i data-lucide="utensils" class="w-5 h-5"></i>
-        <span class="text-[9px] font-bold leading-none">Menús</span>
+      <button type="button" data-mobile-nav="menus" onclick="if(window.app) window.app.navigateTo('menus');" class="cris-mob-tab flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-slate-400 transition-colors active:scale-95 cursor-pointer touch-manipulation" aria-label="Menús">
+        <i data-lucide="utensils" class="w-5 h-5 pointer-events-none"></i>
+        <span class="text-[9px] font-bold leading-none pointer-events-none">Menús</span>
       </button>
     </div>
   </nav>
 
   <!-- Scripts de la Aplicación -->
-  <script src="js/store.js?v=44"></script>
-  <script src="js/subjects.js?v=44"></script>
-  <script src="js/curriculum.js?v=44"></script>
-  <script src="js/schedule.js?v=44"></script>
-  <script src="js/tfg.js?v=44"></script>
-  <script src="js/mkt-grades.js?v=44"></script>
-  <script src="js/calendar.js?v=44"></script>
-  <script src="js/tasks.js?v=44"></script>
-  <script src="js/pomodoro.js?v=44"></script>
-  <script src="js/notes.js?v=44"></script>
-  <script src="js/stats.js?v=44"></script>
-  <script src="js/checklist.js?v=44"></script>
-  <script src="js/economia.js?v=44"></script>
-  <script src="js/menus.js?v=44"></script>
-  <script src="js/cris-hub.js?v=44"></script>
-  <script src="js/auth.js?v=44"></script>
-  <script src="js/supabase.js?v=44"></script>
-  <script src="js/app.js?v=44"></script>
+  <script src="js/store.js?v=45"></script>
+  <script src="js/subjects.js?v=45"></script>
+  <script src="js/curriculum.js?v=45"></script>
+  <script src="js/schedule.js?v=45"></script>
+  <script src="js/tfg.js?v=45"></script>
+  <script src="js/mkt-grades.js?v=45"></script>
+  <script src="js/calendar.js?v=45"></script>
+  <script src="js/tasks.js?v=45"></script>
+  <script src="js/pomodoro.js?v=45"></script>
+  <script src="js/notes.js?v=45"></script>
+  <script src="js/stats.js?v=45"></script>
+  <script src="js/checklist.js?v=45"></script>
+  <script src="js/economia.js?v=45"></script>
+  <script src="js/menus.js?v=45"></script>
+  <script src="js/cris-hub.js?v=45"></script>
+  <script src="js/auth.js?v=45"></script>
+  <script src="js/supabase.js?v=45"></script>
+  <script src="js/app.js?v=45"></script>
 </body>
 </html>
 

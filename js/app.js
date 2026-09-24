@@ -141,6 +141,32 @@ class App {
         this.navigateTo(target);
       });
     });
+
+    // Delegación global infalible para enlaces y botones táctiles móviles
+    if (!this._navDelegationBound && typeof document !== 'undefined') {
+      this._navDelegationBound = true;
+      document.addEventListener('click', (e) => {
+        const mobBtn = e.target.closest('[data-mobile-nav]');
+        if (mobBtn) {
+          e.preventDefault();
+          const target = mobBtn.getAttribute('data-mobile-nav');
+          if (target) this.navigateTo(target);
+          return;
+        }
+
+        const navBtn = e.target.closest('[data-nav-target]');
+        if (navBtn) {
+          if (navBtn.tagName === 'BUTTON' && navBtn.id && navBtn.id.includes('toggle')) return;
+          e.preventDefault();
+          const target = navBtn.getAttribute('data-nav-target');
+          const checklistTab = navBtn.getAttribute('data-checklist-tab') || navBtn.getAttribute('data-checklist-mode');
+          const economiaTab = navBtn.getAttribute('data-economia-tab');
+          const menusTab = navBtn.getAttribute('data-menus-tab');
+          if (target) this.navigateTo(target, checklistTab || economiaTab || menusTab);
+          return;
+        }
+      });
+    }
   }
 
   navigateTo(viewId, subParam) {
@@ -367,7 +393,7 @@ class App {
 
   // --- AUTO-UPDATER & AUTO-RELOAD ENGINE ---
   setupAutoUpdater() {
-    this.currentVersionHash = 'cris-v44-2fa-enforce';
+    this.currentVersionHash = 'cris-v45-mobile-touch-fix';
     this._isUpdating = false;
 
     // Obtener versión activa del servidor inmediatamente
