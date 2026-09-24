@@ -367,7 +367,7 @@ class App {
 
   // --- AUTO-UPDATER & AUTO-RELOAD ENGINE ---
   setupAutoUpdater() {
-    this.currentVersionHash = 'cris-v43-mobile-autoreload';
+    this.currentVersionHash = 'cris-v44-2fa-enforce';
     this._isUpdating = false;
 
     // Obtener versión activa del servidor inmediatamente

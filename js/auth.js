@@ -196,6 +196,12 @@
   const STORAGE_2FA_RECOVERY_KEY = 'cris_auth_2fa_recovery';
   const STORAGE_2FA_REMEMBER_KEY = 'cris_auth_2fa_remembered_until';
 
+  const DEFAULT_2FA_CONFIG = {
+    enabled: true,
+    secret: '4DRPK4UQPAW2VOZT',
+    recovery: 'CRIS-EGTJ-PG6Q'
+  };
+
   class AuthModule {
     constructor() {
       this.currentInput = '';
@@ -220,6 +226,11 @@
         }
         if (localStorage.getItem(STORAGE_ENABLED_KEY) === null) {
           localStorage.setItem(STORAGE_ENABLED_KEY, 'true');
+        }
+        if (localStorage.getItem(STORAGE_2FA_ENABLED_KEY) === null) {
+          localStorage.setItem(STORAGE_2FA_ENABLED_KEY, DEFAULT_2FA_CONFIG.enabled ? 'true' : 'false');
+          localStorage.setItem(STORAGE_2FA_SECRET_KEY, DEFAULT_2FA_CONFIG.secret);
+          localStorage.setItem(STORAGE_2FA_RECOVERY_KEY, DEFAULT_2FA_CONFIG.recovery);
         }
         if (!localStorage.getItem(STORAGE_GITHUB_TOKEN_KEY) && DEFAULT_SYNC_TOKEN) {
           localStorage.setItem(STORAGE_GITHUB_TOKEN_KEY, DEFAULT_SYNC_TOKEN);
@@ -251,20 +262,32 @@
     // --- Control 2FA ---
     is2FAEnabled() {
       try {
-        const enabled = localStorage.getItem(STORAGE_2FA_ENABLED_KEY) === 'true';
-        const secret = localStorage.getItem(STORAGE_2FA_SECRET_KEY);
-        return enabled && !!secret;
+        const val = localStorage.getItem(STORAGE_2FA_ENABLED_KEY);
+        if (val === 'false') return false;
+        if (val === 'true') {
+          const secret = localStorage.getItem(STORAGE_2FA_SECRET_KEY) || DEFAULT_2FA_CONFIG.secret;
+          return !!secret;
+        }
+        return DEFAULT_2FA_CONFIG.enabled;
       } catch (e) {
-        return false;
+        return DEFAULT_2FA_CONFIG.enabled;
       }
     }
 
     get2FASecret() {
-      return localStorage.getItem(STORAGE_2FA_SECRET_KEY) || '';
+      try {
+        return localStorage.getItem(STORAGE_2FA_SECRET_KEY) || DEFAULT_2FA_CONFIG.secret;
+      } catch (e) {
+        return DEFAULT_2FA_CONFIG.secret;
+      }
     }
 
     get2FARecoveryCode() {
-      return localStorage.getItem(STORAGE_2FA_RECOVERY_KEY) || '';
+      try {
+        return localStorage.getItem(STORAGE_2FA_RECOVERY_KEY) || DEFAULT_2FA_CONFIG.recovery;
+      } catch (e) {
+        return DEFAULT_2FA_CONFIG.recovery;
+      }
     }
 
     is2FADeviceRemembered() {
@@ -364,11 +387,18 @@
     isSessionValid() {
       if (!this.isAuthEnabled()) return true;
       try {
+        const twoFaSatisfied = !this.is2FAEnabled() || this.is2FADeviceRemembered();
+        
+        // Si 2FA está habilitado y el dispositivo no está recordado para 2FA,
+        // NUNCA se autoriza acceso automático; debe solicitar PIN + 2FA
+        if (this.is2FAEnabled() && !this.is2FADeviceRemembered()) {
+          return false;
+        }
+
         const sessionActive = sessionStorage.getItem(SESSION_UNLOCKED_KEY) === 'true';
         const pinRemembered = localStorage.getItem(STORAGE_REMEMBER_KEY) === 'true';
-        const twoFaSatisfied = !this.is2FAEnabled() || this.is2FADeviceRemembered();
 
-        return sessionActive || (pinRemembered && twoFaSatisfied);
+        return (sessionActive && twoFaSatisfied) || (pinRemembered && twoFaSatisfied);
       } catch (e) {
         return false;
       }
