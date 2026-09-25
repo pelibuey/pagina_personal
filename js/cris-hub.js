@@ -859,12 +859,12 @@ class CrisHubModule {
         <!-- COLUMNA IZQUIERDA: HABIT TRACKER HOY + BLOC DE NOTAS (7 de 12) -->
         <div class="lg:col-span-7 space-y-6">
           
-          <!-- Widget Interactivo de Habit Tracker (Cian Glaciar) -->
-          <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-cyan-200/80 dark:border-cyan-800/40 shadow-sm space-y-4">
+          <!-- Widget Interactivo de Habit Tracker (Cian Glaciar) (Colapsable) -->
+          <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-cyan-200/80 dark:border-cyan-800/40 shadow-sm space-y-4 transition-all">
             <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700/60">
               <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-2xl bg-cyan-100 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shadow-xs">
-                  <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                  <i data-lucide="check-circle-2" class="w-5 h-5 pointer-events-none"></i>
                 </div>
                 <div>
                   <h3 class="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
@@ -877,138 +877,162 @@ class CrisHubModule {
                 </div>
               </div>
 
-              <button onclick="window.crisHub.navigateToModule('checklist', 'cuadro')" class="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 flex items-center gap-1 cursor-pointer">
-                <span>Ver Cuadro Semanal</span>
-                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-              </button>
-            </div>
-
-            <!-- Barra de Progreso Viva -->
-            <div>
-              <div class="flex items-center justify-between text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">
-                <span>Cumplimiento diario</span>
-                <span class="text-cyan-600 dark:text-cyan-400 font-extrabold">${habits.percent}%</span>
-              </div>
-              <div class="w-full h-3 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-cyan-500 via-teal-400 to-emerald-400 rounded-full transition-all duration-500" style="width: ${habits.percent}%"></div>
-              </div>
-            </div>
-
-            <!-- Lista Interactiva de Hábitos con Checkbox -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-              ${habits.habits.length === 0 ? `
-                <p class="text-xs text-slate-400 italic py-3 text-center col-span-2">No hay hábitos configurados aún.</p>
-              ` : habits.habits.map(h => `
-                <div onclick="window.crisHub.toggleHabitFromDashboard('${h.id}')" class="group flex items-center gap-2.5 p-2.5 rounded-2xl transition cursor-pointer border ${h.completed ? 'bg-cyan-50/50 dark:bg-cyan-950/20 border-cyan-200/70 dark:border-cyan-800/40' : 'bg-slate-50/70 dark:bg-slate-700/30 border-slate-200/60 dark:border-slate-700/60 hover:border-cyan-300 dark:hover:border-cyan-700'}">
-                  <div class="w-5 h-5 rounded-lg border-2 flex items-center justify-center transition flex-shrink-0 ${h.completed ? 'bg-cyan-600 border-cyan-600 text-white' : 'border-slate-300 dark:border-slate-500 group-hover:border-cyan-500'}">
-                    ${h.completed ? '<i data-lucide="check" class="w-3.5 h-3.5 stroke-[3]"></i>' : ''}
-                  </div>
-                  <div class="min-w-0 flex-1">
-                    <span class="text-xs font-bold block truncate ${h.completed ? 'text-slate-400 dark:text-slate-500 line-through' : 'text-slate-800 dark:text-slate-200'}">
-                      ${h.name}
-                    </span>
-                    ${h.goal ? `<span class="text-[10px] text-slate-400 block truncate">${h.goal}</span>` : ''}
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-
-          <!-- Bloc de Notas Rápidas de Cris (Scratchpad con Autoguardado) -->
-          <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-700/80 shadow-sm space-y-3">
-            <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-700/60">
-              <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center">
-                  <i data-lucide="edit-3" class="w-4 h-4"></i>
-                </div>
-                <h3 class="text-sm font-extrabold text-slate-900 dark:text-white">Bloc de Notas Rápidas de Cris</h3>
-              </div>
-
-              <div class="flex items-center gap-3">
-                <span id="scratchpad-status" class="text-xs text-slate-400 dark:text-slate-500">Autoguardado</span>
-                <button onclick="window.crisHub.clearQuickNotes()" title="Limpiar notas" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition cursor-pointer text-xs">
-                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              <div class="flex items-center gap-2">
+                <button onclick="window.crisHub.navigateToModule('checklist', 'cuadro')" class="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 flex items-center gap-1 cursor-pointer">
+                  <span>Cuadro Semanal</span>
+                  <i data-lucide="arrow-right" class="w-3.5 h-3.5 pointer-events-none"></i>
+                </button>
+                <button type="button" onclick="window.toggleSection('cris-hub-habits-content', 'chevron-cris-hub-habits', 'hub_habits'); return false;" class="p-1.5 rounded-lg text-slate-400 hover:text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-950/40 transition cursor-pointer" title="Comprimir / Desplegar Hábitos">
+                  <i data-lucide="chevron-down" id="chevron-cris-hub-habits" class="w-4 h-4 transition-transform duration-200 pointer-events-none"></i>
                 </button>
               </div>
             </div>
 
-            <textarea id="cris-scratchpad-input" oninput="window.crisHub.saveQuickNotes(this.value)" placeholder="Escribe aquí cualquier pensamiento, apunte urgente o idea del día... Se guarda automáticamente en tu navegador." rows="3" class="w-full bg-slate-50 dark:bg-slate-700/40 border border-slate-200 dark:border-slate-600 rounded-2xl p-3 text-xs md:text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none transition leading-relaxed">${quickNotes}</textarea>
+            <div id="cris-hub-habits-content" class="space-y-4 transition-all">
+              <!-- Barra de Progreso Viva -->
+              <div>
+                <div class="flex items-center justify-between text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">
+                  <span>Cumplimiento diario</span>
+                  <span class="text-cyan-600 dark:text-cyan-400 font-extrabold">${habits.percent}%</span>
+                </div>
+                <div class="w-full h-3 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-cyan-500 via-teal-400 to-emerald-400 rounded-full transition-all duration-500" style="width: ${habits.percent}%"></div>
+                </div>
+              </div>
+
+              <!-- Lista Interactiva de Hábitos con Checkbox -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                ${habits.habits.length === 0 ? `
+                  <p class="text-xs text-slate-400 italic py-3 text-center col-span-2">No hay hábitos configurados aún.</p>
+                ` : habits.habits.map(h => `
+                  <div onclick="window.crisHub.toggleHabitFromDashboard('${h.id}')" class="group flex items-center gap-2.5 p-2.5 rounded-2xl transition cursor-pointer border ${h.completed ? 'bg-cyan-50/50 dark:bg-cyan-950/20 border-cyan-200/70 dark:border-cyan-800/40' : 'bg-slate-50/70 dark:bg-slate-700/30 border-slate-200/60 dark:border-slate-700/60 hover:border-cyan-300 dark:hover:border-cyan-700'}">
+                    <div class="w-5 h-5 rounded-lg border-2 flex items-center justify-center transition flex-shrink-0 ${h.completed ? 'bg-cyan-600 border-cyan-600 text-white' : 'border-slate-300 dark:border-slate-500 group-hover:border-cyan-500'}">
+                      ${h.completed ? '<i data-lucide="check" class="w-3.5 h-3.5 stroke-[3] pointer-events-none"></i>' : ''}
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <span class="text-xs font-bold block truncate ${h.completed ? 'text-slate-400 dark:text-slate-500 line-through' : 'text-slate-800 dark:text-slate-200'}">
+                        ${h.name}
+                      </span>
+                      ${h.goal ? `<span class="text-[10px] text-slate-400 block truncate">${h.goal}</span>` : ''}
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+
+          <!-- Bloc de Notas Rápidas de Cris (Scratchpad con Autoguardado) (Colapsable) -->
+          <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-700/80 shadow-sm space-y-3 transition-all">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-700/60">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                  <i data-lucide="edit-3" class="w-4 h-4 pointer-events-none"></i>
+                </div>
+                <h3 class="text-sm font-extrabold text-slate-900 dark:text-white">Bloc de Notas Rápidas de Cris</h3>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <span id="scratchpad-status" class="text-xs text-slate-400 dark:text-slate-500">Autoguardado</span>
+                <button onclick="window.crisHub.clearQuickNotes()" title="Limpiar notas" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition cursor-pointer text-xs">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5 pointer-events-none"></i>
+                </button>
+                <button type="button" onclick="window.toggleSection('cris-hub-scratchpad-content', 'chevron-cris-hub-scratchpad', 'hub_scratchpad'); return false;" class="p-1.5 rounded-lg text-slate-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950/40 transition cursor-pointer" title="Comprimir / Desplegar Bloc de Notas">
+                  <i data-lucide="chevron-down" id="chevron-cris-hub-scratchpad" class="w-4 h-4 transition-transform duration-200 pointer-events-none"></i>
+                </button>
+              </div>
+            </div>
+
+            <div id="cris-hub-scratchpad-content" class="transition-all">
+              <textarea id="cris-scratchpad-input" oninput="window.crisHub.saveQuickNotes(this.value)" placeholder="Escribe aquí cualquier pensamiento, apunte urgente o idea del día... Se guarda automáticamente en tu navegador." rows="3" class="w-full bg-slate-50 dark:bg-slate-700/40 border border-slate-200 dark:border-slate-600 rounded-2xl p-3 text-xs md:text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none transition leading-relaxed">${quickNotes}</textarea>
+            </div>
           </div>
         </div>
 
         <!-- COLUMNA DERECHA: RESUMEN EJECUTIVO DE SUBPROYECTOS (5 de 12) -->
         <div class="lg:col-span-5 space-y-6">
           
-          <!-- Tarjeta Ejecutiva Estudios -->
-          <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-purple-200/80 dark:border-purple-800/40 shadow-sm space-y-4">
+          <!-- Tarjeta Ejecutiva Estudios (Colapsable) -->
+          <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-purple-200/80 dark:border-purple-800/40 shadow-sm space-y-4 transition-all">
             <div class="flex items-start justify-between">
               <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-purple-500/20">
-                  <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+                  <i data-lucide="graduation-cap" class="w-5 h-5 pointer-events-none"></i>
                 </div>
                 <div>
                   <span class="text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">Subproyecto 1</span>
                   <h3 class="text-base font-black text-slate-900 dark:text-white leading-tight">Estudios</h3>
                 </div>
               </div>
-              <button onclick="window.crisHub.navigateToModule('estudios')" class="text-xs font-bold text-purple-600 hover:underline cursor-pointer">Abrir</button>
-            </div>
-
-            <div class="p-3 rounded-2xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/30 text-xs space-y-2">
-              <div class="flex items-center justify-between font-bold text-slate-700 dark:text-slate-200">
-                <span>Módulos Marketing FP</span>
-                <span class="text-purple-600 dark:text-purple-400 text-[11px]">Temas 1 al 9</span>
-              </div>
-              <div class="grid grid-cols-4 gap-1 text-[11px] font-bold text-center">
-                <span class="p-1 rounded-lg bg-white dark:bg-slate-800 border border-purple-100 dark:border-purple-900/40">DEMC</span>
-                <span class="p-1 rounded-lg bg-white dark:bg-slate-800 border border-purple-100 dark:border-purple-900/40">MSC</span>
-                <span class="p-1 rounded-lg bg-white dark:bg-slate-800 border border-purple-100 dark:border-purple-900/40">TCIC</span>
-                <span class="p-1 rounded-lg bg-white dark:bg-slate-800 border border-purple-100 dark:border-purple-900/40">SOST</span>
+              <div class="flex items-center gap-2">
+                <button onclick="window.crisHub.navigateToModule('estudios')" class="text-xs font-bold text-purple-600 hover:underline cursor-pointer">Abrir</button>
+                <button type="button" onclick="window.toggleSection('cris-hub-estudios-exec-content', 'chevron-cris-hub-estudios-exec', 'hub_estudios_exec'); return false;" class="p-1.5 rounded-lg text-slate-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950/40 transition cursor-pointer" title="Comprimir / Desplegar Resumen Estudios">
+                  <i data-lucide="chevron-down" id="chevron-cris-hub-estudios-exec" class="w-4 h-4 transition-transform duration-200 pointer-events-none"></i>
+                </button>
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-2 text-xs font-bold">
-              <a href="#mkt-grades" data-nav-target="mkt-grades" class="sidebar-nav-item py-2 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white flex items-center justify-center gap-1.5 transition">
-                <i data-lucide="award" class="w-3.5 h-3.5"></i>
-                <span>Notas (1-9)</span>
-              </a>
-              <a href="#calendar" data-nav-target="calendar" class="sidebar-nav-item py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 flex items-center justify-center gap-1.5 transition">
-                <i data-lucide="calendar" class="w-3.5 h-3.5 text-purple-600"></i>
-                <span>Calendario</span>
-              </a>
+            <div id="cris-hub-estudios-exec-content" class="space-y-4 transition-all">
+              <div class="p-3 rounded-2xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/30 text-xs space-y-2">
+                <div class="flex items-center justify-between font-bold text-slate-700 dark:text-slate-200">
+                  <span>Módulos Marketing FP</span>
+                  <span class="text-purple-600 dark:text-purple-400 text-[11px]">Temas 1 al 9</span>
+                </div>
+                <div class="grid grid-cols-4 gap-1 text-[11px] font-bold text-center">
+                  <span class="p-1 rounded-lg bg-white dark:bg-slate-800 border border-purple-100 dark:border-purple-900/40">DEMC</span>
+                  <span class="p-1 rounded-lg bg-white dark:bg-slate-800 border border-purple-100 dark:border-purple-900/40">MSC</span>
+                  <span class="p-1 rounded-lg bg-white dark:bg-slate-800 border border-purple-100 dark:border-purple-900/40">TCIC</span>
+                  <span class="p-1 rounded-lg bg-white dark:bg-slate-800 border border-purple-100 dark:border-purple-900/40">SOST</span>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+                <a href="#mkt-grades" data-nav-target="mkt-grades" class="sidebar-nav-item py-2 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white flex items-center justify-center gap-1.5 transition">
+                  <i data-lucide="award" class="w-3.5 h-3.5"></i>
+                  <span>Notas (1-9)</span>
+                </a>
+                <a href="#calendar" data-nav-target="calendar" class="sidebar-nav-item py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 flex items-center justify-center gap-1.5 transition">
+                  <i data-lucide="calendar" class="w-3.5 h-3.5 text-purple-600"></i>
+                  <span>Calendario</span>
+                </a>
+              </div>
             </div>
           </div>
 
-          <!-- Tarjeta Ejecutiva Gestión de Casa (Economía + Menús) -->
-          <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-emerald-200/80 dark:border-emerald-800/40 shadow-sm space-y-4">
+          <!-- Tarjeta Ejecutiva Gestión de Casa (Economía + Menús) (Colapsable) -->
+          <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-emerald-200/80 dark:border-emerald-800/40 shadow-sm space-y-4 transition-all">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2.5">
                 <div class="w-9 h-9 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                  <i data-lucide="home" class="w-4 h-4"></i>
+                  <i data-lucide="home" class="w-4 h-4 pointer-events-none"></i>
                 </div>
                 <div>
                   <h3 class="text-sm font-extrabold text-slate-900 dark:text-white">Gestión de Casa</h3>
                   <p class="text-[11px] text-slate-400">Economía (1.1 y 1.2) & Menús Semanales</p>
                 </div>
               </div>
+              <button type="button" onclick="window.toggleSection('cris-hub-casa-exec-content', 'chevron-cris-hub-casa-exec', 'hub_casa_exec'); return false;" class="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition cursor-pointer" title="Comprimir / Desplegar Gestión de Casa">
+                <i data-lucide="chevron-down" id="chevron-cris-hub-casa-exec" class="w-4 h-4 transition-transform duration-200 pointer-events-none"></i>
+              </button>
             </div>
 
-            <div class="grid grid-cols-2 gap-2 text-xs font-bold">
-              <button onclick="window.crisHub.navigateToModule('economia')" class="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/30 text-emerald-700 dark:text-emerald-300 flex flex-col items-start gap-1 hover:bg-emerald-100/50 transition cursor-pointer">
-                <div class="flex items-center gap-1.5">
-                  <i data-lucide="wallet" class="w-4 h-4"></i>
-                  <span>Economía</span>
-                </div>
-                <span class="text-[10px] text-slate-400 font-normal">Personal y Hogar</span>
-              </button>
+            <div id="cris-hub-casa-exec-content" class="transition-all">
+              <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+                <button onclick="window.crisHub.navigateToModule('economia')" class="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/30 text-emerald-700 dark:text-emerald-300 flex flex-col items-start gap-1 hover:bg-emerald-100/50 transition cursor-pointer">
+                  <div class="flex items-center gap-1.5">
+                    <i data-lucide="wallet" class="w-4 h-4 pointer-events-none"></i>
+                    <span>Economía</span>
+                  </div>
+                  <span class="text-[10px] text-slate-400 font-normal">Personal y Hogar</span>
+                </button>
 
-              <button onclick="window.crisHub.navigateToModule('menus')" class="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/30 text-amber-700 dark:text-amber-300 flex flex-col items-start gap-1 hover:bg-amber-100/50 transition cursor-pointer">
-                <div class="flex items-center gap-1.5">
-                  <i data-lucide="utensils" class="w-4 h-4"></i>
-                  <span>Menús</span>
-                </div>
-                <span class="text-[10px] text-slate-400 font-normal">Plan y Compras</span>
-              </button>
+                <button onclick="window.crisHub.navigateToModule('menus')" class="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/30 text-amber-700 dark:text-amber-300 flex flex-col items-start gap-1 hover:bg-amber-100/50 transition cursor-pointer">
+                  <div class="flex items-center gap-1.5">
+                    <i data-lucide="utensils" class="w-4 h-4 pointer-events-none"></i>
+                    <span>Menús</span>
+                  </div>
+                  <span class="text-[10px] text-slate-400 font-normal">Plan y Compras</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1035,21 +1059,32 @@ class CrisHubModule {
           </div>
           <div class="flex items-center gap-2">
             <button onclick="window.crisHub.toggleDashboardSubprojectsView()" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-bold border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 transition cursor-pointer">
-              <i data-lucide="${this.dashboardShowAllOptions ? 'minimize-2' : 'maximize-2'}" class="w-3.5 h-3.5"></i>
+              <i data-lucide="${this.dashboardShowAllOptions ? 'minimize-2' : 'maximize-2'}" class="w-3.5 h-3.5 pointer-events-none"></i>
               <span>${this.dashboardShowAllOptions ? 'Comprimir opciones' : 'Mostrar opciones'}</span>
             </button>
             <button onclick="window.crisHub.openAddSubprojectModal()" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold flex items-center gap-1 transition cursor-pointer">
-              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              <i data-lucide="plus" class="w-3.5 h-3.5 pointer-events-none"></i>
               <span>Nuevo</span>
+            </button>
+            <button type="button" onclick="window.toggleSection('cris-hub-ecosystem-grid', 'chevron-cris-hub-ecosystem', 'hub_ecosystem'); return false;" class="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-500 hover:text-purple-600 transition cursor-pointer border border-slate-200 dark:border-slate-700" title="Comprimir / Desplegar Ecosistema">
+              <i data-lucide="chevron-down" id="chevron-cris-hub-ecosystem" class="w-4 h-4 transition-transform duration-200 pointer-events-none"></i>
             </button>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div id="cris-hub-ecosystem-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 transition-all">
           ${this.renderSubprojectCards()}
         </div>
       </div>
     `;
+
+    if (typeof window.initCollapsibleSection === 'function') {
+      window.initCollapsibleSection('cris-hub-habits-content', 'chevron-cris-hub-habits', 'hub_habits');
+      window.initCollapsibleSection('cris-hub-scratchpad-content', 'chevron-cris-hub-scratchpad', 'hub_scratchpad');
+      window.initCollapsibleSection('cris-hub-estudios-exec-content', 'chevron-cris-hub-estudios-exec', 'hub_estudios_exec');
+      window.initCollapsibleSection('cris-hub-casa-exec-content', 'chevron-cris-hub-casa-exec', 'hub_casa_exec');
+      window.initCollapsibleSection('cris-hub-ecosystem-grid', 'chevron-cris-hub-ecosystem', 'hub_ecosystem');
+    }
 
     if (window.app && window.app.setupNavigation) {
       window.app.setupNavigation();

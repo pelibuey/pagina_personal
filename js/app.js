@@ -393,7 +393,7 @@ class App {
 
   // --- AUTO-UPDATER & AUTO-RELOAD ENGINE ---
   setupAutoUpdater() {
-    this.currentVersionHash = 'cris-v47-mobile-buttons-audit';
+    this.currentVersionHash = 'cris-v48-sections-collapse-fix';
     this._isUpdating = false;
 
     // Obtener versión activa del servidor inmediatamente

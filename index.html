@@ -96,6 +96,58 @@
 
   <!-- Funciones Inmediatas de Desplegables y Colapsables (Garantía Failsafe) -->
   <script>
+    window.toggleSection = function(contentId, chevronId, storageKey) {
+      var content = typeof contentId === 'string' ? document.getElementById(contentId) : contentId;
+      var chevron = typeof chevronId === 'string' ? document.getElementById(chevronId) : chevronId;
+      if (!content) return false;
+      var isHidden = content.style.display === 'none' || content.classList.contains('hidden');
+      var willCollapse = !isHidden;
+
+      if (willCollapse) {
+        content.style.display = 'none';
+        content.classList.add('hidden');
+        if (chevron) {
+          chevron.style.transform = 'rotate(-90deg)';
+          chevron.classList.add('-rotate-90');
+          chevron.classList.remove('rotate-0');
+        }
+        if (storageKey) {
+          try { localStorage.setItem('cris_sec_' + storageKey + '_collapsed', 'true'); } catch(e) {}
+        }
+      } else {
+        content.style.display = '';
+        content.classList.remove('hidden');
+        if (chevron) {
+          chevron.style.transform = 'rotate(0deg)';
+          chevron.classList.remove('-rotate-90');
+          chevron.classList.add('rotate-0');
+        }
+        if (storageKey) {
+          try { localStorage.setItem('cris_sec_' + storageKey + '_collapsed', 'false'); } catch(e) {}
+        }
+      }
+      return willCollapse;
+    };
+
+    window.initCollapsibleSection = function(contentId, chevronId, storageKey) {
+      if (!storageKey) return;
+      try {
+        if (localStorage.getItem('cris_sec_' + storageKey + '_collapsed') === 'true') {
+          var content = document.getElementById(contentId);
+          var chevron = document.getElementById(chevronId);
+          if (content) {
+            content.style.display = 'none';
+            content.classList.add('hidden');
+          }
+          if (chevron) {
+            chevron.style.transform = 'rotate(-90deg)';
+            chevron.classList.add('-rotate-90');
+            chevron.classList.remove('rotate-0');
+          }
+        }
+      } catch(e) {}
+    };
+
     window.toggleSubproject = function(subprojectId, forceState) {
       if (window.crisHub && typeof window.crisHub.toggleSubprojectCollapse === 'function') {
         return window.crisHub.toggleSubprojectCollapse(subprojectId, forceState);
@@ -111,14 +163,30 @@
         if (chevron) {
           chevron.style.transform = 'rotate(-90deg)';
           chevron.classList.add('-rotate-90');
+          chevron.classList.remove('rotate-0');
         }
+        try { localStorage.setItem('cris_sub_' + subprojectId + '_collapsed', 'true'); } catch(e) {}
       } else {
         content.style.display = 'block';
         content.classList.remove('hidden');
         if (chevron) {
           chevron.style.transform = 'rotate(0deg)';
           chevron.classList.remove('-rotate-90');
+          chevron.classList.add('rotate-0');
         }
+        try { localStorage.setItem('cris_sub_' + subprojectId + '_collapsed', 'false'); } catch(e) {}
+      }
+      var btn = document.getElementById('btn-toggle-all-subprojects');
+      if (btn) {
+        var cEst = document.getElementById('subproject-estudios-content');
+        var cChk = document.getElementById('subproject-checklist-content');
+        var cEco = document.getElementById('subproject-economia-content');
+        var cMen = document.getElementById('subproject-menus-content');
+        var allClosed = (!cEst || cEst.style.display === 'none' || cEst.classList.contains('hidden')) &&
+                        (!cChk || cChk.style.display === 'none' || cChk.classList.contains('hidden')) &&
+                        (!cEco || cEco.style.display === 'none' || cEco.classList.contains('hidden')) &&
+                        (!cMen || cMen.style.display === 'none' || cMen.classList.contains('hidden'));
+        btn.textContent = allClosed ? 'Mostrar todo' : 'Comprimir todo';
       }
     };
 
@@ -180,6 +248,11 @@
       if (container && !container.contains(e.target)) {
         window.closeSubprojectsDropdown();
       }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+      window.initCollapsibleSection('dashboard-campus-links-content', 'chevron-dashboard-campus-links', 'dash_campus');
+      window.initCollapsibleSection('dashboard-academic-guide-content', 'chevron-dashboard-academic-guide', 'dash_guide');
     });
   </script>
 </head>
@@ -574,7 +647,7 @@
                 </div>
               </button>
               <button id="btn-subproject-estudios-toggle" type="button" onclick="window.toggleSubproject('estudios'); return false;" class="p-1.5 rounded-lg text-slate-400 hover:text-purple-600 hover:bg-purple-200/40 dark:hover:bg-purple-900/40 transition cursor-pointer" title="Comprimir o desplegar opciones de Estudios">
-                <i data-lucide="chevron-down" id="chevron-subproject-estudios" class="w-4 h-4 text-slate-400 group-hover:text-purple-600 transition-transform duration-200"></i>
+                <i data-lucide="chevron-down" id="chevron-subproject-estudios" class="w-4 h-4 text-slate-400 group-hover:text-purple-600 transition-transform duration-200 pointer-events-none"></i>
               </button>
             </div>
 
@@ -647,7 +720,7 @@
                 </div>
               </button>
               <button id="btn-subproject-checklist-toggle" type="button" onclick="window.toggleSubproject('checklist'); return false;" class="p-1.5 rounded-lg text-slate-400 hover:text-cyan-600 hover:bg-cyan-200/40 dark:hover:bg-cyan-900/40 transition cursor-pointer" title="Comprimir o desplegar opciones de Habit Tracker">
-                <i data-lucide="chevron-down" id="chevron-subproject-checklist" class="w-4 h-4 text-slate-400 group-hover:text-cyan-600 transition-transform duration-200"></i>
+                <i data-lucide="chevron-down" id="chevron-subproject-checklist" class="w-4 h-4 text-slate-400 group-hover:text-cyan-600 transition-transform duration-200 pointer-events-none"></i>
               </button>
             </div>
 
@@ -674,7 +747,7 @@
                 </div>
               </button>
               <button id="btn-subproject-economia-toggle" type="button" onclick="window.toggleSubproject('economia'); return false;" class="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-200/40 dark:hover:bg-emerald-900/40 transition cursor-pointer" title="Comprimir o desplegar opciones de Gestión Económica">
-                <i data-lucide="chevron-down" id="chevron-subproject-economia" class="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-transform duration-200"></i>
+                <i data-lucide="chevron-down" id="chevron-subproject-economia" class="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-transform duration-200 pointer-events-none"></i>
               </button>
             </div>
 
@@ -705,7 +778,7 @@
                 </div>
               </button>
               <button id="btn-subproject-menus-toggle" type="button" onclick="window.toggleSubproject('menus'); return false;" class="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-200/40 dark:hover:bg-amber-900/40 transition cursor-pointer" title="Comprimir o desplegar opciones de Menús Semanales">
-                <i data-lucide="chevron-down" id="chevron-subproject-menus" class="w-4 h-4 text-slate-400 group-hover:text-amber-600 transition-transform duration-200"></i>
+                <i data-lucide="chevron-down" id="chevron-subproject-menus" class="w-4 h-4 text-slate-400 group-hover:text-amber-600 transition-transform duration-200 pointer-events-none"></i>
               </button>
             </div>
 
@@ -931,18 +1004,23 @@
           </div>
         </div>
 
-        <!-- Acceso Rápido a Campus Virtuales Oficiales (Online) -->
-        <div class="bg-white dark:bg-slate-800 p-4 md:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300 flex items-center justify-center">
-              <i data-lucide="external-link" class="w-5 h-5"></i>
+        <!-- Acceso Rápido a Campus Virtuales Oficiales (Online) (Colapsable) -->
+        <div class="bg-white dark:bg-slate-800 p-4 md:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs transition-all">
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300 flex items-center justify-center">
+                <i data-lucide="external-link" class="w-5 h-5 pointer-events-none"></i>
+              </div>
+              <div>
+                <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100">Aulas Virtuales & Plataformas Oficiales</h3>
+                <p class="text-xs text-slate-400">Accede directamente a tus campus oficiales (UNED y EducamosCLM) y a tus clases en directo (INTECCA).</p>
+              </div>
             </div>
-            <div>
-              <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100">Aulas Virtuales & Plataformas Oficiales</h3>
-              <p class="text-xs text-slate-400">Accede directamente a tus campus oficiales (UNED y EducamosCLM) y a tus clases en directo (INTECCA).</p>
-            </div>
+            <button type="button" onclick="window.toggleSection('dashboard-campus-links-content', 'chevron-dashboard-campus-links', 'dash_campus'); return false;" class="p-1.5 rounded-lg text-slate-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950/40 transition cursor-pointer" title="Comprimir / Desplegar Campus Virtuales">
+              <i data-lucide="chevron-down" id="chevron-dashboard-campus-links" class="w-4 h-4 transition-transform duration-200 pointer-events-none"></i>
+            </button>
           </div>
-          <div class="flex items-center gap-2 flex-wrap">
+          <div id="dashboard-campus-links-content" class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700/60 flex items-center gap-2 flex-wrap transition-all">
             <a href="https://www.uned.es/universidad/campus/estudiantes/estudios.html" target="_blank" rel="noopener noreferrer" title="Portal de Estudios UNED (ADE)" class="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
               <i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i>
               <span>Campus ADE (UNED)</span>
@@ -1106,10 +1184,15 @@
             </button>
           </div>
 
-          <!-- Consejos de estudio y accesos rápidos -->
-          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm lg:col-span-2">
-            <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base mb-3">Guía Rápida para el Éxito Académico</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <!-- Consejos de estudio y accesos rápidos (Colapsable) -->
+          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm lg:col-span-2 transition-all">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base">Guía Rápida para el Éxito Académico</h3>
+              <button type="button" onclick="window.toggleSection('dashboard-academic-guide-content', 'chevron-dashboard-academic-guide', 'dash_guide'); return false;" class="p-1.5 rounded-lg text-slate-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950/40 transition cursor-pointer" title="Comprimir / Desplegar Guía Rápida">
+                <i data-lucide="chevron-down" id="chevron-dashboard-academic-guide" class="w-4 h-4 transition-transform duration-200 pointer-events-none"></i>
+              </button>
+            </div>
+            <div id="dashboard-academic-guide-content" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs transition-all">
               <div class="p-3.5 rounded-xl bg-blue-50/70 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30">
                 <span class="font-bold text-blue-900 dark:text-blue-200 block mb-1">1. Pomodoro Activo (25/5)</span>
                 <p class="text-blue-700 dark:text-blue-300">Estudia durante 25 minutos sin mirar el móvil. Tras 4 bloques, tómate 15 minutos completos.</p>
