@@ -39,7 +39,7 @@ async function fetchSupabaseState(supabaseUrl, supabaseKey) {
   }
 }
 
-async function getWeatherData(location = 'Madrid') {
+async function getWeatherData(location = 'Hoyo de Manzanares') {
   try {
     const res = await fetch(`https://wttr.in/${encodeURIComponent(location)}?format=j1`, {
       headers: { 'User-Agent': 'Mozilla/5.0' }
@@ -187,7 +187,7 @@ export default async function handler(req, res) {
   const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || DEFAULT_SB_URL;
   const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || DEFAULT_SB_KEY;
 
-  const { location = 'Madrid', chat_id } = req.query || {};
+  const { location = 'Hoyo de Manzanares', chat_id } = req.query || {};
 
   const state = await fetchSupabaseState(SUPABASE_URL, SUPABASE_ANON_KEY);
   const weather = await getWeatherData(location);

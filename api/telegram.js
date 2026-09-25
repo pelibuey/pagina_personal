@@ -246,6 +246,7 @@ function buildCrisContext(state) {
 --- CONTEXTO ACTUAL DE CRIS (${dateFormatted}) ---
 • FECHA HOY: ${isoDate} (${dayName})
 • FECHA MAÑANA: ${tomorrowIsoDate} (${tomorrowDayName})
+• UBICACIÓN: Hoyo de Manzanares (Madrid, España) - Su tiempo meteorológico siempre corresponde a Hoyo de Manzanares.
 • PERFIL DE CRIS: Doble itinerario de estudios en España:
   1) Grado en ADE (UNED)
   2) FP Grado Superior en Marketing y Publicidad (EducamosCLM)
@@ -1282,7 +1283,7 @@ _💡 Toca el botón **"Menú"** al lado del teclado para verlos todos._`;
 
     // 18. /tiempo o /clima
     if (cmd === 'tiempo' || cmd === 'clima') {
-      const location = args || 'Madrid';
+      const location = args || 'Hoyo de Manzanares';
       try {
         const resW = await fetch(`https://wttr.in/${encodeURIComponent(location)}?format=j1`, {
           headers: { 'User-Agent': 'Mozilla/5.0' }
