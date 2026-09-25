@@ -416,9 +416,12 @@ class CalendarModule {
             </div>
           </div>
 
-          <div class="flex items-center gap-2 flex-shrink-0">
+          <div class="flex items-center gap-1.5 flex-shrink-0">
             ${countdownBadge}
-            <button onclick="window.calendarModule.deleteExam('${e.id}')" title="Eliminar" class="p-1.5 text-slate-400 hover:text-rose-500 transition">
+            <button onclick="window.calendarModule.addToGoogleCalendar('${e.id}')" title="Añadir a Google Calendar" class="p-1.5 text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition cursor-pointer">
+              <i data-lucide="calendar-plus" class="w-4 h-4"></i>
+            </button>
+            <button onclick="window.calendarModule.deleteExam('${e.id}')" title="Eliminar" class="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-lg transition cursor-pointer">
               <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
           </div>
@@ -673,6 +676,72 @@ class CalendarModule {
     }
 
     return icsText;
+  }
+
+  openSyncModal() {
+    const modal = document.getElementById('modal-sync-calendar');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  closeSyncModal() {
+    const modal = document.getElementById('modal-sync-calendar');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
+  copyFeedUrl() {
+    const input = document.getElementById('input-calendar-feed-url');
+    if (input) {
+      input.select();
+      navigator.clipboard.writeText(input.value).then(() => {
+        if (window.app && typeof window.app.showToast === 'function') {
+          window.app.showToast('Enlace de suscripción copiado al portapapeles', 'success');
+        } else {
+          alert('Enlace copiado al portapapeles');
+        }
+      }).catch(() => {
+        document.execCommand('copy');
+      });
+    }
+  }
+
+  addToGoogleCalendar(examId) {
+    const exam = window.studyStore.getExams().find(e => e.id === examId);
+    if (!exam) return;
+    const subjects = window.studyStore.getSubjects();
+    const sub = subjects.find(s => s.id === exam.subjectId);
+    const subName = sub ? sub.name : 'Estudios';
+
+    const cleanDate = (exam.date || '').replace(/-/g, '');
+    let dates = cleanDate;
+    if (exam.time && exam.time.includes(':')) {
+      const [h, m] = exam.time.split(':').map(Number);
+      const start = `${cleanDate}T${String(h).padStart(2, '0')}${String(m).padStart(2, '0')}00`;
+      const endH = (h + 2) % 24;
+      const end = `${cleanDate}T${String(endH).padStart(2, '0')}${String(m).padStart(2, '0')}00`;
+      dates = `${start}/${end}`;
+    } else {
+      const dObj = new Date(exam.date);
+      dObj.setDate(dObj.getDate() + 1);
+      const nextDate = `${dObj.getFullYear()}${String(dObj.getMonth() + 1).padStart(2, '0')}${String(dObj.getDate()).padStart(2, '0')}`;
+      dates = `${cleanDate}/${nextDate}`;
+    }
+
+    const title = `Examen: ${exam.title} (${subName})`;
+    let details = `Materia: ${subName}\n`;
+    if (exam.classroom) details += `Aula: ${exam.classroom}\n`;
+    if (exam.weight) details += `Ponderación: ${exam.weight}% de la nota\n`;
+    if (exam.notes) details += `Notas: ${exam.notes}\n`;
+    details += `Plataforma CRIS: https://pagina-personal-pelibuey.vercel.app`;
+
+    const gUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${dates}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(exam.classroom || '')}`;
+    window.open(gUrl, '_blank');
   }
 
   escapeHtml(str) {
