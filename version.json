@@ -1,6 +1,6 @@
 {
-  "version": "1.0.52",
-  "buildTime": 1758785200000,
-  "buildDate": "2026-09-25T07:26:40.000Z",
-  "hash": "cris-v52-performance-speedup"
+  "version": "1.0.53",
+  "buildTime": 1758785400000,
+  "buildDate": "2026-09-25T07:30:00.000Z",
+  "hash": "cris-v53-always-initial-dashboard"
 }

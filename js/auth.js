@@ -1134,6 +1134,10 @@
         }
       }
 
+      if (window.app && typeof window.app.navigateTo === 'function') {
+        window.app.navigateTo('cris-hub');
+      }
+
       if (window.lucide) window.lucide.createIcons();
     }
 

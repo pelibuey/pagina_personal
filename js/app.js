@@ -20,8 +20,13 @@ const MOTIVATIONAL_QUOTES = [
 
 class App {
   constructor() {
-    const rawHash = (typeof window !== 'undefined' && window.location && window.location.hash) ? window.location.hash.replace('#', '') : '';
-    this.currentView = rawHash || 'cris-hub';
+    // Siempre iniciar en el dashboard inicial 'cris-hub' al abrir la aplicación
+    this.currentView = 'cris-hub';
+    try {
+      if (typeof window !== 'undefined' && window.location && window.location.hash && window.location.hash !== '#cris-hub') {
+        history.replaceState(null, '', window.location.pathname + window.location.search + '#cris-hub');
+      }
+    } catch (e) {}
     this.init();
   }
 
@@ -35,8 +40,8 @@ class App {
     this.setupModalsDismiss();
     this.setupAutoUpdater();
 
-    // Inicializar navegación hacia la vista activa
-    this.navigateTo(this.currentView);
+    // Navegar siempre al dashboard inicial al arrancar
+    this.navigateTo('cris-hub');
 
     if (typeof window !== 'undefined') {
       window.addEventListener('hashchange', () => {
