@@ -876,23 +876,23 @@ _💡 Toca el botón **"Menú"** al lado del teclado para verlos todos._`;
       const pendingHabits = habits.filter(h => !todayHist[h.id]);
 
       const menusData = state['cris_menus_data_v1'] || {};
-      const semana = menusData.menuSemanal || {};
-      const hoy = semana[dayName] || {};
+      const menuSemanal = menusData.menuSemanal || {};
+      const hoy = menuSemanal[dayName] || menuSemanal[dayName.charAt(0).toUpperCase() + dayName.slice(1)] || menuSemanal[dayName.toLowerCase()] || {};
 
       const eco = state['cris_economia_data_v1'] || {};
       const personal = eco.personal || {};
-      const totalGastosMes = (personal.gastos || []).reduce((acc, g) => acc + (Number(g.importe) || 0), 0);
-      const presupuesto = Number(personal.presupuestoMensual) || 600;
-      const restante = Math.max(0, presupuesto - totalGastosMes);
+      const gastos = personal.gastos || [];
+      const totalGastosMes = gastos.reduce((acc, g) => acc + (Number(g.importe) || 0), 0);
 
       let msg = `📋 *Resumen Integral de Hoy (${dayName} ${isoDate}):*\n\n`;
-      msg += `⏳ *Tareas pendientes:* ${tasks.length} ${tasks.length === 0 ? '🎉' : ''}\n`;
-      msg += `📅 *Próximos exámenes:* ${exams.length}\n`;
-      msg += `⏰ *Hábitos de hoy:* ${habits.length - pendingHabits.length}/${habits.length} completados\n`;
-      msg += `🍽️ *Comida hoy:* ${hoy.almuerzo || 'No fijada'}\n`;
-      msg += `🥗 *Cena hoy:* ${hoy.cena || 'No fijada'}\n`;
-      msg += `💰 *Presupuesto restante:* ${restante.toFixed(2)}€ (Gastado: ${totalGastosMes.toFixed(2)}€)\n\n`;
-      msg += `_Escríbeme lo que quieras para consultar detalles o apuntar cosas._`;
+      msg += `⏳ *Tareas pendientes:* ${tasks.length > 0 ? tasks.length : '0 (¡Al día!)'}\n`;
+      if (exams.length > 0) msg += `📅 *Próximos exámenes:* ${exams.length}\n`;
+      if (habits.length > 0) msg += `⏰ *Hábitos de hoy:* ${habits.length - pendingHabits.length}/${habits.length} completados\n`;
+      if (hoy.almuerzo) msg += `🍽️ *Comida hoy:* ${hoy.almuerzo}\n`;
+      if (hoy.cena) msg += `🥗 *Cena hoy:* ${hoy.cena}\n`;
+      if (!hoy.almuerzo && !hoy.cena) msg += `🍽️ *Comidas:* Sin planificar aún\n`;
+      if (gastos.length > 0) msg += `💰 *Gastado este mes:* ${totalGastosMes.toFixed(2)}€\n`;
+      msg += `\n_Escríbeme lo que quieras para consultar o apuntar cosas._`;
 
       await sendTelegramMessage(TELEGRAM_BOT_TOKEN, chatId, msg);
       return res.status(200).json({ ok: true });
@@ -906,21 +906,28 @@ _💡 Toca el botón **"Menú"** al lado del teclado para verlos todos._`;
       const habits = habitsData.habits || [];
       const todayHist = (habitsData.history && habitsData.history[isoDate]) || {};
       const menusData = state['cris_menus_data_v1'] || {};
-      const hoyMenu = (menusData.menuSemanal || {})[dayName] || {};
+      const menuSemanal = menusData.menuSemanal || {};
+      const hoyMenu = menuSemanal[dayName] || menuSemanal[dayName.charAt(0).toUpperCase() + dayName.slice(1)] || menuSemanal[dayName.toLowerCase()] || {};
 
       let msg = `☀️ *Agenda de Hoy (${dayName.toUpperCase()} ${isoDate}):*\n\n`;
-      msg += `🍽️ *Comida:* ${hoyMenu.almuerzo || 'Sin definir'}\n`;
-      msg += `🥗 *Cena:* ${hoyMenu.cena || 'Sin definir'}\n\n`;
-
-      msg += `⏰ *Hábitos:* ${habits.filter(h => !!todayHist[h.id]).length}/${habits.length} hechos\n`;
-      const pendingHabits = habits.filter(h => !todayHist[h.id]);
-      if (pendingHabits.length > 0) {
-        msg += `Te faltan: ${pendingHabits.map(h => h.name).join(', ')}\n\n`;
+      if (hoyMenu.almuerzo || hoyMenu.cena) {
+        if (hoyMenu.almuerzo) msg += `🍽️ *Comida:* ${hoyMenu.almuerzo}\n`;
+        if (hoyMenu.cena) msg += `🥗 *Cena:* ${hoyMenu.cena}\n\n`;
       } else {
-        msg += `¡Todos los hábitos completados! 🎉\n\n`;
+        msg += `🍽️ *Comidas:* Sin planificar aún\n\n`;
       }
 
-      msg += `📝 *Tareas prioritarias:* ${todayTasks.length > 0 ? todayTasks.map(t => `• ${t.title}`).join('\n') : 'Sin tareas urgentes para hoy.'}`;
+      if (habits.length > 0) {
+        msg += `⏰ *Hábitos:* ${habits.filter(h => !!todayHist[h.id]).length}/${habits.length} hechos\n`;
+        const pendingHabits = habits.filter(h => !todayHist[h.id]);
+        if (pendingHabits.length > 0) {
+          msg += `Te faltan: ${pendingHabits.map(h => h.name).join(', ')}\n\n`;
+        } else {
+          msg += `¡Todos los hábitos completados! 🎉\n\n`;
+        }
+      }
+
+      msg += `📝 *Tareas prioritarias:* ${todayTasks.length > 0 ? todayTasks.map(t => `• ${t.title}`).join('\n') : 'Sin tareas pendientes para hoy.'}`;
 
       await sendTelegramMessage(TELEGRAM_BOT_TOKEN, chatId, msg);
       return res.status(200).json({ ok: true });

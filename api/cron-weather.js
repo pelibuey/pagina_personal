@@ -103,9 +103,11 @@ function formatWeatherMessage(w, state) {
   const ecoData = state['cris_economia_data_v1'] || {};
   
   const now = new Date();
-  const daysOfWeek = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
-  const dayName = daysOfWeek[now.getDay()];
-  const hoyMenu = (menusData.menuSemanal || {})[dayName] || {};
+  const daysOfWeek = ['Domingo', 'Lunes', 'Miércoles', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  const daysMap = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  const dayName = daysMap[now.getDay()];
+  const menuSemanal = menusData.menuSemanal || {};
+  const hoyMenu = menuSemanal[dayName] || menuSemanal[dayName.toLowerCase()] || {};
   const isoDate = now.toISOString().split('T')[0];
   
   const tasks = (study.tasks || []).filter(t => !t.completed);
@@ -115,32 +117,37 @@ function formatWeatherMessage(w, state) {
   const pendingHabits = habits.filter(h => !todayHist[h.id]);
 
   const personal = ecoData.personal || {};
-  const totalGastos = (personal.gastos || []).reduce((acc, g) => acc + (Number(g.importe) || 0), 0);
-  const presupuesto = Number(personal.presupuestoMensual) || 600;
-  const restante = Math.max(0, presupuesto - totalGastos);
+  const gastos = personal.gastos || [];
+  const totalGastos = gastos.reduce((acc, g) => acc + (Number(g.importe) || 0), 0);
 
-  let msg = `☀️ *¡Buenos días, Cris! Aquí tienes tu Resumen Diario Integral*\n\n`;
-  msg += `📍 *El tiempo en ${w.location}:*\n`;
+  let msg = `☀️ *Resumen Diario de Hoy (Hoyo de Manzanares)*\n`;
+  msg += `📅 _${dayName}, ${now.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}_\n\n`;
+
+  msg += `📍 *El tiempo en Hoyo de Manzanares:*\n`;
   msg += `• Estado: ${icon} *${w.desc}*\n`;
   msg += `• Temp. actual: *${w.tempCurrent}°C* (Sensación: ${w.feelsLike}°C)\n`;
   msg += `• Máxima hoy: *${w.tempMax}°C* | Mínima: *${w.tempMin}°C*\n`;
   msg += `• Lluvia: *${w.rainProb}%* | Viento: *${w.windSpeed} km/h* | UV: *${w.uvIndex}*\n\n`;
 
   if (hoyMenu.almuerzo || hoyMenu.cena) {
-    msg += `🍽️ *Menú del día (${dayName}):*\n`;
-    if (hoyMenu.almuerzo) msg += `• Comida: ${hoyMenu.almuerzo}\n`;
-    if (hoyMenu.cena) msg += `• Cena: ${hoyMenu.cena}\n`;
+    msg += `🍽️ *Comidas planificadas para hoy:*\n`;
+    if (hoyMenu.almuerzo) msg += `• Comida: *${hoyMenu.almuerzo}*\n`;
+    if (hoyMenu.cena) msg += `• Cena: *${hoyMenu.cena}*\n`;
     msg += `\n`;
+  } else {
+    msg += `🍽️ *Comidas de hoy:* _Sin planificar aún_\n\n`;
   }
 
-  msg += `⏰ *Habit Tracker:*\n`;
-  msg += `• Completados: *${doneHabits.length}/${habits.length}*\n`;
-  if (pendingHabits.length > 0) {
-    msg += `• Pendientes: ${pendingHabits.map(h => h.name).join(', ')}\n`;
-  } else {
-    msg += `• ¡Todos los hábitos de hoy completados! 🎉\n`;
+  if (habits.length > 0) {
+    msg += `⏰ *Habit Tracker:*\n`;
+    msg += `• Progreso: *${doneHabits.length}/${habits.length}* completados\n`;
+    if (pendingHabits.length > 0) {
+      msg += `• Pendientes: ${pendingHabits.map(h => h.name).join(', ')}\n`;
+    } else {
+      msg += `• ¡Todos los hábitos de hoy completados! 🎉\n`;
+    }
+    msg += `\n`;
   }
-  msg += `\n`;
 
   msg += `📝 *Estudios:*\n`;
   if (tasks.length > 0) {
@@ -149,11 +156,13 @@ function formatWeatherMessage(w, state) {
       msg += `  ${i + 1}. ${t.title} (${t.dueDate || 'Pronto'})\n`;
     });
   } else {
-    msg += `• ¡Al día! No tienes tareas pendientes acumuladas.\n`;
+    msg += `• ¡Al día! No tienes tareas pendientes registradas.\n`;
   }
   msg += `\n`;
 
-  msg += `💰 *Finanzas:* Restante *${restante.toFixed(2)}€* (Gastado: ${totalGastos.toFixed(2)}€)\n\n`;
+  if (gastos.length > 0) {
+    msg += `💰 *Gastos del mes:* *${totalGastos.toFixed(2)}€*\n\n`;
+  }
   msg += `💪 _¡Todo tu sistema CRIS está sincronizado! Escríbeme cuando quieras o usa /resumen._`;
   return msg;
 }

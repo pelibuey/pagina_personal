@@ -393,7 +393,7 @@ class App {
 
   // --- AUTO-UPDATER & AUTO-RELOAD ENGINE ---
   setupAutoUpdater() {
-    this.currentVersionHash = 'cris-v49-hoyo-weather-fix';
+    this.currentVersionHash = 'cris-v50-clean-real-summary';
     this._isUpdating = false;
 
     // Obtener versión activa del servidor inmediatamente

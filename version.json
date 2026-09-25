@@ -1,6 +1,6 @@
 {
-  "version": "1.0.49",
-  "buildTime": 1758784560000,
-  "buildDate": "2026-09-25T07:16:00.000Z",
-  "hash": "cris-v49-hoyo-weather-fix"
+  "version": "1.0.50",
+  "buildTime": 1758784650000,
+  "buildDate": "2026-09-25T07:17:30.000Z",
+  "hash": "cris-v50-clean-real-summary"
 }
