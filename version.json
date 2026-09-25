@@ -1,6 +1,6 @@
 {
-  "version": "1.0.51",
-  "buildTime": 1758784950000,
-  "buildDate": "2026-09-25T07:22:30.000Z",
-  "hash": "cris-v51-remove-auth-keypad"
+  "version": "1.0.52",
+  "buildTime": 1758785200000,
+  "buildDate": "2026-09-25T07:26:40.000Z",
+  "hash": "cris-v52-performance-speedup"
 }

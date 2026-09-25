@@ -393,27 +393,33 @@ class App {
 
   // --- AUTO-UPDATER & AUTO-RELOAD ENGINE ---
   setupAutoUpdater() {
-    this.currentVersionHash = 'cris-v50-clean-real-summary';
+    this.currentVersionHash = null;
     this._isUpdating = false;
 
-    // Obtener versión activa del servidor inmediatamente
+    // Inicializar hash de la versión activa cargada en esta sesión
     this.fetchCurrentVersion();
 
-    // Verificación periódica cada 25 segundos
-    setInterval(() => this.checkServerVersion(), 25000);
+    // Verificación ligera periódica cada 60 segundos
+    setInterval(() => this.checkServerVersion(), 60000);
 
-    // Verificación inmediata al volver a la pestaña o desbloquear el móvil
+    // Verificación al volver a la pestaña o desbloquear el móvil (con throttle de 10s)
+    this._lastCheckTime = Date.now();
     if (typeof document !== 'undefined') {
       document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
+        if (document.visibilityState === 'visible' && Date.now() - this._lastCheckTime > 10000) {
+          this._lastCheckTime = Date.now();
           this.checkServerVersion();
         }
       });
     }
 
-    // Verificación en eventos de foco y reconexión a Internet
     if (typeof window !== 'undefined') {
-      window.addEventListener('focus', () => this.checkServerVersion());
+      window.addEventListener('focus', () => {
+        if (Date.now() - this._lastCheckTime > 10000) {
+          this._lastCheckTime = Date.now();
+          this.checkServerVersion();
+        }
+      });
       window.addEventListener('online', () => this.checkServerVersion());
     }
   }
@@ -425,6 +431,7 @@ class App {
         const data = await res.json();
         if (data && data.hash) {
           this.currentVersionHash = data.hash;
+          try { sessionStorage.setItem('cris_app_loaded_hash', data.hash); } catch (e) {}
         }
       }
     } catch (e) {}
@@ -438,10 +445,13 @@ class App {
       const data = await res.json();
       if (!data || !data.hash) return;
 
-      if (this.currentVersionHash && data.hash !== this.currentVersionHash) {
+      if (!this.currentVersionHash) {
+        this.currentVersionHash = sessionStorage.getItem('cris_app_loaded_hash') || data.hash;
+        return;
+      }
+
+      if (data.hash !== this.currentVersionHash) {
         this.performAutoReload(data);
-      } else {
-        this.currentVersionHash = data.hash;
       }
     } catch (e) {}
   }

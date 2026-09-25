@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
   <title>CRIS - Plataforma Central de Proyectos & Estudios</title>
+
+  <!-- Preconnect Google Fonts para máxima velocidad de renderizado -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- PWA / iOS Add to Home Screen -->
   <link rel="manifest" href="manifest.json">
@@ -54,8 +56,8 @@
     }
   </script>
 
-  <!-- Google Fonts: Plus Jakarta Sans -->
-  <link rel="stylesheet" href="css/style.css?v=39">
+  <!-- Estilos Personalizados de la Aplicación -->
+  <link rel="stylesheet" href="css/style.css?v=52">
 
   <!-- Pre-verificación de sesión inmediata: Evita parpadeos si ya se inició sesión -->
   <script>
@@ -82,8 +84,20 @@
     })();
   </script>
 
-  <!-- Lucide Icons CDN -->
+  <!-- Lucide Icons CDN con Batching por RequestAnimationFrame (Alto Rendimiento) -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      var _origCreateIcons = window.lucide.createIcons.bind(window.lucide);
+      var _lucideRaf = null;
+      window.lucide.createIcons = function(options) {
+        if (_lucideRaf) cancelAnimationFrame(_lucideRaf);
+        _lucideRaf = requestAnimationFrame(function() {
+          try { _origCreateIcons(options); } catch (e) {}
+        });
+      };
+    }
+  </script>
 
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
