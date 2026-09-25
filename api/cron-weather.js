@@ -99,35 +99,62 @@ function formatWeatherMessage(w, state) {
   const icon = getWeatherIcon(w.desc);
   const menusData = state['cris_menus_data_v1'] || {};
   const study = state['studyflow_data_v21'] || {};
+  const habitsData = state['cris_daily_habits_v2'] || {};
+  const ecoData = state['cris_economia_data_v1'] || {};
   
   const now = new Date();
   const daysOfWeek = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
   const dayName = daysOfWeek[now.getDay()];
   const hoyMenu = (menusData.menuSemanal || {})[dayName] || {};
+  const isoDate = now.toISOString().split('T')[0];
   
-  const pendingTasks = (study.tasks || []).filter(t => !t.completed).length;
+  const tasks = (study.tasks || []).filter(t => !t.completed);
+  const habits = habitsData.habits || [];
+  const todayHist = (habitsData.history && habitsData.history[isoDate]) || {};
+  const doneHabits = habits.filter(h => !!todayHist[h.id]);
+  const pendingHabits = habits.filter(h => !todayHist[h.id]);
 
-  let msg = `☕ *¡Buenos días, Cris! Aquí tienes tu reporte diario (8:00 AM)*\n\n`;
+  const personal = ecoData.personal || {};
+  const totalGastos = (personal.gastos || []).reduce((acc, g) => acc + (Number(g.importe) || 0), 0);
+  const presupuesto = Number(personal.presupuestoMensual) || 600;
+  const restante = Math.max(0, presupuesto - totalGastos);
+
+  let msg = `☀️ *¡Buenos días, Cris! Aquí tienes tu Resumen Diario Integral*\n\n`;
   msg += `📍 *El tiempo en ${w.location}:*\n`;
   msg += `• Estado: ${icon} *${w.desc}*\n`;
   msg += `• Temp. actual: *${w.tempCurrent}°C* (Sensación: ${w.feelsLike}°C)\n`;
   msg += `• Máxima hoy: *${w.tempMax}°C* | Mínima: *${w.tempMin}°C*\n`;
-  msg += `• Probabilidad de lluvia: *${w.rainProb}%*\n`;
-  msg += `• Viento: *${w.windSpeed} km/h* (${w.windDir}) | Humedad: *${w.humidity}%*\n`;
-  msg += `• Índice UV: *${w.uvIndex}*\n\n`;
+  msg += `• Lluvia: *${w.rainProb}%* | Viento: *${w.windSpeed} km/h* | UV: *${w.uvIndex}*\n\n`;
 
   if (hoyMenu.almuerzo || hoyMenu.cena) {
-    msg += `🍽️ *Comidas planificadas para hoy:*\n`;
+    msg += `🍽️ *Menú del día (${dayName}):*\n`;
     if (hoyMenu.almuerzo) msg += `• Comida: ${hoyMenu.almuerzo}\n`;
     if (hoyMenu.cena) msg += `• Cena: ${hoyMenu.cena}\n`;
     msg += `\n`;
   }
 
-  if (pendingTasks > 0) {
-    msg += `📝 Tienes *${pendingTasks}* tarea${pendingTasks > 1 ? 's' : ''} pendiente${pendingTasks > 1 ? 's' : ''} en tu StudyFlow.\n`;
+  msg += `⏰ *Habit Tracker:*\n`;
+  msg += `• Completados: *${doneHabits.length}/${habits.length}*\n`;
+  if (pendingHabits.length > 0) {
+    msg += `• Pendientes: ${pendingHabits.map(h => h.name).join(', ')}\n`;
+  } else {
+    msg += `• ¡Todos los hábitos de hoy completados! 🎉\n`;
   }
+  msg += `\n`;
 
-  msg += `💪 _¡A por el día con toda la energía!_`;
+  msg += `📝 *Estudios:*\n`;
+  if (tasks.length > 0) {
+    msg += `• Tienes *${tasks.length}* tarea(s) pendiente(s):\n`;
+    tasks.slice(0, 3).forEach((t, i) => {
+      msg += `  ${i + 1}. ${t.title} (${t.dueDate || 'Pronto'})\n`;
+    });
+  } else {
+    msg += `• ¡Al día! No tienes tareas pendientes acumuladas.\n`;
+  }
+  msg += `\n`;
+
+  msg += `💰 *Finanzas:* Restante *${restante.toFixed(2)}€* (Gastado: ${totalGastos.toFixed(2)}€)\n\n`;
+  msg += `💪 _¡Todo tu sistema CRIS está sincronizado! Escríbeme cuando quieras o usa /resumen._`;
   return msg;
 }
 
