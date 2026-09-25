@@ -1426,9 +1426,39 @@
         });
       }
 
+      const inputGhToken = document.getElementById('setting-github-token');
+      const btnSaveGhToken = document.getElementById('btn-save-gh-token');
+      const syncBadge = document.getElementById('auth-sync-status-badge');
+
+      if (inputGhToken) {
+        inputGhToken.value = localStorage.getItem(STORAGE_GITHUB_TOKEN_KEY) || '';
+      }
+
+      if (btnSaveGhToken && inputGhToken) {
+        btnSaveGhToken.addEventListener('click', () => {
+          const val = inputGhToken.value.trim();
+          if (val) {
+            localStorage.setItem(STORAGE_GITHUB_TOKEN_KEY, val);
+            if (syncBadge) {
+              syncBadge.textContent = '● Guardado';
+              syncBadge.className = 'text-[9px] font-bold text-emerald-500';
+            }
+          } else {
+            localStorage.removeItem(STORAGE_GITHUB_TOKEN_KEY);
+            if (syncBadge) {
+              syncBadge.textContent = '○ Sin token';
+              syncBadge.className = 'text-[9px] font-semibold text-slate-400';
+            }
+          }
+        });
+      }
+
       const btnOpenSettings = document.getElementById('btn-open-settings');
       if (btnOpenSettings) {
         btnOpenSettings.addEventListener('click', () => {
+          if (inputGhToken) {
+            inputGhToken.value = localStorage.getItem(STORAGE_GITHUB_TOKEN_KEY) || '';
+          }
           updateUI();
           if (feedback) feedback.textContent = '';
         });

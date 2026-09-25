@@ -182,12 +182,12 @@ class TasksModule {
             </div>
           </div>
 
-          <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
-            <button onclick="window.tasksModule.openTaskModal('${t.id}')" title="Editar tarea" class="p-1 text-slate-400 hover:text-blue-500 rounded transition">
-              <i data-lucide="edit-3" class="w-4 h-4"></i>
+          <div class="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition">
+            <button onclick="window.tasksModule.openTaskModal('${t.id}')" title="Editar tarea" class="p-1.5 sm:p-1 text-slate-400 hover:text-purple-600 rounded-lg transition active:scale-90 cursor-pointer touch-manipulation">
+              <i data-lucide="edit-3" class="w-4 h-4 pointer-events-none"></i>
             </button>
-            <button onclick="window.tasksModule.deleteTask('${t.id}')" title="Eliminar tarea" class="p-1 text-slate-400 hover:text-rose-500 rounded transition">
-              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            <button onclick="window.tasksModule.deleteTask('${t.id}')" title="Eliminar tarea" class="p-1.5 sm:p-1 text-slate-400 hover:text-rose-500 rounded-lg transition active:scale-90 cursor-pointer touch-manipulation">
+              <i data-lucide="trash-2" class="w-4 h-4 pointer-events-none"></i>
             </button>
           </div>
         </div>
