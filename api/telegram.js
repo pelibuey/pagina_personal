@@ -324,11 +324,12 @@ ACCIONES DISPONIBLES:
 SI LA PREGUNTA ES SOLO INFORMATIVA, NO GENERES NINGÚN BLOQUE ACTION_JSON.
 `;
 
-  // Modelos Flash de alto rendimiento
+  // Modelos Flash de alto rendimiento con fallback
   const candidateModels = [
-    'gemini-3.5-flash',
     'gemini-3.5-flash-lite',
-    'gemini-3.1-flash-lite'
+    'gemini-3.1-flash-lite',
+    'gemini-3.5-flash',
+    'gemma-4-26b-a4b-it'
   ];
 
   let lastError = null;
@@ -740,17 +741,19 @@ export default async function handler(req, res) {
 
   const update = req.body || {};
 
+  // Contexto de fecha en España y estado global en Supabase
+  const { dateFormatted, isoDate, dayName, tomorrowIsoDate, tomorrowDayName } = getSpainDateContext();
+  const state = await fetchSupabaseState(SUPABASE_URL, SUPABASE_ANON_KEY);
+
   // --- A. MANEJO DE BOTONES INTERACTIVOS (CALLBACK QUERY) ---
   if (update.callback_query) {
     const cb = update.callback_query;
     const cbId = cb.id;
     const cbChatId = cb.message?.chat?.id;
     const cbData = cb.data || '';
-    const { isoDate } = getSpainDateContext();
 
     if (cbData.startsWith('check_habit:')) {
       const habitId = cbData.replace('check_habit:', '');
-      const state = await fetchSupabaseState(SUPABASE_URL, SUPABASE_ANON_KEY);
       const habitsData = state['cris_daily_habits_v2'] || { habits: [], history: {} };
       const habits = habitsData.habits || [];
       const history = habitsData.history || {};
