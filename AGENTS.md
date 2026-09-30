@@ -65,3 +65,15 @@ CRIS es una plataforma web modular (PWA) de alto rendimiento orientada a la prod
 - PIN de desbloqueo: `250419`.
 - Autenticación opcional 2FA con Google Authenticator y código de rescate.
 - Persistencia local mediante `localStorage` con respaldo JSON/CSV exportable y sincronización con Supabase si está configurado.
+
+---
+
+## ⏰ 4. Recordatorios y Notificaciones Matutinas
+- **Hora fija de envío**: **8:00 AM** todos los días.
+- **Canal de envío**: Bot de Telegram `@cris_go_bot` y Cron de Vercel (`/api/cron-weather`).
+- **Contenido del briefing matutino (8:00 AM)**:
+  - 📍 El tiempo en Hoyo de Manzanares (temperatura, sensación térmica, mín/máx, probabilidad de lluvia y viento).
+  - 🍽️ Menú del día (comida y cena planificadas en Menús Semanales).
+  - 💎 Habit Tracker (progreso y hábitos diarios pendientes para hoy).
+  - 📝 Estudios (tareas pendientes y fechas de entrega).
+  - 💰 Resumen económico mensual acumulado.
