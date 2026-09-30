@@ -26,7 +26,30 @@ class HabitTrackerModule {
     this.habits = initial.habits || this.getDefaultHabits();
     this.history = initial.history || {};
 
+    this.ensurePastillaHabit();
     this.init();
+  }
+
+  ensurePastillaHabit() {
+    if (!Array.isArray(this.habits) || this.habits.length === 0) {
+      this.habits = this.getDefaultHabits();
+      this.saveData();
+      return;
+    }
+    const hasPastilla = this.habits.some(h => h && (h.id === 'habit_pastilla' || (h.name && h.name.toLowerCase().trim() === 'pastilla')));
+    if (!hasPastilla) {
+      this.habits.unshift({
+        id: 'habit_pastilla',
+        name: 'Pastilla',
+        category: 'Salud',
+        goal: 'Toma diaria (15:00 / comida)',
+        icon: 'pill',
+        color: 'rose',
+        enabled: true,
+        createdAt: new Date().toISOString()
+      });
+      this.saveData();
+    }
   }
 
   setTab(tab) {
@@ -317,7 +340,8 @@ class HabitTrackerModule {
   }
 
   getDayProgress(dateStr = this.selectedDate) {
-    const activeHabits = this.habits.filter(h => h.enabled);
+    this.ensurePastillaHabit();
+    const activeHabits = this.habits.filter(h => h.enabled !== false);
     const total = activeHabits.length;
     if (total === 0) return { total: 0, completed: 0, percent: 0 };
 
@@ -462,6 +486,7 @@ class HabitTrackerModule {
 
   // --- RENDERIZADO PRINCIPAL (TODO EN EL MISMO SITIO) ---
   render() {
+    this.ensurePastillaHabit();
     const container = document.getElementById('checklist-view-container');
     if (!container) return;
 
@@ -523,8 +548,9 @@ class HabitTrackerModule {
 
   // --- PESTAÑA 1: DASHBOARD (MÉTRICAS + HÁBITOS DE HOY + GRÁFICAS) ---
   renderTabDashboard() {
+    this.ensurePastillaHabit();
     const streak = this.getStreak();
-    const activeHabits = this.habits.filter(h => h.enabled);
+    const activeHabits = this.habits.filter(h => h.enabled !== false);
     const todayStr = this.getTodayDateString();
     const todayProg = this.getDayProgress(todayStr);
 
@@ -678,8 +704,9 @@ class HabitTrackerModule {
 
   // --- PESTAÑA 2: CUADRO SEMANAL (MATRIZ + GRÁFICAS + EDICIÓN) ---
   renderTabCuadro() {
+    this.ensurePastillaHabit();
     const streak = this.getStreak();
-    const activeHabits = this.habits.filter(h => h.enabled);
+    const activeHabits = this.habits.filter(h => h.enabled !== false);
     const todayProg = this.getDayProgress(this.getTodayDateString());
 
     const weekDays = this.getWeekDays(this.selectedWeekOffset);
@@ -1017,7 +1044,7 @@ class HabitTrackerModule {
     const gridColor = isDark ? 'rgba(51, 65, 85, 0.4)' : 'rgba(226, 232, 240, 0.8)';
 
     const weekDays = this.getWeekDays(this.selectedWeekOffset);
-    const activeHabits = this.habits.filter(h => h.enabled);
+    const activeHabits = this.habits.filter(h => h.enabled !== false);
 
     // 1. Gráfica de Tendencia Diaria (Línea / Área Turquesa Glaciar)
     const trendCanvas = document.getElementById('chart-checklist-trend');

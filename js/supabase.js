@@ -139,12 +139,30 @@
       // 2. Habit Tracker
       else if (key === 'cris_daily_habits_v2') {
         const current = localStorage.getItem('cris_daily_habits_v2');
-        if (current !== strData) {
-          localStorage.setItem('cris_daily_habits_v2', strData);
+        if (incomingData && incomingData.habits && Array.isArray(incomingData.habits)) {
+          if (!incomingData.habits.some(h => h && (h.id === 'habit_pastilla' || (h.name && h.name.toLowerCase().trim() === 'pastilla')))) {
+            incomingData.habits.unshift({
+              id: 'habit_pastilla',
+              name: 'Pastilla',
+              category: 'Salud',
+              goal: 'Toma diaria (15:00 / comida)',
+              icon: 'pill',
+              color: 'rose',
+              enabled: true,
+              createdAt: new Date().toISOString()
+            });
+          }
+        }
+        const updatedStr = JSON.stringify(incomingData);
+        if (current !== updatedStr) {
+          localStorage.setItem('cris_daily_habits_v2', updatedStr);
           if (window.checklistModule) {
             if (incomingData.habits) window.checklistModule.habits = incomingData.habits;
             if (incomingData.history) window.checklistModule.history = incomingData.history;
             if (window.checklistModule.render) window.checklistModule.render();
+          }
+          if (window.crisHub && window.crisHub.renderDashboard) {
+            window.crisHub.renderDashboard();
           }
         }
       }

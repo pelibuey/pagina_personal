@@ -456,15 +456,27 @@ class CrisHubModule {
         { id: 'habit_agua', name: 'Hidratación', goal: '2L de agua', icon: 'droplet', color: 'cyan' }
       ];
     } else if (!habits.some(h => h.id === 'habit_pastilla' || (h.name && h.name.toLowerCase().trim() === 'pastilla'))) {
-      habits.unshift({
+      const pastillaHabit = {
         id: 'habit_pastilla',
         name: 'Pastilla',
         goal: 'Toma diaria (15:00 / comida)',
         category: 'Salud',
         icon: 'pill',
         color: 'rose',
-        enabled: true
-      });
+        enabled: true,
+        createdAt: new Date().toISOString()
+      };
+      habits.unshift(pastillaHabit);
+      if (window.habitTrackerModule) {
+        window.habitTrackerModule.habits = habits;
+        if (window.habitTrackerModule.saveData) window.habitTrackerModule.saveData();
+      } else {
+        try {
+          const raw = JSON.parse(localStorage.getItem('cris_daily_habits_v2') || '{}');
+          raw.habits = habits;
+          localStorage.setItem('cris_daily_habits_v2', JSON.stringify(raw));
+        } catch(e) {}
+      }
     }
 
     const todayRecord = history[today] || {};
