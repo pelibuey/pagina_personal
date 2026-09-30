@@ -57,6 +57,15 @@ Bienvenido a **StudyFlow**, tu centro de control académico configurado específ
 - **Tareas (To-Do):** Clasificadas por prioridad (*Alta, Media, Baja*) y vinculadas a ADE o Marketing.
 - **Pomodoro:** Bloques de 25 min con descansos de 5 min y audio relajante offline.
 
+### 📊 5. Proyectos Cris (Hoja de Cálculo / Tipo Excel)
+- **Subproyecto dedicado tipo Excel** donde registrar proyectos, ideas, credenciales y apuntes:
+  - **Cuadrícula interactiva tipo Excel**: Columnas para `#`, `Nombre de Proyecto / Asunto`, `Categoría`, `Estado` (Idea, En Desarrollo, Activo, Pausado, Finalizado), `Prioridad` (Alta, Media, Baja), `Enlace / Web`, `Usuario / Email`, `Contraseña / Clave` (con máscara de seguridad, revelado individual y global, y generador de contraseñas aleatorias seguras), `Notas / Resumen / Mis Cosas`, y `Fecha / Plazo`.
+  - **Fila rápida**: Añade filas escribiendo directamente o mediante el modal interactivo.
+  - **Exportación directa a Excel**: Descarga de archivo `.csv` codificado en UTF-8 con BOM para apertura inmediata en Microsoft Excel y Google Sheets.
+  - **Backup e Importación**: Copia de seguridad en formato JSON e importación de datos.
+  - **Filtros en tiempo real**: Búsqueda por cualquier texto, selector por estado, categoría y prioridad.
+  - **Vista alternativa**: Selector para alternar entre **Vista Hoja de Cálculo (Excel)** y **Vista Tarjetas (Kanban)**.
+
 ### 🌐 6. Portales Oficiales Online Integrados (UNED & EducamosCLM)
 - **Barra de Acceso Rápido:** Botones en el Dashboard para abrir con un clic:
   - 🎓 **Campus ADE (UNED):** Portal de estudios y cursos virtuales.
@@ -66,8 +75,13 @@ Bienvenido a **StudyFlow**, tu centro de control académico configurado específ
 - **Parrilla de Clases Online:** Las sesiones lectivas de ADE cuentan con enlaces directos para unirte a las salas de INTECCA UNED.
 - **Exámenes Virtuales:** Seguimiento de PECs, pruebas de evaluación continua y cuestionarios online.
 
-### 💜 7. Diseño Morado Fijo (Purple Theme)
-- Estética moderna en tonos morados y violetas (`#9333EA` / `#7E22CE`) con modo oscuro/claro compatible con macOS.
+### 💜 7. Plataforma Central CRIS y Subproyectos
+- Plataforma unificada que coordina 5 subproyectos activos:
+  1. **Estudios**: FP Marketing + ADE UNED, seguimiento curricular, TFG y horario.
+  2. **Habit Tracker**: Cuadro semanal, rachas y hábitos diarios.
+  3. **Gestión Económica**: Control financiero 1.1 Personal y 1.2 De Casa.
+  4. **Menús Semanales**: Planificación de comidas, recetario y lista de la compra.
+  5. **Proyectos Cris**: Hoja de cálculo interactiva tipo Excel para proyectos, credenciales y notas.
 - **100% Local y Privado:** Sin servidores externos; tus datos se guardan en tu navegador (`localStorage`).
 
 ### 🔒 8. Inicio de Sesión y Bloqueo con Código PIN
@@ -80,5 +94,5 @@ Bienvenido a **StudyFlow**, tu centro de control académico configurado específ
 
 ---
 
-¡Mucho éxito con tu carrera de ADE y tu FP de Marketing! 🚀
+¡Mucho éxito con tu plataforma CRIS y tus proyectos! 🚀
 

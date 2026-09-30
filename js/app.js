@@ -133,7 +133,8 @@ class App {
         const checklistTab = link.getAttribute('data-checklist-tab') || link.getAttribute('data-checklist-mode');
         const economiaTab = link.getAttribute('data-economia-tab');
         const menusTab = link.getAttribute('data-menus-tab');
-        this.navigateTo(target, checklistTab || economiaTab || menusTab);
+        const proyectosTab = link.getAttribute('data-proyectos-tab');
+        this.navigateTo(target, checklistTab || economiaTab || menusTab || proyectosTab);
       });
     });
 
@@ -167,7 +168,8 @@ class App {
           const checklistTab = navBtn.getAttribute('data-checklist-tab') || navBtn.getAttribute('data-checklist-mode');
           const economiaTab = navBtn.getAttribute('data-economia-tab');
           const menusTab = navBtn.getAttribute('data-menus-tab');
-          if (target) this.navigateTo(target, checklistTab || economiaTab || menusTab);
+          const proyectosTab = navBtn.getAttribute('data-proyectos-tab');
+          if (target) this.navigateTo(target, checklistTab || economiaTab || menusTab || proyectosTab);
           return;
         }
       });
@@ -200,10 +202,11 @@ class App {
     const btnCrisEconomia = document.getElementById('btn-cris-economia');
     const btnCrisMenus = document.getElementById('btn-cris-menus');
     const btnCrisChecklist = document.getElementById('btn-cris-checklist');
+    const btnCrisProyectos = document.getElementById('btn-cris-proyectos');
     const studyFilterBar = document.getElementById('study-filter-bar');
 
     // Resetear estilos de todos los botones de la barra superior
-    [btnCrisHub, btnCrisEstudios, btnCrisEconomia, btnCrisMenus, btnCrisChecklist].forEach(btn => {
+    [btnCrisHub, btnCrisEstudios, btnCrisEconomia, btnCrisMenus, btnCrisChecklist, btnCrisProyectos].forEach(btn => {
       if (btn) {
         btn.classList.remove('bg-purple-600', 'bg-emerald-600', 'bg-amber-600', 'bg-cyan-600', 'text-white', 'shadow-sm', 'font-bold');
         btn.classList.add('text-slate-300', 'hover:bg-slate-700');
@@ -221,6 +224,20 @@ class App {
           window.crisHub.renderDashboard();
         } else if (window.crisHub.renderHub) {
           window.crisHub.renderHub();
+        }
+      }
+    } else if (viewId === 'proyectos') {
+      if (btnCrisProyectos) {
+        btnCrisProyectos.classList.add('bg-emerald-600', 'text-white', 'shadow-sm', 'font-bold');
+        btnCrisProyectos.classList.remove('text-slate-300', 'hover:bg-slate-700');
+      }
+      if (studyFilterBar) studyFilterBar.classList.add('hidden');
+      if (window.proyectosModule) {
+        if (subParam) {
+          window.proyectosModule.setViewMode(subParam);
+        }
+        if (window.proyectosModule.render) {
+          window.proyectosModule.render();
         }
       }
     } else if (viewId === 'economia') {
@@ -280,6 +297,8 @@ class App {
     if (activeSubprojectLabel) {
       if (viewId === 'cris-hub') {
         activeSubprojectLabel.textContent = 'CRIS: Dashboard';
+      } else if (viewId === 'proyectos') {
+        activeSubprojectLabel.textContent = 'CRIS: Proyectos Cris';
       } else if (viewId === 'economia') {
         activeSubprojectLabel.textContent = 'CRIS: Gestión Económica';
       } else if (viewId === 'menus') {
@@ -301,6 +320,10 @@ class App {
         if (['dashboard', 'subjects', 'calendar', 'schedule', 'curriculum', 'tfg', 'mkt-grades', 'tasks', 'pomodoro', 'notes'].includes(viewId)) {
           if (localStorage.getItem('cris_sub_estudios_collapsed') !== 'true') {
             window.crisHub.expandSubproject('estudios');
+          }
+        } else if (viewId === 'proyectos') {
+          if (localStorage.getItem('cris_sub_proyectos_collapsed') !== 'true') {
+            window.crisHub.expandSubproject('proyectos');
           }
         } else if (viewId === 'economia') {
           if (localStorage.getItem('cris_sub_economia_collapsed') !== 'true') {

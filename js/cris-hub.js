@@ -15,7 +15,7 @@ class CrisHubModule {
     this.scratchpadKey = 'cris_quick_notes';
     this._scratchpadTimer = null;
     this.dashboardShowAllOptions = false;
-    this.cardOptionsState = { estudios: false, checklist: false, economia: false, menus: false };
+    this.cardOptionsState = { estudios: false, checklist: false, economia: false, menus: false, proyectos: false };
 
     this.subprojects = [
       {
@@ -65,6 +65,18 @@ class CrisHubModule {
         badge: 'Activo',
         status: 'active',
         route: 'menus'
+      },
+      {
+        id: 'proyectos',
+        name: 'Proyectos Cris',
+        category: 'Proyectos & Gestión',
+        subtitle: 'Hoja de Cálculo / Tipo Excel interactivo',
+        description: 'Registro de proyectos, tareas, ideas, enlaces, credenciales seguras protegidas y apuntes en cuadrícula tipo Excel.',
+        icon: 'file-spreadsheet',
+        color: 'emerald',
+        badge: 'Activo',
+        status: 'active',
+        route: 'proyectos'
       },
       {
         id: 'trabajo',
@@ -144,6 +156,13 @@ class CrisHubModule {
             this.toggleSubprojectCollapse('checklist');
           };
         }
+        const btnProj = document.getElementById('btn-subproject-proyectos-toggle');
+        if (btnProj) {
+          btnProj.onclick = (e) => {
+            if (e && e.preventDefault) e.preventDefault();
+            this.toggleSubprojectCollapse('proyectos');
+          };
+        }
         const btnAll = document.getElementById('btn-toggle-all-subprojects');
         if (btnAll) {
           btnAll.onclick = (e) => {
@@ -219,12 +238,14 @@ class CrisHubModule {
     const contentEconomia = document.getElementById('subproject-economia-content');
     const contentMenus = document.getElementById('subproject-menus-content');
     const contentChecklist = document.getElementById('subproject-checklist-content');
+    const contentProyectos = document.getElementById('subproject-proyectos-content');
 
     const isEstOpen = contentEstudios && (contentEstudios.style.display !== 'none' && !contentEstudios.classList.contains('hidden'));
     const isEcoOpen = contentEconomia && (contentEconomia.style.display !== 'none' && !contentEconomia.classList.contains('hidden'));
     const isMenusOpen = contentMenus && (contentMenus.style.display !== 'none' && !contentMenus.classList.contains('hidden'));
     const isChkOpen = contentChecklist && (contentChecklist.style.display !== 'none' && !contentChecklist.classList.contains('hidden'));
-    const anyOpen = isEstOpen || isEcoOpen || isMenusOpen || isChkOpen;
+    const isProjOpen = contentProyectos && (contentProyectos.style.display !== 'none' && !contentProyectos.classList.contains('hidden'));
+    const anyOpen = isEstOpen || isEcoOpen || isMenusOpen || isChkOpen || isProjOpen;
 
     const willCollapse = (typeof forceState === 'boolean') ? forceState : anyOpen;
 
@@ -232,6 +253,7 @@ class CrisHubModule {
     this.toggleSubprojectCollapse('economia', willCollapse);
     this.toggleSubprojectCollapse('menus', willCollapse);
     this.toggleSubprojectCollapse('checklist', willCollapse);
+    this.toggleSubprojectCollapse('proyectos', willCollapse);
   }
 
   updateAllSubprojectsBtnLabel() {
@@ -241,12 +263,14 @@ class CrisHubModule {
     const contentEconomia = document.getElementById('subproject-economia-content');
     const contentMenus = document.getElementById('subproject-menus-content');
     const contentChecklist = document.getElementById('subproject-checklist-content');
+    const contentProyectos = document.getElementById('subproject-proyectos-content');
 
     const isEstClosed = !contentEstudios || contentEstudios.style.display === 'none' || contentEstudios.classList.contains('hidden');
     const isEcoClosed = !contentEconomia || contentEconomia.style.display === 'none' || contentEconomia.classList.contains('hidden');
     const isMenusClosed = !contentMenus || contentMenus.style.display === 'none' || contentMenus.classList.contains('hidden');
     const isChkClosed = !contentChecklist || contentChecklist.style.display === 'none' || contentChecklist.classList.contains('hidden');
-    const allCollapsed = isEstClosed && isEcoClosed && isMenusClosed && isChkClosed;
+    const isProjClosed = !contentProyectos || contentProyectos.style.display === 'none' || contentProyectos.classList.contains('hidden');
+    const allCollapsed = isEstClosed && isEcoClosed && isMenusClosed && isChkClosed && isProjClosed;
 
     if (allCollapsed) {
       btn.textContent = 'Mostrar todo';
@@ -280,6 +304,12 @@ class CrisHubModule {
         this.collapseSubproject('checklist');
       } else {
         this.expandSubproject('checklist');
+      }
+      const proyectosCollapsed = localStorage.getItem('cris_sub_proyectos_collapsed');
+      if (proyectosCollapsed === 'true') {
+        this.collapseSubproject('proyectos');
+      } else {
+        this.expandSubproject('proyectos');
       }
       this.updateAllSubprojectsBtnLabel();
     } catch (e) {}
@@ -566,6 +596,28 @@ class CrisHubModule {
     };
   }
 
+  // --- MÉTRICAS: PROYECTOS CRIS (HOJA EXCEL) ---
+  getProyectosMetrics() {
+    if (window.proyectosModule && window.proyectosModule.getMetrics) {
+      return window.proyectosModule.getMetrics();
+    }
+    try {
+      const raw = localStorage.getItem('cris_proyectos_data');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          const total = parsed.length;
+          const active = parsed.filter(p => p.status === 'Activo').length;
+          const inDev = parsed.filter(p => p.status === 'En Desarrollo').length;
+          const ideas = parsed.filter(p => p.status === 'Idea').length;
+          const withCredentials = parsed.filter(p => p.user || p.password).length;
+          return { total, active, inDev, ideas, withCredentials };
+        }
+      }
+    } catch (e) {}
+    return { total: 4, active: 1, inDev: 2, ideas: 1, withCredentials: 3 };
+  }
+
   getGreeting() {
     const hour = new Date().getHours();
     if (hour >= 6 && hour < 13) return 'Buenos días';
@@ -642,6 +694,8 @@ class CrisHubModule {
       if (window.app) window.app.navigateTo('economia', subParam || 'dashboard');
     } else if (moduleId === 'menus') {
       if (window.app) window.app.navigateTo('menus', subParam || 'dashboard');
+    } else if (moduleId === 'proyectos') {
+      if (window.app) window.app.navigateTo('proyectos', subParam || 'excel');
     } else {
       this.showSubprojectInfo(moduleId);
     }
@@ -717,6 +771,7 @@ class CrisHubModule {
     const habits = this.getHabitTrackerData();
     const economia = this.getEconomiaMetrics();
     const menus = this.getMenusMetrics();
+    const proyectos = this.getProyectosMetrics();
     const greeting = this.getGreeting();
     const dateStr = this.getFormattedDate();
     const quickNotes = this.getQuickNotes();
@@ -725,12 +780,12 @@ class CrisHubModule {
       <!-- HERO MAESTRO CRIS: CENTRO DE MANDO INTEGRAL -->
       <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-purple-950 text-white p-7 md:p-10 shadow-2xl border border-slate-800/80">
         <div class="absolute -right-20 -top-20 w-80 h-80 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-cyan-600/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-emerald-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
         <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div class="space-y-3">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-bold text-slate-200">
-              <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
               <span>PLATAFORMA CRIS • CENTRO DE MANDO</span>
             </div>
             
@@ -739,25 +794,29 @@ class CrisHubModule {
             </h1>
             
             <p class="text-slate-300 text-sm md:text-base max-w-2xl font-medium leading-relaxed">
-              Panel central unificado. Tus 4 subproyectos activos (<span class="text-purple-300 font-bold">Estudios</span>, <span class="text-cyan-300 font-bold">Habit Tracker</span>, <span class="text-emerald-300 font-bold">Gestión Económica</span> y <span class="text-amber-300 font-bold">Menús Semanales</span>) están listos para hoy <span class="font-extrabold text-white">${dateStr}</span>.
+              Panel central unificado. Tus 5 subproyectos activos (<span class="text-purple-300 font-bold">Estudios</span>, <span class="text-cyan-300 font-bold">Habit Tracker</span>, <span class="text-emerald-300 font-bold">Gestión Económica</span>, <span class="text-amber-300 font-bold">Menús Semanales</span> y <span class="text-emerald-400 font-bold">Proyectos Cris</span>) están listos para hoy <span class="font-extrabold text-white">${dateStr}</span>.
             </p>
           </div>
 
-          <!-- Acceso Rápido a los 4 Subproyectos -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-2.5 flex-shrink-0">
-            <button onclick="window.crisHub.navigateToModule('estudios')" class="px-4 py-2.5 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer">
+          <!-- Acceso Rápido a los Subproyectos -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-2 flex-shrink-0">
+            <button onclick="window.crisHub.navigateToModule('estudios')" class="px-3.5 py-2.5 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer">
               <i data-lucide="graduation-cap" class="w-4 h-4"></i>
               <span>Estudios</span>
             </button>
-            <button onclick="window.crisHub.navigateToModule('checklist')" class="px-4 py-2.5 rounded-2xl bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold text-xs shadow-lg shadow-cyan-600/30 flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer">
+            <button onclick="window.crisHub.navigateToModule('checklist')" class="px-3.5 py-2.5 rounded-2xl bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold text-xs shadow-lg shadow-cyan-600/30 flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer">
               <i data-lucide="check-circle-2" class="w-4 h-4"></i>
-              <span>Habit Tracker</span>
+              <span>Habits</span>
             </button>
-            <button onclick="window.crisHub.navigateToModule('economia')" class="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer">
+            <button onclick="window.crisHub.navigateToModule('proyectos')" class="px-3.5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer">
+              <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+              <span>Proyectos</span>
+            </button>
+            <button onclick="window.crisHub.navigateToModule('economia')" class="px-3.5 py-2.5 rounded-2xl bg-teal-600 hover:bg-teal-500 text-white font-extrabold text-xs shadow-lg shadow-teal-600/30 flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer">
               <i data-lucide="wallet" class="w-4 h-4"></i>
               <span>Economía</span>
             </button>
-            <button onclick="window.crisHub.navigateToModule('menus')" class="px-4 py-2.5 rounded-2xl bg-amber-600 hover:bg-amber-500 text-white font-extrabold text-xs shadow-lg shadow-amber-600/30 flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer">
+            <button onclick="window.crisHub.navigateToModule('menus')" class="px-3.5 py-2.5 rounded-2xl bg-amber-600 hover:bg-amber-500 text-white font-extrabold text-xs shadow-lg shadow-amber-600/30 flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer col-span-2 sm:col-span-1">
               <i data-lucide="utensils" class="w-4 h-4"></i>
               <span>Menús</span>
             </button>
@@ -765,11 +824,11 @@ class CrisHubModule {
         </div>
       </div>
 
-      <!-- 4 KPIS MAESTROS DE LOS 4 SUBPROYECTOS -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- 5 KPIS MAESTROS DE LOS SUBPROYECTOS -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
         
         <!-- KPI 1: ESTUDIOS (Púrpura) -->
-        <div onclick="window.crisHub.navigateToModule('estudios')" class="bg-white dark:bg-slate-800 rounded-3xl p-5 border border-purple-200/80 dark:border-purple-800/40 shadow-xs hover:shadow-md transition cursor-pointer group">
+        <div onclick="window.crisHub.navigateToModule('estudios')" class="bg-white dark:bg-slate-800 rounded-3xl p-4 sm:p-5 border border-purple-200/80 dark:border-purple-800/40 shadow-xs hover:shadow-md transition cursor-pointer group">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-extrabold text-purple-600 dark:text-purple-400 uppercase tracking-wider">Subproyecto 1 • Académico</span>
             <div class="w-8 h-8 rounded-xl bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -777,17 +836,35 @@ class CrisHubModule {
             </div>
           </div>
           <div class="mt-3">
-            <h3 class="text-2xl font-black text-slate-900 dark:text-white">${metrics.activeSubjects} Asignaturas</h3>
+            <h3 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">${metrics.activeSubjects} Asignaturas</h3>
             <p class="text-xs text-purple-600 dark:text-purple-400 font-bold mt-0.5">Marketing FP + ADE UNED</p>
             <div class="flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-500 mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/60">
-              <span>Temas 1-9 Calificados</span>
+              <span>Temas 1-9</span>
               <span class="font-bold text-slate-700 dark:text-slate-300">${metrics.marketingGradedTopics} notas</span>
             </div>
           </div>
         </div>
 
-        <!-- KPI 2: HABIT TRACKER (Cian Glaciar) -->
-        <div onclick="window.crisHub.navigateToModule('checklist')" class="bg-white dark:bg-slate-800 rounded-3xl p-5 border border-cyan-200/80 dark:border-cyan-800/40 shadow-xs hover:shadow-md transition cursor-pointer group">
+        <!-- KPI 2: PROYECTOS CRIS (Verde Excel) -->
+        <div onclick="window.crisHub.navigateToModule('proyectos')" class="bg-white dark:bg-slate-800 rounded-3xl p-4 sm:p-5 border border-emerald-200/80 dark:border-emerald-800/40 shadow-xs hover:shadow-md transition cursor-pointer group">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Subproyecto 5 • Hoja Excel</span>
+            <div class="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="mt-3">
+            <h3 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">${proyectos.total} Registros</h3>
+            <p class="text-xs text-emerald-600 dark:text-emerald-400 font-bold mt-0.5">${proyectos.active} Activos • ${proyectos.inDev || 0} En curso</p>
+            <div class="flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-500 mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/60">
+              <span>Accesos guardados</span>
+              <span class="font-bold text-emerald-600 dark:text-emerald-400">${proyectos.withCredentials || 0} claves</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI 3: HABIT TRACKER (Cian Glaciar) -->
+        <div onclick="window.crisHub.navigateToModule('checklist')" class="bg-white dark:bg-slate-800 rounded-3xl p-4 sm:p-5 border border-cyan-200/80 dark:border-cyan-800/40 shadow-xs hover:shadow-md transition cursor-pointer group">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-extrabold text-cyan-600 dark:text-cyan-400 uppercase tracking-wider">Subproyecto 2 • Bienestar</span>
             <div class="w-8 h-8 rounded-xl bg-cyan-100 dark:bg-cyan-900/40 text-cyan-600 dark:text-cyan-300 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -796,43 +873,43 @@ class CrisHubModule {
           </div>
           <div class="mt-3">
             <div class="flex items-baseline justify-between">
-              <h3 class="text-2xl font-black text-slate-900 dark:text-white">${habits.percent}%</h3>
+              <h3 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">${habits.percent}%</h3>
               <span class="text-xs font-bold text-cyan-700 dark:text-cyan-300 flex items-center gap-1">
-                🔥 ${habits.streak}d racha
+                🔥 ${habits.streak}d
               </span>
             </div>
             <div class="w-full h-2 bg-slate-100 dark:bg-slate-700 rounded-full mt-2 overflow-hidden">
               <div class="h-full bg-gradient-to-r from-cyan-500 to-teal-400 rounded-full transition-all duration-500" style="width: ${habits.percent}%"></div>
             </div>
             <div class="flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-500 mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/60">
-              <span>Completados hoy</span>
+              <span>Hoy</span>
               <span class="font-bold text-slate-700 dark:text-slate-300">${habits.completedCount}/${habits.totalCount} hábitos</span>
             </div>
           </div>
         </div>
 
-        <!-- KPI 3: GESTIÓN ECONÓMICA (Esmeralda) -->
-        <div onclick="window.crisHub.navigateToModule('economia')" class="bg-white dark:bg-slate-800 rounded-3xl p-5 border border-emerald-200/80 dark:border-emerald-800/40 shadow-xs hover:shadow-md transition cursor-pointer group">
+        <!-- KPI 4: GESTIÓN ECONÓMICA (Esmeralda) -->
+        <div onclick="window.crisHub.navigateToModule('economia')" class="bg-white dark:bg-slate-800 rounded-3xl p-4 sm:p-5 border border-teal-200/80 dark:border-teal-800/40 shadow-xs hover:shadow-md transition cursor-pointer group">
           <div class="flex items-center justify-between">
-            <span class="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Subproyecto 3 • Finanzas</span>
-            <div class="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-300 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <span class="text-[10px] font-extrabold text-teal-600 dark:text-teal-400 uppercase tracking-wider">Subproyecto 3 • Finanzas</span>
+            <div class="w-8 h-8 rounded-xl bg-teal-100 dark:bg-teal-900/40 text-teal-600 dark:text-teal-300 flex items-center justify-center group-hover:scale-110 transition-transform">
               <i data-lucide="wallet" class="w-4 h-4"></i>
             </div>
           </div>
           <div class="mt-3">
-            <h3 class="text-2xl font-black ${economia.totalNeto >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
+            <h3 class="text-xl sm:text-2xl font-black ${economia.totalNeto >= 0 ? 'text-teal-600 dark:text-teal-400' : 'text-rose-600 dark:text-rose-400'} truncate">
               ${economia.totalNeto.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}
             </h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 font-bold mt-0.5">Balance Neto Personal</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-bold mt-0.5">Balance Neto</p>
             <div class="flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-500 mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/60">
-              <span>1.1 Personal y 1.2 De Casa</span>
-              <span class="font-bold text-emerald-600 dark:text-emerald-400">${economia.tasaAhorro}% ahorro</span>
+              <span>1.1 y 1.2</span>
+              <span class="font-bold text-teal-600 dark:text-teal-400">${economia.tasaAhorro}% ahorro</span>
             </div>
           </div>
         </div>
 
-        <!-- KPI 4: MENÚS SEMANALES (Ámbar) -->
-        <div onclick="window.crisHub.navigateToModule('menus')" class="bg-white dark:bg-slate-800 rounded-3xl p-5 border border-amber-200/80 dark:border-amber-800/40 shadow-xs hover:shadow-md transition cursor-pointer group">
+        <!-- KPI 5: MENÚS SEMANALES (Ámbar) -->
+        <div onclick="window.crisHub.navigateToModule('menus')" class="bg-white dark:bg-slate-800 rounded-3xl p-4 sm:p-5 border border-amber-200/80 dark:border-amber-800/40 shadow-xs hover:shadow-md transition cursor-pointer group">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-extrabold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Subproyecto 4 • Hogar</span>
             <div class="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-300 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -840,12 +917,12 @@ class CrisHubModule {
             </div>
           </div>
           <div class="mt-3">
-            <h3 class="text-lg font-black text-slate-900 dark:text-white truncate">
-              ${menus.lunch || 'Menú sin definir'}
+            <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white truncate">
+              ${menus.lunch || 'Menú hoy'}
             </h3>
-            <p class="text-xs text-amber-600 dark:text-amber-400 font-bold mt-0.5 truncate">Hoy (${menus.todayName}): ${menus.dinner ? 'Cena: ' + menus.dinner : 'Plan semanal listo'}</p>
+            <p class="text-xs text-amber-600 dark:text-amber-400 font-bold mt-0.5 truncate">${menus.dinner ? 'Cena: ' + menus.dinner : 'Plan semanal listo'}</p>
             <div class="flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-500 mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/60">
-              <span>Recetario & Súper</span>
+              <span>Recetario</span>
               <span class="font-bold text-slate-700 dark:text-slate-300">${menus.recetasCount} recetas</span>
             </div>
           </div>
@@ -1036,6 +1113,35 @@ class CrisHubModule {
             </div>
           </div>
 
+          <!-- Tarjeta Ejecutiva Proyectos Cris (Hoja Excel) -->
+          <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-emerald-200/80 dark:border-emerald-800/40 shadow-sm space-y-4 transition-all">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                  <i data-lucide="file-spreadsheet" class="w-4 h-4 pointer-events-none"></i>
+                </div>
+                <div>
+                  <h3 class="text-sm font-extrabold text-slate-900 dark:text-white">Proyectos Cris</h3>
+                  <p class="text-[11px] text-slate-400">Hoja de cálculo tipo Excel y accesos</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="window.crisHub.navigateToModule('proyectos')" class="text-xs font-bold text-emerald-600 hover:underline cursor-pointer">Abrir</button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+              <button onclick="window.crisHub.navigateToModule('proyectos', 'excel')" class="p-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/30 text-emerald-700 dark:text-emerald-300 flex items-center justify-center gap-1.5 hover:bg-emerald-100/50 transition cursor-pointer">
+                <i data-lucide="table" class="w-3.5 h-3.5"></i>
+                <span>Hoja Excel</span>
+              </button>
+              <button onclick="if(window.proyectosModule) { window.crisHub.navigateToModule('proyectos', 'excel'); window.proyectosModule.openModal(); }" class="p-2.5 rounded-2xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center gap-1.5 hover:bg-slate-200 transition cursor-pointer">
+                <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-emerald-500"></i>
+                <span>+ Añadir Fila</span>
+              </button>
+            </div>
+          </div>
+
           <!-- Sincronización Local v30 -->
           <div class="p-4 rounded-3xl bg-slate-100/80 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 text-xs space-y-1.5">
             <div class="flex items-center justify-between text-slate-700 dark:text-slate-300 font-bold">
@@ -1195,6 +1301,15 @@ class CrisHubModule {
                   <a href="#menus" onclick="if(window.menusModule) window.menusModule.setTab('semanal');" class="p-1 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 text-center">Semanal</a>
                   <a href="#menus" onclick="if(window.menusModule) window.menusModule.setTab('recetas');" class="p-1 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 text-center">Recetas</a>
                   <a href="#menus" onclick="if(window.menusModule) window.menusModule.setTab('compra');" class="p-1 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 text-center">Compra</a>
+                </div>
+              </div>
+            ` : ''}
+
+            ${this.isCardOptionsOpen(p.id) && p.id === 'proyectos' ? `
+              <div class="pt-2 space-y-1 border-t border-slate-100 dark:border-slate-700/60 text-[11px] font-bold">
+                <div class="grid grid-cols-2 gap-1">
+                  <a href="#proyectos" onclick="if(window.proyectosModule) window.proyectosModule.setViewMode('excel');" class="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-center">Hoja Excel</a>
+                  <a href="#proyectos" onclick="if(window.proyectosModule) { window.proyectosModule.openModal(); }" class="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-center">+ Añadir Fila</a>
                 </div>
               </div>
             ` : ''}

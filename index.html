@@ -515,6 +515,19 @@
               <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-amber-500/30 text-amber-300">Activo</span>
             </a>
 
+            <a href="#proyectos" onclick="window.crisHub && window.crisHub.navigateToModule('proyectos'); window.closeSubprojectsDropdown(); return false;" class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-800 text-white text-xs font-bold transition group">
+              <div class="flex items-center gap-2.5">
+                <div class="w-7 h-7 rounded-lg bg-emerald-600 flex items-center justify-center text-white shadow-xs">
+                  <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
+                </div>
+                <div>
+                  <span class="block leading-tight text-white group-hover:text-emerald-300 transition">Subproyecto: Proyectos Cris</span>
+                  <span class="text-[10px] text-slate-400 font-normal">Hoja de cálculo tipo Excel y accesos</span>
+                </div>
+              </div>
+              <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-emerald-500/30 text-emerald-300">Activo</span>
+            </a>
+
             <div class="pt-1.5 border-t border-slate-800">
               <button type="button" onclick="window.crisHub && window.crisHub.openAddSubprojectModal(); window.closeSubprojectsDropdown();" class="w-full flex items-center gap-2 p-2 rounded-xl hover:bg-purple-950/40 text-purple-300 hover:text-purple-200 text-xs font-bold transition text-left cursor-pointer">
                 <i data-lucide="plus" class="w-4 h-4"></i>
@@ -538,8 +551,12 @@
             <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-cyan-400"></i>
             <span>Habit Tracker</span>
           </button>
+          <button id="btn-cris-proyectos" onclick="window.crisHub && window.crisHub.navigateToModule('proyectos')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-slate-700 cursor-pointer">
+            <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>Proyectos</span>
+          </button>
           <button id="btn-cris-economia" onclick="window.crisHub && window.crisHub.navigateToModule('economia')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-slate-700 cursor-pointer">
-            <i data-lucide="wallet" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <i data-lucide="wallet" class="w-3.5 h-3.5 text-teal-400"></i>
             <span>Economía</span>
           </button>
           <button id="btn-cris-menus" onclick="window.crisHub && window.crisHub.navigateToModule('menus')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition text-slate-300 hover:text-white hover:bg-slate-700 cursor-pointer">
@@ -797,6 +814,41 @@
             </div>
           </div>
 
+          <!-- SUBPROYECTO 5: PROYECTOS CRIS (HOJA DE CÁLCULO EXCEL) -->
+          <div id="card-subproject-proyectos" class="rounded-2xl bg-slate-50/70 dark:bg-slate-900/40 border border-emerald-200/70 dark:border-emerald-900/40 p-2 space-y-1.5 transition-all">
+            <!-- Cabecera de Proyectos: Título interactivo al Dashboard + Botón de colapso -->
+            <div class="flex items-center justify-between p-1 rounded-xl hover:bg-emerald-100/40 dark:hover:bg-emerald-950/40 transition group">
+              <button type="button" onclick="if(window.app) window.app.navigateTo('proyectos', 'excel');" class="sidebar-nav-item flex-1 flex items-center gap-2 p-1 text-left cursor-pointer rounded-lg hover:text-emerald-600 transition" data-nav-target="proyectos" data-proyectos-tab="excel" title="Abrir Hoja de Cálculo de Proyectos">
+                <div class="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs shadow-xs">
+                  <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
+                </div>
+                <div class="min-w-0">
+                  <span class="text-xs font-black text-slate-900 dark:text-white block leading-tight">Proyectos Cris</span>
+                  <span class="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold block">Hoja Excel</span>
+                </div>
+              </button>
+              <button id="btn-subproject-proyectos-toggle" type="button" onclick="window.toggleSubproject('proyectos'); return false;" class="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-200/40 dark:hover:bg-emerald-900/40 transition cursor-pointer" title="Comprimir o desplegar opciones de Proyectos Cris">
+                <i data-lucide="chevron-down" id="chevron-subproject-proyectos" class="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-transform duration-200 pointer-events-none"></i>
+              </button>
+            </div>
+
+            <!-- Contenedor Desplegable de Proyectos -->
+            <div id="subproject-proyectos-content" class="space-y-0.5 pt-1 border-t border-slate-200/60 dark:border-slate-800/80 transition-all duration-200 text-xs font-medium">
+              <a href="#proyectos" data-nav-target="proyectos" data-proyectos-tab="excel" onclick="if(window.app) window.app.navigateTo('proyectos', 'excel'); return false;" class="sidebar-nav-item flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-emerald-600 transition cursor-pointer">
+                <i data-lucide="table" class="w-3.5 h-3.5 text-emerald-500"></i>
+                <span>Hoja de Cálculo</span>
+              </a>
+              <a href="#proyectos" data-nav-target="proyectos" data-proyectos-tab="cards" onclick="if(window.app) window.app.navigateTo('proyectos', 'cards'); return false;" class="sidebar-nav-item flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-teal-600 transition cursor-pointer">
+                <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-teal-500"></i>
+                <span>Vista Tarjetas</span>
+              </a>
+              <button type="button" onclick="if(window.proyectosModule) { window.app.navigateTo('proyectos', 'excel'); window.proyectosModule.openModal(); }" class="w-full sidebar-nav-item flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-emerald-600 transition cursor-pointer text-left">
+                <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-emerald-500"></i>
+                <span>+ Nueva Fila / Tarea</span>
+              </button>
+            </div>
+          </div>
+
           <!-- AÑADIR NUEVO SUBPROYECTO -->
           <button type="button" onclick="window.crisHub && window.crisHub.openAddSubprojectModal()" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-300 hover:bg-purple-50/60 dark:hover:bg-purple-950/30 transition border border-dashed border-slate-300 dark:border-slate-700 cursor-pointer">
             <i data-lucide="plus-circle" class="w-4 h-4 text-purple-500"></i>
@@ -943,6 +995,13 @@
       <!-- VISTA SUBPROYECTO: MENÚS SEMANALES -->
       <section id="view-menus" class="view-section space-y-6 hidden">
         <!-- Renderizado dinámico por js/menus.js -->
+      </section>
+
+      <!-- VISTA SUBPROYECTO: PROYECTOS CRIS (HOJA DE CÁLCULO EXCEL) -->
+      <section id="view-proyectos" class="view-section space-y-6 hidden">
+        <div id="proyectos-view-container">
+          <!-- Renderizado dinámico por js/proyectos.js -->
+        </div>
       </section>
 
       <!-- VISTA: DASHBOARD ESTUDIOS -->
@@ -2741,6 +2800,10 @@
         <i data-lucide="check-circle-2" class="w-5 h-5 pointer-events-none"></i>
         <span class="text-[9px] font-bold leading-none pointer-events-none">Hábitos</span>
       </button>
+      <button type="button" data-mobile-nav="proyectos" onclick="if(window.app) window.app.navigateTo('proyectos');" class="cris-mob-tab flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-slate-400 transition-colors active:scale-95 cursor-pointer touch-manipulation" aria-label="Proyectos">
+        <i data-lucide="file-spreadsheet" class="w-5 h-5 pointer-events-none"></i>
+        <span class="text-[9px] font-bold leading-none pointer-events-none">Proyectos</span>
+      </button>
       <button type="button" data-mobile-nav="economia" onclick="if(window.app) window.app.navigateTo('economia');" class="cris-mob-tab flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-slate-400 transition-colors active:scale-95 cursor-pointer touch-manipulation" aria-label="Economía">
         <i data-lucide="wallet" class="w-5 h-5 pointer-events-none"></i>
         <span class="text-[9px] font-bold leading-none pointer-events-none">Economía</span>
@@ -2753,24 +2816,25 @@
   </nav>
 
   <!-- Scripts de la Aplicación -->
-  <script src="js/store.js?v=46"></script>
-  <script src="js/subjects.js?v=46"></script>
-  <script src="js/curriculum.js?v=46"></script>
-  <script src="js/schedule.js?v=46"></script>
-  <script src="js/tfg.js?v=46"></script>
-  <script src="js/mkt-grades.js?v=46"></script>
-  <script src="js/calendar.js?v=46"></script>
-  <script src="js/tasks.js?v=46"></script>
-  <script src="js/pomodoro.js?v=46"></script>
-  <script src="js/notes.js?v=46"></script>
-  <script src="js/stats.js?v=46"></script>
-  <script src="js/checklist.js?v=46"></script>
-  <script src="js/economia.js?v=46"></script>
-  <script src="js/menus.js?v=46"></script>
-  <script src="js/cris-hub.js?v=46"></script>
-  <script src="js/auth.js?v=46"></script>
-  <script src="js/supabase.js?v=46"></script>
-  <script src="js/app.js?v=46"></script>
+  <script src="js/store.js?v=53"></script>
+  <script src="js/subjects.js?v=53"></script>
+  <script src="js/curriculum.js?v=53"></script>
+  <script src="js/schedule.js?v=53"></script>
+  <script src="js/tfg.js?v=53"></script>
+  <script src="js/mkt-grades.js?v=53"></script>
+  <script src="js/calendar.js?v=53"></script>
+  <script src="js/tasks.js?v=53"></script>
+  <script src="js/pomodoro.js?v=53"></script>
+  <script src="js/notes.js?v=53"></script>
+  <script src="js/stats.js?v=53"></script>
+  <script src="js/checklist.js?v=53"></script>
+  <script src="js/economia.js?v=53"></script>
+  <script src="js/menus.js?v=53"></script>
+  <script src="js/proyectos.js?v=53"></script>
+  <script src="js/cris-hub.js?v=53"></script>
+  <script src="js/auth.js?v=53"></script>
+  <script src="js/supabase.js?v=53"></script>
+  <script src="js/app.js?v=53"></script>
 </body>
 </html>
 
