@@ -27,8 +27,10 @@ class PomodoroModule {
 
   init() {
     window.addEventListener('studyflow:change', () => {
-      this.populateSubjects();
-      this.renderHistory();
+      if (window.app && window.app.currentView === 'pomodoro') {
+        this.populateSubjects();
+        this.renderHistory();
+      }
     });
     this.bindEvents();
     this.populateSubjects();

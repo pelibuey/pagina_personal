@@ -10,7 +10,11 @@ class SubjectsModule {
   }
 
   init() {
-    window.addEventListener('studyflow:change', () => this.render());
+    window.addEventListener('studyflow:change', () => {
+      if (window.app && (window.app.currentView === 'subjects' || window.app.currentView === 'dashboard')) {
+        this.render();
+      }
+    });
     this.bindEvents();
     this.render();
   }

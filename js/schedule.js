@@ -12,7 +12,9 @@ class ScheduleModule {
 
   init() {
     window.addEventListener('studyflow:change', () => {
-      this.render();
+      if (window.app && window.app.currentView === 'schedule') {
+        this.render();
+      }
     });
     this.bindEvents();
     this.render();

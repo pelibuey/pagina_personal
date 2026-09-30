@@ -108,13 +108,6 @@ class CrisHubModule {
   }
 
   init() {
-    // Escuchar cambios globales de la aplicación para refrescar el Dashboard en vivo
-    window.addEventListener('studyflow:change', () => {
-      if (window.app && (window.app.currentView === 'cris-hub' || window.app.currentView === 'cris-dashboard')) {
-        this.renderDashboard();
-      }
-    });
-
     // Cargar subproyectos personalizados si existen
     this.loadCustomSubprojects();
 

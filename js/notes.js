@@ -19,8 +19,10 @@ class NotesModule {
 
   init() {
     window.addEventListener('studyflow:change', () => {
-      this.populateSubjectSelects();
-      this.render();
+      if (window.app && window.app.currentView === 'notes') {
+        this.populateSubjectSelects();
+        this.render();
+      }
     });
     this.bindEvents();
     this.populateSubjectSelects();

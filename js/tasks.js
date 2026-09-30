@@ -14,8 +14,10 @@ class TasksModule {
 
   init() {
     window.addEventListener('studyflow:change', () => {
-      this.populateSubjectSelects();
-      this.render();
+      if (window.app && (window.app.currentView === 'tasks' || window.app.currentView === 'dashboard')) {
+        this.populateSubjectSelects();
+        this.render();
+      }
     });
     this.bindEvents();
     this.populateSubjectSelects();

@@ -21,14 +21,16 @@ class CurriculumModule {
 
   init() {
     window.addEventListener('studyflow:change', () => {
-      const active = window.studyStore.getActiveStudyFilter();
-      if (active === 'ade') {
-        this.currentStudy = 'ade';
-      } else if (active === 'marketing') {
-        this.currentStudy = 'marketing';
+      if (window.app && window.app.currentView === 'curriculum') {
+        const active = window.studyStore.getActiveStudyFilter();
+        if (active === 'ade') {
+          this.currentStudy = 'ade';
+        } else if (active === 'marketing') {
+          this.currentStudy = 'marketing';
+        }
+        this.updateTabs();
+        this.render();
       }
-      this.updateTabs();
-      this.render();
     });
     this.bindEvents();
     const active = window.studyStore.getActiveStudyFilter();

@@ -10,7 +10,11 @@ class StatsModule {
   }
 
   init() {
-    window.addEventListener('studyflow:change', () => this.render());
+    window.addEventListener('studyflow:change', () => {
+      if (window.app && (window.app.currentView === 'dashboard' || window.app.currentView === 'stats')) {
+        this.render();
+      }
+    });
     this.render();
   }
 

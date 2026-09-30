@@ -16,7 +16,9 @@ class MarketingGradesModule {
 
   init() {
     window.addEventListener('studyflow:change', () => {
-      this.render();
+      if (window.app && window.app.currentView === 'mkt-grades') {
+        this.render();
+      }
     });
     this.bindEvents();
     this.render();

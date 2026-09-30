@@ -18,7 +18,11 @@ class TfgModule {
   }
 
   init() {
-    window.addEventListener('studyflow:change', () => this.render());
+    window.addEventListener('studyflow:change', () => {
+      if (window.app && window.app.currentView === 'tfg') {
+        this.render();
+      }
+    });
     this.bindEvents();
     this.render();
   }

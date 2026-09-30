@@ -54,17 +54,22 @@ class App {
 
     if (window.lucide) window.lucide.createIcons();
 
+    let _studyflowDebounce = null;
     window.addEventListener('studyflow:change', () => {
-      this.updateStudySwitcher();
-      this.setupDashboardSummary();
-      if ((this.currentView === 'cris-hub' || this.currentView === 'cris-dashboard') && window.crisHub) {
-        if (window.crisHub.renderDashboard) {
-          window.crisHub.renderDashboard();
-        } else if (window.crisHub.renderHub) {
-          window.crisHub.renderHub();
+      if (_studyflowDebounce) cancelAnimationFrame(_studyflowDebounce);
+      _studyflowDebounce = requestAnimationFrame(() => {
+        _studyflowDebounce = null;
+        this.updateStudySwitcher();
+        this.setupDashboardSummary();
+        if ((this.currentView === 'cris-hub' || this.currentView === 'cris-dashboard') && window.crisHub) {
+          if (window.crisHub.renderDashboard) {
+            window.crisHub.renderDashboard();
+          } else if (window.crisHub.renderHub) {
+            window.crisHub.renderHub();
+          }
         }
-      }
-      if (window.lucide) window.lucide.createIcons();
+        if (window.lucide) window.lucide.createIcons();
+      });
     });
   }
 
