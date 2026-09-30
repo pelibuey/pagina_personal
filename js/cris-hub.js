@@ -449,11 +449,22 @@ class CrisHubModule {
 
     if (habits.length === 0) {
       habits = [
+        { id: 'habit_pastilla', name: 'Pastilla', goal: 'Toma diaria (15:00 / comida)', icon: 'pill', color: 'rose' },
         { id: 'habit_leer', name: 'Leer', goal: '20-30 min', icon: 'book-open', color: 'cyan' },
         { id: 'habit_skincare', name: 'Skincare', goal: 'Rutina mañana/noche', icon: 'sparkles', color: 'teal' },
         { id: 'habit_ejercicio', name: 'Ejercicio', goal: 'Entrenamiento activo', icon: 'activity', color: 'sky' },
         { id: 'habit_agua', name: 'Hidratación', goal: '2L de agua', icon: 'droplet', color: 'cyan' }
       ];
+    } else if (!habits.some(h => h.id === 'habit_pastilla' || (h.name && h.name.toLowerCase().trim() === 'pastilla'))) {
+      habits.unshift({
+        id: 'habit_pastilla',
+        name: 'Pastilla',
+        goal: 'Toma diaria (15:00 / comida)',
+        category: 'Salud',
+        icon: 'pill',
+        color: 'rose',
+        enabled: true
+      });
     }
 
     const todayRecord = history[today] || {};
