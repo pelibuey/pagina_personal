@@ -57,7 +57,7 @@
   </script>
 
   <!-- Estilos Personalizados de la Aplicación -->
-  <link rel="stylesheet" href="css/style.css?v=61">
+  <link rel="stylesheet" href="css/style.css?v=62">
 
   <!-- Pre-verificación de sesión inmediata: Evita parpadeos si ya se inició sesión -->
   <script>
@@ -84,22 +84,8 @@
     })();
   </script>
 
-  <!-- Lucide Icons CDN con Batching Ultra-Rápido (Alto Rendimiento) -->
+  <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script>
-    if (window.lucide && typeof window.lucide.createIcons === 'function') {
-      var _origCreateIcons = window.lucide.createIcons.bind(window.lucide);
-      var _lucidePending = false;
-      window.lucide.createIcons = function(options) {
-        if (_lucidePending) return;
-        _lucidePending = true;
-        requestAnimationFrame(function() {
-          _lucidePending = false;
-          try { _origCreateIcons(options); } catch (e) {}
-        });
-      };
-    }
-  </script>
 
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -2818,25 +2804,25 @@
   </nav>
 
   <!-- Scripts de la Aplicación -->
-  <script src="js/store.js?v=61"></script>
-  <script src="js/subjects.js?v=61"></script>
-  <script src="js/curriculum.js?v=61"></script>
-  <script src="js/schedule.js?v=61"></script>
-  <script src="js/tfg.js?v=61"></script>
-  <script src="js/mkt-grades.js?v=61"></script>
-  <script src="js/calendar.js?v=61"></script>
-  <script src="js/tasks.js?v=61"></script>
-  <script src="js/pomodoro.js?v=61"></script>
-  <script src="js/notes.js?v=61"></script>
-  <script src="js/stats.js?v=61"></script>
-  <script src="js/checklist.js?v=61"></script>
-  <script src="js/economia.js?v=61"></script>
-  <script src="js/menus.js?v=61"></script>
-  <script src="js/proyectos.js?v=61"></script>
-  <script src="js/cris-hub.js?v=61"></script>
-  <script src="js/auth.js?v=61"></script>
-  <script src="js/supabase.js?v=61"></script>
-  <script src="js/app.js?v=61"></script>
+  <script src="js/store.js?v=62"></script>
+  <script src="js/subjects.js?v=62"></script>
+  <script src="js/curriculum.js?v=62"></script>
+  <script src="js/schedule.js?v=62"></script>
+  <script src="js/tfg.js?v=62"></script>
+  <script src="js/mkt-grades.js?v=62"></script>
+  <script src="js/calendar.js?v=62"></script>
+  <script src="js/tasks.js?v=62"></script>
+  <script src="js/pomodoro.js?v=62"></script>
+  <script src="js/notes.js?v=62"></script>
+  <script src="js/stats.js?v=62"></script>
+  <script src="js/checklist.js?v=62"></script>
+  <script src="js/economia.js?v=62"></script>
+  <script src="js/menus.js?v=62"></script>
+  <script src="js/proyectos.js?v=62"></script>
+  <script src="js/cris-hub.js?v=62"></script>
+  <script src="js/auth.js?v=62"></script>
+  <script src="js/supabase.js?v=62"></script>
+  <script src="js/app.js?v=62"></script>
 </body>
 </html>
 

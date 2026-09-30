@@ -1,6 +1,6 @@
 {
-  "version": "1.0.61",
-  "buildTime": 1759245000000,
-  "buildDate": "2026-09-30T15:00:00.000Z",
-  "hash": "cris-v61-no-forced-reload-robust-charts"
+  "version": "1.0.62",
+  "buildTime": 1759246000000,
+  "buildDate": "2026-09-30T15:05:00.000Z",
+  "hash": "cris-v62-fixed-lucide-icons-rendering"
 }
