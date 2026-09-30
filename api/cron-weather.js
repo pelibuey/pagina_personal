@@ -119,7 +119,7 @@ function formatMorningMessage(w, state) {
   const gastos = personal.gastos || [];
   const totalGastos = gastos.reduce((acc, g) => acc + (Number(g.importe) || 0), 0);
 
-  let msg = `☀️ *Buenos días Cris • Resumen Matutino (8:00 AM)*\n`;
+  let msg = `☀️ *Buenos días Cris • Resumen Matutino*\n`;
   msg += `📅 _${dayName}, ${now.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}_\n\n`;
 
   msg += `📍 *El tiempo en Hoyo de Manzanares:*\n`;
@@ -181,7 +181,7 @@ function formatAfternoonMessage(w, state) {
   const pendingHabits = habits.filter(h => !todayHist[h.id]);
   const pastillaDone = !!todayHist['habit_pastilla'];
 
-  let msg = `🌤️ *Buenas tardes Cris • Recordatorio de las 3:00 PM (15:00)*\n`;
+  let msg = `🌤️ *Buenas tardes Cris • Recordatorio de la Tarde*\n`;
   msg += `📅 _${dayName}, ${now.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}_\n\n`;
 
   msg += `💊 *Toma de Pastilla:*\n`;
@@ -241,7 +241,7 @@ function formatNightMessage(w, state) {
   const pastillaDone = !!todayHist['habit_pastilla'];
   const pct = Math.round((doneHabits.length / (habits.length || 1)) * 100);
 
-  let msg = `🌙 *Buenas noches Cris • Cierre y Verificación del Día (20:00)*\n`;
+  let msg = `🌙 *Buenas noches Cris • Cierre y Verificación del Día*\n`;
   msg += `📅 _${dayName}, ${now.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}_\n\n`;
 
   // 1. Verificación Habit Tracker
