@@ -82,3 +82,10 @@ CRIS es una plataforma web modular (PWA) de alto rendimiento orientada a la prod
   - 💎 Habit Tracker: Progreso de cumplimiento y hábitos restantes para la tarde.
   - 📝 Tareas pendientes para la sesión de tarde.
   - 📍 Estado del tiempo actual.
+
+- **3. Verificación de Cierre del Día (20:00 / 8:00 PM)**:
+  - 💎 **Verificación de Hábitos**: Chequeo exhaustivo de todos los hábitos diarios para comprobar que se ha completado todo antes de finalizar la jornada.
+  - 💊 **Alerta de Pastilla**: Aviso prioritario si la pastilla aún no ha sido marcada como tomada.
+  - 🍽️ Recordatorio de la cena de hoy.
+  - 📝 Resumen de tareas completadas y organización para mañana.
+  - ✨ Mensaje de descanso y desconexión.

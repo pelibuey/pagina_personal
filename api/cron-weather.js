@@ -220,7 +220,68 @@ function formatAfternoonMessage(w, state) {
   return msg;
 }
 
+function formatNightMessage(w, state) {
+  const icon = getWeatherIcon(w.desc);
+  const menusData = state['cris_menus_data_v1'] || {};
+  const study = state['studyflow_data_v21'] || {};
+  const habitsData = state['cris_daily_habits_v2'] || {};
+  
+  const now = new Date();
+  const daysMap = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  const dayName = daysMap[now.getDay()];
+  const menuSemanal = menusData.menuSemanal || {};
+  const hoyMenu = menuSemanal[dayName] || menuSemanal[dayName.toLowerCase()] || {};
+  const isoDate = now.toISOString().split('T')[0];
+  
+  const tasks = (study.tasks || []).filter(t => !t.completed);
+  const habits = habitsData.habits || [];
+  const todayHist = (habitsData.history && habitsData.history[isoDate]) || {};
+  const doneHabits = habits.filter(h => !!todayHist[h.id]);
+  const pendingHabits = habits.filter(h => !todayHist[h.id]);
+  const pastillaDone = !!todayHist['habit_pastilla'];
+  const pct = Math.round((doneHabits.length / (habits.length || 1)) * 100);
+
+  let msg = `🌙 *Buenas noches Cris • Cierre y Verificación del Día (20:00)*\n`;
+  msg += `📅 _${dayName}, ${now.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}_\n\n`;
+
+  // 1. Verificación Habit Tracker
+  msg += `💎 *Verificación del Habit Tracker:* (${pct}%)\n`;
+  if (pendingHabits.length === 0) {
+    msg += `• ¡ENHORABUENA! 🎉 Has completado *todos tus ${habits.length} hábitos* hoy.\n\n`;
+  } else {
+    msg += `• Has completado *${doneHabits.length} de ${habits.length}* hábitos.\n`;
+    msg += `• ⚠️ *Pendientes antes de dormir:* ${pendingHabits.map(h => h.name).join(', ')}\n\n`;
+  }
+
+  // 2. Verificación de Pastilla
+  if (!pastillaDone) {
+    msg += `💊 *Pastilla:* ⚠️ _Aún no has marcado la pastilla de hoy. ¡No olvides tomarla!_\n\n`;
+  }
+
+  // 3. Cena
+  if (hoyMenu.cena) {
+    msg += `🍽️ *Cena de esta noche:* *${hoyMenu.cena}*\n\n`;
+  }
+
+  // 4. Estado de tareas
+  if (tasks.length > 0) {
+    msg += `📝 *Tareas pendientes para mañana:* (${tasks.length})\n`;
+    tasks.slice(0, 2).forEach((t) => {
+      msg += `  • ${t.title}\n`;
+    });
+    msg += `\n`;
+  } else {
+    msg += `📝 *Tareas:* ¡Al día, todo organizado!\n\n`;
+  }
+
+  msg += `✨ _¡Buen descanso y desconexión reparadora para recargar energía!_ 💤`;
+  return msg;
+}
+
 function formatWeatherMessage(w, state, type) {
+  if (type === 'night') {
+    return formatNightMessage(w, state);
+  }
   if (type === 'afternoon') {
     return formatAfternoonMessage(w, state);
   }
@@ -229,7 +290,10 @@ function formatWeatherMessage(w, state, type) {
   }
   // Auto-detectar por hora actual en España si no se especifica
   const currentHourUTC = new Date().getUTCHours();
-  if (currentHourUTC >= 11 && currentHourUTC <= 18) {
+  if (currentHourUTC >= 17) {
+    return formatNightMessage(w, state);
+  }
+  if (currentHourUTC >= 11 && currentHourUTC < 17) {
     return formatAfternoonMessage(w, state);
   }
   return formatMorningMessage(w, state);
