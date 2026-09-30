@@ -14,7 +14,7 @@ class HabitTrackerModule {
     this.selectedDate = this.getTodayDateString();
     this.selectedWeekOffset = 0; // 0 = semana actual, -1 = anterior, etc.
 
-    this.currentTab = 'dashboard'; // 'dashboard' | 'cuadro'
+    this.currentTab = 'cuadro'; // 'cuadro' | 'dashboard'
 
     this.charts = {
       trend: null,
@@ -30,7 +30,7 @@ class HabitTrackerModule {
   }
 
   setTab(tab) {
-    this.currentTab = (tab === 'cuadro' || tab === 'semanal') ? 'cuadro' : 'dashboard';
+    this.currentTab = (tab === 'dashboard') ? 'dashboard' : 'cuadro';
     this.render();
   }
 
@@ -490,27 +490,159 @@ class HabitTrackerModule {
 
     if (window.lucide) window.lucide.createIcons();
 
-    // Renderizar gráficas integradas si estamos en el Cuadro Semanal
-    if (isCuadro) {
-      setTimeout(() => this.renderCharts(), 40);
-    }
+    // Renderizar gráficas integradas
+    setTimeout(() => this.renderCharts(), 50);
   }
 
-  // --- PESTAÑA 1: DASHBOARD (LIMPIO Y PREPARADO) ---
+  // --- PESTAÑA 1: DASHBOARD (MÉTRICAS + HÁBITOS DE HOY + GRÁFICAS) ---
   renderTabDashboard() {
+    const streak = this.getStreak();
+    const activeHabits = this.habits.filter(h => h.enabled);
+    const todayStr = this.getTodayDateString();
+    const todayProg = this.getDayProgress(todayStr);
+
+    const weekDays = this.getWeekDays(this.selectedWeekOffset);
+    const avgWeek = Math.round(weekDays.reduce((acc, d) => acc + this.getDayProgress(d.dateStr).percent, 0) / 7);
+    const totalChecks = weekDays.reduce((acc, d) => acc + this.getDayProgress(d.dateStr).completed, 0);
+
+    const colorBgMap = {
+      cyan: 'bg-cyan-600 text-white',
+      teal: 'bg-teal-600 text-white',
+      sky: 'bg-sky-600 text-white',
+      indigo: 'bg-indigo-600 text-white',
+      purple: 'bg-purple-600 text-white',
+      pink: 'bg-pink-600 text-white',
+      emerald: 'bg-emerald-600 text-white',
+      amber: 'bg-amber-600 text-white',
+      violet: 'bg-violet-600 text-white',
+      rose: 'bg-rose-600 text-white'
+    };
+
     return `
       <div class="space-y-6">
-        <div class="rounded-3xl border-2 border-dashed border-cyan-200 dark:border-cyan-800/60 bg-white/50 dark:bg-slate-900/50 p-12 text-center shadow-xs">
-          <div class="w-16 h-16 rounded-2xl bg-cyan-100 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400 mx-auto flex items-center justify-center text-3xl mb-4 shadow-inner">
-            📊
+        <!-- 4 KPIS MAESTROS DE BIENESTAR -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white dark:bg-slate-800 p-4.5 rounded-3xl border border-cyan-200/80 dark:border-cyan-800/40 shadow-xs flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-2xl bg-cyan-100 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0">
+              <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Progreso Hoy</p>
+              <h3 class="text-2xl font-black text-slate-900 dark:text-white mt-0.5">${todayProg.percent}%</h3>
+              <span class="text-[11px] font-bold text-cyan-600 dark:text-cyan-400">${todayProg.completed} de ${todayProg.total} completados</span>
+            </div>
           </div>
-          <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">Dashboard de Habit Tracker</h3>
-          <p class="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6">
-            Lienzo preparado y listo. Indícame qué métricas, resúmenes de rachas, gráficas o bloques interactivos deseas colocar en este panel.
-          </p>
-          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-200 dark:border-cyan-800 text-cyan-700 dark:text-cyan-300 text-xs font-semibold">
-            <i data-lucide="sparkles" class="w-4 h-4 text-cyan-500"></i>
-            <span>Espacio reservado para personalizar tu Dashboard</span>
+
+          <div class="bg-white dark:bg-slate-800 p-4.5 rounded-3xl border border-cyan-200/80 dark:border-cyan-800/40 shadow-xs flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-2xl bg-cyan-100 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0">
+              <i data-lucide="flame" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Racha Imbatible</p>
+              <h3 class="text-2xl font-black text-slate-900 dark:text-white mt-0.5">${streak} ${streak === 1 ? 'día' : 'días'}</h3>
+              <span class="text-[11px] font-bold text-cyan-600 dark:text-cyan-400">¡Constancia activa! 🔥</span>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-slate-800 p-4.5 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xs flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-2xl bg-teal-100 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
+              <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Media Semanal</p>
+              <h3 class="text-2xl font-black text-slate-900 dark:text-white mt-0.5">${avgWeek}%</h3>
+              <span class="text-[11px] font-bold text-teal-600 dark:text-teal-400">${totalChecks} checks esta semana</span>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-slate-800 p-4.5 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xs flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-2xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center shrink-0">
+              <i data-lucide="sparkles" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Hábitos Activos</p>
+              <h3 class="text-2xl font-black text-slate-900 dark:text-white mt-0.5">${activeHabits.length}</h3>
+              <span class="text-[11px] font-bold text-slate-500">${this.habits.length} configurados</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- HÁBITOS DE HOY: MARCADOS DIRECTOS -->
+        <div class="bg-white dark:bg-slate-800 rounded-3xl p-5 md:p-6 border border-cyan-200/80 dark:border-cyan-800/40 shadow-xs space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700/60">
+            <div>
+              <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <span>Hábitos de Hoy</span>
+                <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-300">
+                  ${todayProg.completed}/${todayProg.total}
+                </span>
+              </h3>
+              <p class="text-xs text-slate-400">${this.formatDisplayDate(todayStr)}</p>
+            </div>
+            <button onclick="window.habitTrackerModule.setTab('cuadro')" class="px-3.5 py-2 rounded-xl bg-cyan-50 dark:bg-cyan-950/40 hover:bg-cyan-100 text-cyan-700 dark:text-cyan-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+              <span>Ver Cuadro Semanal</span>
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            ${activeHabits.map(habit => {
+              const isDone = this.isHabitDoneToday(habit.id);
+              return `
+                <div onclick="window.habitTrackerModule.toggleHabit('${habit.id}', '${todayStr}')" class="p-3.5 rounded-2xl border transition cursor-pointer flex items-center justify-between gap-3 ${isDone ? 'bg-cyan-50/60 dark:bg-cyan-950/30 border-cyan-300 dark:border-cyan-700' : 'bg-slate-50 dark:bg-slate-900/40 border-slate-200/70 dark:border-slate-700/70 hover:border-cyan-300'}">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-9 h-9 rounded-xl ${colorBgMap[habit.color] || colorBgMap.cyan} flex items-center justify-center shrink-0 shadow-xs">
+                      <i data-lucide="${habit.icon || 'check-circle'}" class="w-4 h-4"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <span class="font-bold text-xs block truncate ${isDone ? 'text-slate-400 dark:text-slate-500 line-through' : 'text-slate-900 dark:text-white'}">${habit.name}</span>
+                      <span class="text-[10px] text-slate-400 block truncate">${habit.goal || habit.category}</span>
+                    </div>
+                  </div>
+                  <div class="w-6 h-6 rounded-lg border-2 flex items-center justify-center transition shrink-0 ${isDone ? 'bg-cyan-600 border-cyan-600 text-white shadow-xs' : 'border-slate-300 dark:border-slate-600'}">
+                    ${isDone ? '<i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>' : ''}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <!-- GRÁFICAS DE EVOLUCIÓN Y CONSTANCIA -->
+        <div class="bg-white dark:bg-slate-800 rounded-3xl p-5 md:p-6 border border-slate-200 dark:border-slate-700 shadow-xs space-y-4">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-700/60 flex-wrap gap-2">
+            <div>
+              <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <i data-lucide="line-chart" class="w-4 h-4 text-cyan-500"></i>
+                <span>Gráficas de Progreso y Constancia</span>
+              </h3>
+              <p class="text-xs text-slate-400">Evolución diaria y porcentaje de éxito por cada hábito de la semana.</p>
+            </div>
+            <span class="px-2.5 py-1 rounded-xl bg-cyan-50 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800 text-xs font-bold">
+              ${totalChecks} hábitos completados
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <div class="lg:col-span-7 bg-slate-50/60 dark:bg-slate-900/40 rounded-2xl p-4 border border-slate-200/70 dark:border-slate-700/70 space-y-3">
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs font-bold uppercase text-slate-700 dark:text-slate-200">Evolución Diaria (%)</h4>
+                <span class="text-xs font-extrabold text-cyan-600 dark:text-cyan-400">${avgWeek}% Promedio</span>
+              </div>
+              <div class="h-60 w-full relative">
+                <canvas id="chart-checklist-trend"></canvas>
+              </div>
+            </div>
+
+            <div class="lg:col-span-5 bg-slate-50/60 dark:bg-slate-900/40 rounded-2xl p-4 border border-slate-200/70 dark:border-slate-700/70 space-y-3">
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs font-bold uppercase text-slate-700 dark:text-slate-200">Éxito por Hábito (%)</h4>
+                <span class="text-xs text-slate-400">7 días</span>
+              </div>
+              <div class="h-60 w-full relative">
+                <canvas id="chart-checklist-habits"></canvas>
+              </div>
+            </div>
           </div>
         </div>
       </div>
