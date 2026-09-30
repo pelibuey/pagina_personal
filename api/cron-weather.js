@@ -95,7 +95,7 @@ function getWeatherIcon(desc) {
   return '🌤️';
 }
 
-function formatWeatherMessage(w, state) {
+function formatMorningMessage(w, state) {
   const icon = getWeatherIcon(w.desc);
   const menusData = state['cris_menus_data_v1'] || {};
   const study = state['studyflow_data_v21'] || {};
@@ -103,7 +103,6 @@ function formatWeatherMessage(w, state) {
   const ecoData = state['cris_economia_data_v1'] || {};
   
   const now = new Date();
-  const daysOfWeek = ['Domingo', 'Lunes', 'Miércoles', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
   const daysMap = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
   const dayName = daysMap[now.getDay()];
   const menuSemanal = menusData.menuSemanal || {};
@@ -120,7 +119,7 @@ function formatWeatherMessage(w, state) {
   const gastos = personal.gastos || [];
   const totalGastos = gastos.reduce((acc, g) => acc + (Number(g.importe) || 0), 0);
 
-  let msg = `☀️ *Resumen Diario de Hoy (Hoyo de Manzanares)*\n`;
+  let msg = `☀️ *Buenos días Cris • Resumen Matutino (8:00 AM)*\n`;
   msg += `📅 _${dayName}, ${now.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}_\n\n`;
 
   msg += `📍 *El tiempo en Hoyo de Manzanares:*\n`;
@@ -139,14 +138,9 @@ function formatWeatherMessage(w, state) {
   }
 
   if (habits.length > 0) {
-    msg += `⏰ *Habit Tracker:*\n`;
-    msg += `• Progreso: *${doneHabits.length}/${habits.length}* completados\n`;
-    if (pendingHabits.length > 0) {
-      msg += `• Pendientes: ${pendingHabits.map(h => h.name).join(', ')}\n`;
-    } else {
-      msg += `• ¡Todos los hábitos de hoy completados! 🎉\n`;
-    }
-    msg += `\n`;
+    msg += `💎 *Habit Tracker (Inicio del día):*\n`;
+    msg += `• Total hábitos activos: *${habits.length}*\n`;
+    msg += `• Recuerda hoy: ${habits.slice(0, 4).map(h => h.name).join(', ')}...\n\n`;
   }
 
   msg += `📝 *Estudios:*\n`;
@@ -163,8 +157,82 @@ function formatWeatherMessage(w, state) {
   if (gastos.length > 0) {
     msg += `💰 *Gastos del mes:* *${totalGastos.toFixed(2)}€*\n\n`;
   }
-  msg += `💪 _¡Todo tu sistema CRIS está sincronizado! Escríbeme cuando quieras o usa /resumen._`;
+  msg += `💪 _¡Que tengas un día fantástico y productivo!_`;
   return msg;
+}
+
+function formatAfternoonMessage(w, state) {
+  const icon = getWeatherIcon(w.desc);
+  const menusData = state['cris_menus_data_v1'] || {};
+  const study = state['studyflow_data_v21'] || {};
+  const habitsData = state['cris_daily_habits_v2'] || {};
+  
+  const now = new Date();
+  const daysMap = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  const dayName = daysMap[now.getDay()];
+  const menuSemanal = menusData.menuSemanal || {};
+  const hoyMenu = menuSemanal[dayName] || menuSemanal[dayName.toLowerCase()] || {};
+  const isoDate = now.toISOString().split('T')[0];
+  
+  const tasks = (study.tasks || []).filter(t => !t.completed);
+  const habits = habitsData.habits || [];
+  const todayHist = (habitsData.history && habitsData.history[isoDate]) || {};
+  const doneHabits = habits.filter(h => !!todayHist[h.id]);
+  const pendingHabits = habits.filter(h => !todayHist[h.id]);
+  const pastillaDone = !!todayHist['habit_pastilla'];
+
+  let msg = `🌤️ *Buenas tardes Cris • Recordatorio de las 3:00 PM (15:00)*\n`;
+  msg += `📅 _${dayName}, ${now.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}_\n\n`;
+
+  msg += `💊 *Toma de Pastilla:*\n`;
+  if (pastillaDone) {
+    msg += `• ¡Pastilla de hoy completada! ✅\n\n`;
+  } else {
+    msg += `• ⚠️ *Recuerda tomar tu pastilla de hoy* (tras la comida).\n\n`;
+  }
+
+  if (hoyMenu.cena) {
+    msg += `🍽️ *Cena planificada para esta noche:*\n`;
+    msg += `• *${hoyMenu.cena}*\n\n`;
+  }
+
+  if (habits.length > 0) {
+    msg += `💎 *Habit Tracker (Seguimiento de Tarde):*\n`;
+    msg += `• Progreso: *${doneHabits.length}/${habits.length}* completados (${Math.round((doneHabits.length / (habits.length || 1)) * 100)}%)\n`;
+    if (pendingHabits.length > 0) {
+      msg += `• Pendientes para esta tarde: ${pendingHabits.map(h => h.name).join(', ')}\n`;
+    } else {
+      msg += `• ¡Todos los hábitos de hoy completados! 🎉\n`;
+    }
+    msg += `\n`;
+  }
+
+  if (tasks.length > 0) {
+    msg += `📝 *Tareas pendientes para esta tarde:*\n`;
+    tasks.slice(0, 3).forEach((t, i) => {
+      msg += `  ${i + 1}. ${t.title}\n`;
+    });
+    msg += `\n`;
+  }
+
+  msg += `📍 *El tiempo ahora:* ${icon} ${w.tempCurrent}°C en Hoyo de Manzanares\n\n`;
+  msg += `💪 _¡A por la tarde con energía y tranquilidad!_`;
+  return msg;
+}
+
+function formatWeatherMessage(w, state, type) {
+  if (type === 'afternoon') {
+    return formatAfternoonMessage(w, state);
+  }
+  if (type === 'morning') {
+    return formatMorningMessage(w, state);
+  }
+  // Auto-detectar por hora actual en España si no se especifica
+  const currentHourUTC = new Date().getUTCHours();
+  if (currentHourUTC >= 11 && currentHourUTC <= 18) {
+    return formatAfternoonMessage(w, state);
+  }
+  return formatMorningMessage(w, state);
 }
 
 async function sendTelegramMessage(botToken, chatId, text) {
@@ -196,11 +264,11 @@ export default async function handler(req, res) {
   const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || DEFAULT_SB_URL;
   const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || DEFAULT_SB_KEY;
 
-  const { location = 'Hoyo de Manzanares', chat_id } = req.query || {};
+  const { location = 'Hoyo de Manzanares', chat_id, type } = req.query || {};
 
   const state = await fetchSupabaseState(SUPABASE_URL, SUPABASE_ANON_KEY);
   const weather = await getWeatherData(location);
-  const messageText = formatWeatherMessage(weather, state);
+  const messageText = formatWeatherMessage(weather, state, type);
 
   // Recoger lista de destinatarios (chat_id explícito, o de Supabase)
   const subscribers = new Set();
@@ -225,6 +293,7 @@ export default async function handler(req, res) {
 
   return res.status(200).json({
     ok: true,
+    type: type || 'auto',
     weather,
     recipientsCount: subscribers.size,
     results,

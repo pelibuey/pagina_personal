@@ -68,12 +68,17 @@ CRIS es una plataforma web modular (PWA) de alto rendimiento orientada a la prod
 
 ---
 
-## ⏰ 4. Recordatorios y Notificaciones Matutinas
-- **Hora fija de envío**: **8:00 AM** todos los días.
-- **Canal de envío**: Bot de Telegram `@cris_go_bot` y Cron de Vercel (`/api/cron-weather`).
-- **Contenido del briefing matutino (8:00 AM)**:
-  - 📍 El tiempo en Hoyo de Manzanares (temperatura, sensación térmica, mín/máx, probabilidad de lluvia y viento).
+## ⏰ 4. Recordatorios y Notificaciones Automáticas (Telegram @cris_go_bot)
+- **1. Recordatorio Matutino (8:00 AM)**:
+  - 📍 El tiempo en Hoyo de Manzanares (temperatura actual, sensación térmica, mín/máx, probabilidad de lluvia y viento).
   - 🍽️ Menú del día (comida y cena planificadas en Menús Semanales).
-  - 💎 Habit Tracker (progreso y hábitos diarios pendientes para hoy).
-  - 📝 Estudios (tareas pendientes y fechas de entrega).
+  - 💎 Habit Tracker (hábitos activos para el arranque de la jornada).
+  - 📝 Estudios (tareas prioritarias y fechas de entrega).
   - 💰 Resumen económico mensual acumulado.
+
+- **2. Recordatorio de la Tarde (3:00 PM / 15:00)**:
+  - 💊 **Toma de Pastilla**: Alerta directa para la toma de la pastilla tras la comida (sincronizado con el hábito `Pastilla` en Habit Tracker).
+  - 🍽️ Cena planificada para esta noche.
+  - 💎 Habit Tracker: Progreso de cumplimiento y hábitos restantes para la tarde.
+  - 📝 Tareas pendientes para la sesión de tarde.
+  - 📍 Estado del tiempo actual.

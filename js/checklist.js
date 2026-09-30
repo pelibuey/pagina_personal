@@ -56,6 +56,16 @@ class HabitTrackerModule {
   getDefaultHabits() {
     return [
       {
+        id: 'habit_pastilla',
+        name: 'Pastilla',
+        category: 'Salud',
+        goal: 'Toma diaria (15:00 / comida)',
+        icon: 'pill',
+        color: 'rose',
+        enabled: true,
+        createdAt: new Date().toISOString()
+      },
+      {
         id: 'habit_leer',
         name: 'Leer',
         category: 'Mente',
@@ -164,6 +174,20 @@ class HabitTrackerModule {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed && typeof parsed === 'object' && Array.isArray(parsed.habits)) {
+          // Garantizar que el hábito Pastilla exista en el tracker
+          if (!parsed.habits.some(h => h.id === 'habit_pastilla' || (h.name && h.name.toLowerCase().trim() === 'pastilla'))) {
+            parsed.habits.unshift({
+              id: 'habit_pastilla',
+              name: 'Pastilla',
+              category: 'Salud',
+              goal: 'Toma diaria (15:00 / comida)',
+              icon: 'pill',
+              color: 'rose',
+              enabled: true,
+              createdAt: new Date().toISOString()
+            });
+            try { localStorage.setItem(this.storageKey, JSON.stringify(parsed)); } catch (e) {}
+          }
           return parsed;
         }
       }
