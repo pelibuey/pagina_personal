@@ -1,15 +1,24 @@
-/* StudyFlow - Custom Styles & Polishing (Tema Morado) */
+/* ================================================================
+   CRIS PLATFORM - HIGH-END APPLE GLASSMORPHISM & SAAS DESIGN SYSTEM
+   Theme: Purple / Cyan / Emerald / Amber / Slate Ultra-Refined
+   ================================================================ */
 
 :root {
   --primary-purple: #9333ea;
   --primary-purple-dark: #7e22ce;
   --primary-purple-light: #f3e8ff;
+  --apple-glass-bg: rgba(255, 255, 255, 0.72);
+  --apple-glass-dark-bg: rgba(15, 23, 42, 0.75);
+  --apple-glass-border: rgba(255, 255, 255, 0.4);
+  --apple-glass-dark-border: rgba(255, 255, 255, 0.08);
 }
 
 body {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   accent-color: var(--primary-purple);
+  letter-spacing: -0.015em;
 }
 
 ::selection {
@@ -17,10 +26,10 @@ body {
   color: #ffffff;
 }
 
-/* Custom Scrollbar */
+/* --- ULTRA-CLEAN MODERN SCROLLBAR --- */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
@@ -28,49 +37,126 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(168, 85, 247, 0.35);
+  background: rgba(148, 163, 184, 0.3);
   border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: all 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(147, 51, 234, 0.65);
+  background: rgba(147, 51, 234, 0.6);
+  border: 1px solid transparent;
+  background-clip: padding-box;
 }
 
-/* Glassmorphism subtle effects */
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.35);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 85, 247, 0.6);
+}
+
+/* --- GLASSMORPHISM & MODERN SURFACE SYSTEM --- */
 .glass-panel {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--apple-glass-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--apple-glass-border);
 }
 
-/* Pulse animation for urgent exams */
+.dark .glass-panel {
+  background: var(--apple-glass-dark-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--apple-glass-dark-border);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.06), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+}
+
+.dark .glass-card {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.2);
+}
+
+.dark .glass-card:hover {
+  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.35);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Ambient glow on cards */
+.glow-purple {
+  box-shadow: 0 0 35px -5px rgba(147, 51, 234, 0.18);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 35px -5px rgba(6, 182, 212, 0.18);
+}
+
+.glow-emerald {
+  box-shadow: 0 0 35px -5px rgba(16, 185, 129, 0.18);
+}
+
+.glow-amber {
+  box-shadow: 0 0 35px -5px rgba(245, 158, 11, 0.18);
+}
+
+/* --- ANIMATIONS & MICRO-INTERACTIONS --- */
+.view-section {
+  animation: pageFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.998);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @keyframes softPulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.85; transform: scale(1.02); }
+  50% { opacity: 0.88; transform: scale(1.02); }
 }
 
 .pulse-urgent {
   animation: softPulse 2.5s infinite ease-in-out;
 }
 
+@keyframes wave {
+  0%, 100% { transform: rotate(0deg); }
+  20%, 60% { transform: rotate(14deg); }
+  40%, 80% { transform: rotate(-10deg); }
+}
+
+.animate-wave {
+  display: inline-block;
+  transform-origin: 70% 70%;
+  animation: wave 2.2s infinite ease-in-out;
+}
+
 /* Pomodoro timer styling */
 .pomodoro-ring {
   transition: stroke-dashoffset 0.5s ease;
-}
-
-/* Fade in for views */
-.view-section {
-  animation: fadeIn 0.25s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* Shake animation for incorrect password/PIN */
@@ -84,228 +170,114 @@ body {
   animation: shake 0.4s ease-in-out;
 }
 
-@keyframes fadeInScale {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.animate-fade-in {
-  animation: fadeInScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* CRIS - Inicio de Sesión con Código (Lock Screen) */
+/* --- AUTH PIN SCREEN --- */
 html.cris-unlocked #cris-auth-screen {
   display: none !important;
 }
 
 .cris-pin-dot {
-  width: 1rem;
-  height: 1rem;
+  width: 1.15rem;
+  height: 1.15rem;
   border-radius: 9999px;
-  border: 2px solid #475569;
-  background-color: rgba(30, 41, 59, 0.8);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 2px solid rgba(148, 163, 184, 0.4);
+  background-color: rgba(30, 41, 59, 0.85);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .cris-pin-dot.filled {
-  border-color: #a855f7 !important;
+  border-color: #c084fc !important;
   background-color: #9333ea !important;
-  box-shadow: 0 0 12px rgba(168, 85, 247, 0.6) !important;
-  transform: scale(1.15) !important;
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.75) !important;
+  transform: scale(1.18) !important;
 }
 
 .cris-pin-dot.success {
-  border-color: #10b981 !important;
+  border-color: #34d399 !important;
   background-color: #10b981 !important;
-  box-shadow: 0 0 14px rgba(16, 185, 129, 0.7) !important;
-  transform: scale(1.2) !important;
+  box-shadow: 0 0 18px rgba(16, 185, 129, 0.8) !important;
+  transform: scale(1.22) !important;
 }
 
 .cris-pin-dot.error {
-  border-color: #f43f5e !important;
+  border-color: #fb7185 !important;
   background-color: #f43f5e !important;
-  box-shadow: 0 0 12px rgba(244, 63, 94, 0.6) !important;
+  box-shadow: 0 0 14px rgba(244, 63, 94, 0.7) !important;
 }
 
-/* ================================================================
-   MOBILE UX OVERHAUL — Solo pantallas < md (768px)
-   ================================================================ */
+/* --- BUTTONS & INTERACTIVE ELEMENTS POLISHING --- */
+button, a {
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
-/* iOS safe area support */
+button:active, a:active {
+  transform: scale(0.97);
+}
+
+/* Focus styles */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.2);
+}
+
+/* --- EXCEL SPREADSHEET VISTA POLISHING --- */
+.excel-grid-table th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+}
+
+.excel-grid-table tr:hover td {
+  background-color: rgba(241, 245, 249, 0.7);
+}
+
+.dark .excel-grid-table tr:hover td {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+
+/* --- MOBILE UX & iOS SAFE AREA OVERHAUL --- */
 @supports (padding: env(safe-area-inset-bottom)) {
   body {
     padding-top: env(safe-area-inset-top, 0px);
   }
 }
 
-/* --- MOBILE: Ocultar sidebar completa, usar bottom nav --- */
 @media (max-width: 767px) {
-  /* Sidebar: ocultar en móvil */
   body > div.flex-1 > aside {
     display: none !important;
   }
 
-  /* Header global: compactar */
   #cris-global-bar {
-    height: 48px !important;
-    padding-left: 12px !important;
-    padding-right: 12px !important;
+    height: 52px !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
     padding-top: env(safe-area-inset-top, 0px);
   }
 
-  /* Header: ocultar badge PLATAFORMA PRINCIPAL y el dropdown de subproyectos */
-  #cris-global-bar .text-\[9px\].font-extrabold.uppercase {
-    display: none !important;
-  }
-  #subprojects-dropdown-container {
-    display: none !important;
-  }
-  /* Desktop nav buttons: ya están hidden en md:flex */
-
-  /* Perfil: reducir en móvil */
-  #cris-global-bar .hidden.sm\:block {
-    display: none !important;
-  }
-
-  /* Area principal: padding bottom para dejar espacio a la bottom nav */
   main {
-    padding: 12px !important;
-    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+    padding: 14px !important;
+    padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
     max-width: 100% !important;
   }
 
-  /* Barra de contexto de estudios: compactar */
   #study-filter-bar {
     padding: 8px !important;
     border-radius: 16px !important;
     margin-bottom: 12px !important;
-    gap: 8px !important;
-  }
-  #study-filter-bar .text-xs.font-black {
-    font-size: 10px !important;
-  }
-  #study-filter-bar .text-\[10px\] {
-    display: none !important;
   }
 
-  /* Banner de bienvenida: compactar */
-  .view-section > div:first-child > div.bg-gradient-to-r {
-    padding: 16px !important;
+  .view-section .rounded-3xl {
     border-radius: 20px !important;
   }
-  .view-section > div:first-child > div.bg-gradient-to-r h1 {
-    font-size: 1.25rem !important;
-  }
 
-  /* Stat cards: 2 columnas en móvil */
-  .grid.grid-cols-2.lg\:grid-cols-4 {
-    gap: 8px !important;
-  }
-  .grid.grid-cols-2.lg\:grid-cols-4 > div {
-    padding: 12px !important;
-    border-radius: 16px !important;
-  }
-  .grid.grid-cols-2.lg\:grid-cols-4 > div h3 {
-    font-size: 1.25rem !important;
-  }
-
-  /* Grids de contenido: 1 columna en móvil */
-  .grid.grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3,
-  .grid.grid-cols-1.lg\:grid-cols-3,
-  .grid.grid-cols-1.md\:grid-cols-2.xl\:grid-cols-3,
-  .grid.grid-cols-1.md\:grid-cols-2 {
-    grid-template-columns: 1fr !important;
-    gap: 12px !important;
-  }
-
-  /* Plan semanal: 2 columnas en móvil en vez de 4 */
-  #study-plan-days-container {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 8px !important;
-  }
-
-  /* Tarjetas de contenido: bordes más redondeados y compactos */
-  .view-section .rounded-2xl,
-  .view-section .rounded-3xl {
-    border-radius: 16px !important;
-  }
-
-  /* Sección headings: compactar en móvil */
-  .view-section h2 {
-    font-size: 1.15rem !important;
-    line-height: 1.3 !important;
-  }
-  .view-section h2 + p {
-    font-size: 11px !important;
-    margin-top: 2px !important;
-  }
-
-  /* Botones de acción (Añadir X): full width en móvil */
-  .view-section .inline-flex.items-center.justify-center.gap-2 {
-    width: 100% !important;
-    justify-content: center !important;
-  }
-
-  /* Filtros scrollables: scroll horizontal fluido */
-  .flex.items-center.gap-2.overflow-x-auto {
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding-bottom: 4px;
-  }
-  .flex.items-center.gap-2.overflow-x-auto::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* Modals: full screen en móvil */
-  .modal-backdrop > div,
-  #modal-settings > div,
-  #modal-add-habit > div,
-  #modal-add-subproject > div {
+  .modal-backdrop > div {
     max-width: 100% !important;
     max-height: 100vh !important;
     height: 100% !important;
     border-radius: 0 !important;
     margin: 0 !important;
   }
-  .modal-backdrop,
-  #modal-add-habit,
-  #modal-add-subproject {
-    padding: 0 !important;
-  }
 
-  /* Campus virtual buttons: stack vertical en móvil */
-  .flex.items-center.gap-2.flex-wrap {
-    flex-direction: column !important;
-    width: 100% !important;
-  }
-  .flex.items-center.gap-2.flex-wrap > a {
-    width: 100% !important;
-    justify-content: center !important;
-    text-align: center !important;
-  }
-
-  /* Guía rápida cards: 1 columna */
-  .grid.grid-cols-1.sm\:grid-cols-2 {
-    grid-template-columns: 1fr !important;
-  }
-
-  /* Pomodoro circle: centrar mejor */
-  #view-pomodoro .relative {
-    margin: 0 auto;
-  }
-
-  /* Calendario: compact spacing */
-  #dashboard-mini-calendar-grid {
-    gap: 2px !important;
-  }
-
-  /* Inputs en mobile: mayor tamaño para tap */
   input[type="text"],
   input[type="password"],
   input[type="number"],
@@ -313,26 +285,12 @@ html.cris-unlocked #cris-auth-screen {
   input[type="date"],
   select,
   textarea {
-    font-size: 16px !important; /* Evitar zoom en iOS */
+    font-size: 16px !important; /* Prevents iOS auto-zoom */
     min-height: 44px;
   }
 }
 
-/* Utility: Hide scrollbar */
-.scrollbar-none::-webkit-scrollbar {
-  display: none;
-}
-.scrollbar-none {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-/* Touch targets optimization */
-button, a, input, select, textarea {
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* --- MOBILE BOTTOM NAV: Active states --- */
+/* --- MOBILE BOTTOM NAV: ACTIVE STATES WITH VIBRANT ACCENTS --- */
 .cris-mob-tab {
   position: relative;
   cursor: pointer;
@@ -342,7 +300,7 @@ button, a, input, select, textarea {
 }
 
 .cris-mob-tab.active {
-  color: #a855f7 !important;
+  color: #c084fc !important;
 }
 
 .cris-mob-tab.active::after {
@@ -353,39 +311,39 @@ button, a, input, select, textarea {
   transform: translateX(-50%);
   width: 28px;
   height: 3px;
-  background: linear-gradient(135deg, #9333ea, #6366f1);
+  background: linear-gradient(135deg, #9333ea, #c084fc);
   border-radius: 0 0 4px 4px;
 }
 
-/* Tab color por sección */
 .cris-mob-tab[data-mobile-nav="checklist"].active {
-  color: #06b6d4 !important;
+  color: #22d3ee !important;
 }
 .cris-mob-tab[data-mobile-nav="checklist"].active::after {
-  background: linear-gradient(135deg, #06b6d4, #0891b2);
+  background: linear-gradient(135deg, #06b6d4, #22d3ee);
+}
+
+.cris-mob-tab[data-mobile-nav="proyectos"].active {
+  color: #34d399 !important;
+}
+.cris-mob-tab[data-mobile-nav="proyectos"].active::after {
+  background: linear-gradient(135deg, #059669, #34d399);
 }
 
 .cris-mob-tab[data-mobile-nav="economia"].active {
-  color: #10b981 !important;
+  color: #2dd4bf !important;
 }
 .cris-mob-tab[data-mobile-nav="economia"].active::after {
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: linear-gradient(135deg, #0d9488, #2dd4bf);
 }
 
 .cris-mob-tab[data-mobile-nav="menus"].active {
-  color: #f59e0b !important;
+  color: #fbbf24 !important;
 }
 .cris-mob-tab[data-mobile-nav="menus"].active::after {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
 }
 
-/* --- Auth screen: iOS safe area fix --- */
-#cris-auth-screen {
-  padding-top: env(safe-area-inset-top, 16px) !important;
-  padding-bottom: env(safe-area-inset-bottom, 16px) !important;
-}
-
-/* --- Auto-reload toast notification --- */
+/* --- AUTO-RELOAD TOAST NOTIFICATION --- */
 @keyframes slideDownToast {
   from {
     opacity: 0;
