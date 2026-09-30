@@ -122,35 +122,12 @@ class App {
     });
   }
 
-  // --- NAVEGACIÓN ---
+  // --- NAVEGACIÓN DE ALTO RENDIMIENTO (Delegación Global Única) ---
   setupNavigation() {
-    const navLinks = document.querySelectorAll('[data-nav-target]');
-    navLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
-        if (link.tagName === 'BUTTON' && link.id && link.id.includes('toggle')) return;
-        e.preventDefault();
-        const target = link.getAttribute('data-nav-target');
-        const checklistTab = link.getAttribute('data-checklist-tab') || link.getAttribute('data-checklist-mode');
-        const economiaTab = link.getAttribute('data-economia-tab');
-        const menusTab = link.getAttribute('data-menus-tab');
-        const proyectosTab = link.getAttribute('data-proyectos-tab');
-        this.navigateTo(target, checklistTab || economiaTab || menusTab || proyectosTab);
-      });
-    });
+    if (this._navDelegationBound) return;
+    this._navDelegationBound = true;
 
-    // Botones de la barra de navegación inferior móvil
-    const mobileNavBtns = document.querySelectorAll('[data-mobile-nav]');
-    mobileNavBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const target = btn.getAttribute('data-mobile-nav');
-        this.navigateTo(target);
-      });
-    });
-
-    // Delegación global infalible para enlaces y botones táctiles móviles
-    if (!this._navDelegationBound && typeof document !== 'undefined') {
-      this._navDelegationBound = true;
+    if (typeof document !== 'undefined') {
       document.addEventListener('click', (e) => {
         const mobBtn = e.target.closest('[data-mobile-nav]');
         if (mobBtn) {
@@ -358,9 +335,9 @@ class App {
       }
     });
 
-    // Desplazar suavemente arriba
+    // Desplazar arriba instantáneamente
     if (typeof window !== 'undefined' && typeof window.scrollTo === 'function') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo(0, 0);
     }
 
     // Actualizar iconos de Lucide si procede

@@ -1192,10 +1192,6 @@ class CrisHubModule {
       window.initCollapsibleSection('cris-hub-ecosystem-grid', 'chevron-cris-hub-ecosystem', 'hub_ecosystem');
     }
 
-    if (window.app && window.app.setupNavigation) {
-      window.app.setupNavigation();
-    }
-
     if (window.lucide) window.lucide.createIcons();
   }
 

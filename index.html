@@ -57,7 +57,7 @@
   </script>
 
   <!-- Estilos Personalizados de la Aplicación -->
-  <link rel="stylesheet" href="css/style.css?v=56">
+  <link rel="stylesheet" href="css/style.css?v=57">
 
   <!-- Pre-verificación de sesión inmediata: Evita parpadeos si ya se inició sesión -->
   <script>
@@ -84,15 +84,17 @@
     })();
   </script>
 
-  <!-- Lucide Icons CDN con Batching por RequestAnimationFrame (Alto Rendimiento) -->
+  <!-- Lucide Icons CDN con Batching Ultra-Rápido (Alto Rendimiento) -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
     if (window.lucide && typeof window.lucide.createIcons === 'function') {
       var _origCreateIcons = window.lucide.createIcons.bind(window.lucide);
-      var _lucideRaf = null;
+      var _lucidePending = false;
       window.lucide.createIcons = function(options) {
-        if (_lucideRaf) cancelAnimationFrame(_lucideRaf);
-        _lucideRaf = requestAnimationFrame(function() {
+        if (_lucidePending) return;
+        _lucidePending = true;
+        requestAnimationFrame(function() {
+          _lucidePending = false;
           try { _origCreateIcons(options); } catch (e) {}
         });
       };
@@ -2816,25 +2818,25 @@
   </nav>
 
   <!-- Scripts de la Aplicación -->
-  <script src="js/store.js?v=56"></script>
-  <script src="js/subjects.js?v=56"></script>
-  <script src="js/curriculum.js?v=56"></script>
-  <script src="js/schedule.js?v=56"></script>
-  <script src="js/tfg.js?v=56"></script>
-  <script src="js/mkt-grades.js?v=56"></script>
-  <script src="js/calendar.js?v=56"></script>
-  <script src="js/tasks.js?v=56"></script>
-  <script src="js/pomodoro.js?v=56"></script>
-  <script src="js/notes.js?v=56"></script>
-  <script src="js/stats.js?v=56"></script>
-  <script src="js/checklist.js?v=56"></script>
-  <script src="js/economia.js?v=56"></script>
-  <script src="js/menus.js?v=56"></script>
-  <script src="js/proyectos.js?v=56"></script>
-  <script src="js/cris-hub.js?v=56"></script>
-  <script src="js/auth.js?v=56"></script>
-  <script src="js/supabase.js?v=56"></script>
-  <script src="js/app.js?v=56"></script>
+  <script src="js/store.js?v=57"></script>
+  <script src="js/subjects.js?v=57"></script>
+  <script src="js/curriculum.js?v=57"></script>
+  <script src="js/schedule.js?v=57"></script>
+  <script src="js/tfg.js?v=57"></script>
+  <script src="js/mkt-grades.js?v=57"></script>
+  <script src="js/calendar.js?v=57"></script>
+  <script src="js/tasks.js?v=57"></script>
+  <script src="js/pomodoro.js?v=57"></script>
+  <script src="js/notes.js?v=57"></script>
+  <script src="js/stats.js?v=57"></script>
+  <script src="js/checklist.js?v=57"></script>
+  <script src="js/economia.js?v=57"></script>
+  <script src="js/menus.js?v=57"></script>
+  <script src="js/proyectos.js?v=57"></script>
+  <script src="js/cris-hub.js?v=57"></script>
+  <script src="js/auth.js?v=57"></script>
+  <script src="js/supabase.js?v=57"></script>
+  <script src="js/app.js?v=57"></script>
 </body>
 </html>
 
