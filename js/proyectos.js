@@ -38,7 +38,13 @@ class ProyectosCrisModule {
       const raw = localStorage.getItem(this.storageKey);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        if (Array.isArray(parsed)) {
+          // Si contenía los proyectos de prueba iniciales, limpiarlo a lista vacía
+          const isInitialDemo = parsed.length === 4 && parsed.some(p => p.id === 'proj-1' && p.name === 'Plataforma Central CRIS');
+          if (isInitialDemo) {
+            localStorage.setItem(this.storageKey, JSON.stringify([]));
+            return [];
+          }
           return parsed;
         }
       }
@@ -62,60 +68,7 @@ class ProyectosCrisModule {
   }
 
   getDefaultProjects() {
-    return [
-      {
-        id: 'proj-1',
-        name: 'Plataforma Central CRIS',
-        category: 'Personal',
-        status: 'Activo',
-        priority: 'Alta',
-        web: 'https://crissanlo.app',
-        user: 'cris@estudios.local',
-        password: 'Cris!Secure2026#Hub',
-        summary: 'Plataforma unificada para gestionar Estudios (ADE + Marketing FP), Habit Tracker, Gestión Económica, Menús y Proyectos.',
-        deadline: '2026-10-15',
-        createdAt: new Date().toISOString()
-      },
-      {
-        id: 'proj-2',
-        name: 'Tienda Online & E-commerce',
-        category: 'Negocio',
-        status: 'En Desarrollo',
-        priority: 'Alta',
-        web: 'https://mitienda-cris.com',
-        user: 'admin@mitienda-cris.com',
-        password: 'Shop#Manager2026$',
-        summary: 'Catálogo de productos, pasarela de pagos con Stripe y automatización de pedidos.',
-        deadline: '2026-11-30',
-        createdAt: new Date().toISOString()
-      },
-      {
-        id: 'proj-3',
-        name: 'Proyecto TFG Marketing FP',
-        category: 'Estudios',
-        status: 'En Desarrollo',
-        priority: 'Media',
-        web: 'https://drive.google.com',
-        user: 'cristina.uned@educamos.es',
-        password: 'MktFP_TFG!2026',
-        summary: 'Plan de marketing mix y memoria final para el proyecto fin de ciclo.',
-        deadline: '2026-12-10',
-        createdAt: new Date().toISOString()
-      },
-      {
-        id: 'proj-4',
-        name: 'App de Registro y Hábitos con IA',
-        category: 'Idea',
-        status: 'Idea',
-        priority: 'Baja',
-        web: 'https://github.com',
-        user: 'crissanlo04',
-        password: '',
-        summary: 'Exploración de micro-hábitos y prompts automatizados para productividad diaria.',
-        deadline: '',
-        createdAt: new Date().toISOString()
-      }
-    ];
+    return [];
   }
 
   init() {
@@ -792,30 +745,6 @@ class ProyectosCrisModule {
   // --- RENDERIZADO TABLA HOJA DE CÁLCULO EXCEL ---
 
   renderExcelTable(projects) {
-    if (projects.length === 0) {
-      return `
-        <div class="bg-white dark:bg-slate-800 rounded-3xl p-10 border border-slate-200 dark:border-slate-700 text-center space-y-4">
-          <div class="w-16 h-16 rounded-3xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-inner">
-            <i data-lucide="file-spreadsheet" class="w-8 h-8"></i>
-          </div>
-          <div class="max-w-md mx-auto">
-            <h3 class="text-lg font-black text-slate-900 dark:text-white">No hay filas en la hoja</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              ${this.searchQuery ? 'No se encontraron resultados para la búsqueda actual.' : 'Comienza añadiendo tus proyectos, accesos, ideas y notas.'}
-            </p>
-          </div>
-          <div class="pt-2 flex items-center justify-center gap-3">
-            <button onclick="window.proyectosModule.openModal()" class="px-4 py-2.5 rounded-2xl bg-emerald-600 text-white font-extrabold text-xs shadow-md hover:bg-emerald-700 transition">
-              + Añadir Primera Fila
-            </button>
-            <button onclick="window.proyectosModule.loadSampleData()" class="px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-200 dark:hover:bg-slate-600 transition">
-              Cargar Proyectos de Ejemplo
-            </button>
-          </div>
-        </div>
-      `;
-    }
-
     return `
       <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-md overflow-hidden">
         
@@ -841,7 +770,25 @@ class ProyectosCrisModule {
 
             <!-- Filas de la Hoja de Cálculo -->
             <tbody class="divide-y divide-slate-100 dark:divide-slate-700/60 font-medium">
-              ${projects.map((p, idx) => this.renderTableRow(p, idx + 1)).join('')}
+              ${projects.length === 0 ? `
+                <tr>
+                  <td colspan="11" class="py-12 px-4 text-center">
+                    <div class="max-w-md mx-auto space-y-3">
+                      <div class="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-xs">
+                        <i data-lucide="file-spreadsheet" class="w-6 h-6"></i>
+                      </div>
+                      <div>
+                        <h4 class="text-sm font-extrabold text-slate-800 dark:text-slate-100">Hoja de Proyectos Vacía</h4>
+                        <p class="text-xs text-slate-400 mt-0.5">Añade tus propios proyectos, ideas, contraseñas y notas.</p>
+                      </div>
+                      <button onclick="window.proyectosModule.openModal()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-sm transition inline-flex items-center gap-1.5 cursor-pointer">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>+ Añadir Primera Fila</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ` : projects.map((p, idx) => this.renderTableRow(p, idx + 1)).join('')}
 
               <!-- Fila rápida inferior para añadir directamente estilo Excel -->
               <tr class="bg-slate-50/60 dark:bg-slate-900/40 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 transition group">
@@ -867,9 +814,7 @@ class ProyectosCrisModule {
         <!-- Pie de Tabla con Estadísticas de Fórmulas -->
         <div class="bg-slate-50 dark:bg-slate-900/90 px-4 py-3 border-t border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400 font-semibold">
           <div class="flex items-center gap-4">
-            <span><strong class="text-slate-800 dark:text-white">${projects.length}</strong> filas mostradas</span>
-            <span class="hidden sm:inline">•</span>
-            <span class="hidden sm:inline">Doble clic en editar para modificar detalles</span>
+            <span><strong class="text-slate-800 dark:text-white">${projects.length}</strong> filas registradas</span>
           </div>
           <div class="flex items-center gap-2">
             <button onclick="window.proyectosModule.exportToCSV()" class="text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 font-bold">

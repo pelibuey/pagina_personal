@@ -608,7 +608,7 @@ class CrisHubModule {
         }
       }
     } catch (e) {}
-    return { total: 4, active: 1, inDev: 2, ideas: 1, withCredentials: 3 };
+    return { total: 0, active: 0, inDev: 0, ideas: 0, withCredentials: 0 };
   }
 
   getGreeting() {

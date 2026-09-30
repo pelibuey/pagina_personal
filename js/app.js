@@ -538,6 +538,9 @@ class App {
             link.classList.add('bg-amber-100', 'dark:bg-amber-950/60', 'text-amber-700', 'dark:text-amber-300', 'font-bold');
             link.classList.remove('text-slate-600', 'dark:text-slate-400');
           }
+        } else if (viewId === 'proyectos') {
+          link.classList.add('bg-emerald-100', 'dark:bg-emerald-950/60', 'text-emerald-700', 'dark:text-emerald-300', 'font-bold');
+          link.classList.remove('text-slate-600', 'dark:text-slate-400');
         } else {
           link.classList.add('bg-purple-100', 'dark:bg-purple-950/60', 'text-purple-700', 'dark:text-purple-300', 'font-bold');
           link.classList.remove('text-slate-600', 'dark:text-slate-400');
@@ -550,11 +553,13 @@ class App {
     const cardChecklist = document.getElementById('card-subproject-checklist');
     const cardEconomia = document.getElementById('card-subproject-economia');
     const cardMenus = document.getElementById('card-subproject-menus');
+    const cardProyectos = document.getElementById('card-subproject-proyectos');
 
     const isEstudios = ['dashboard', 'subjects', 'calendar', 'schedule', 'curriculum', 'tfg', 'mkt-grades', 'tasks', 'pomodoro', 'notes'].includes(viewId);
     const isChecklist = viewId === 'checklist';
     const isEconomia = viewId === 'economia';
     const isMenus = viewId === 'menus';
+    const isProyectos = viewId === 'proyectos';
 
     if (cardEstudios) {
       if (isEstudios) {
@@ -583,6 +588,13 @@ class App {
         cardMenus.classList.add('ring-2', 'ring-amber-500/50');
       } else {
         cardMenus.classList.remove('ring-2', 'ring-amber-500/50');
+      }
+    }
+    if (cardProyectos) {
+      if (isProyectos) {
+        cardProyectos.classList.add('ring-2', 'ring-emerald-500/50');
+      } else {
+        cardProyectos.classList.remove('ring-2', 'ring-emerald-500/50');
       }
     }
   }
