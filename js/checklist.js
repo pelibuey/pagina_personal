@@ -490,8 +490,11 @@ class HabitTrackerModule {
 
     if (window.lucide) window.lucide.createIcons();
 
-    // Renderizar gráficas integradas
-    setTimeout(() => this.renderCharts(), 50);
+    // Renderizar gráficas integradas de forma segura y debounced
+    if (this._chartTimer) clearTimeout(this._chartTimer);
+    this._chartTimer = setTimeout(() => {
+      this.renderCharts();
+    }, 60);
   }
 
   // --- PESTAÑA 1: DASHBOARD (MÉTRICAS + HÁBITOS DE HOY + GRÁFICAS) ---
@@ -989,16 +992,21 @@ class HabitTrackerModule {
     const textColor = isDark ? '#94A3B8' : '#64748B';
     const gridColor = isDark ? 'rgba(51, 65, 85, 0.4)' : 'rgba(226, 232, 240, 0.8)';
 
-    // Destruir previas
-    if (this.charts.trend) this.charts.trend.destroy();
-    if (this.charts.habits) this.charts.habits.destroy();
-
     const weekDays = this.getWeekDays(this.selectedWeekOffset);
     const activeHabits = this.habits.filter(h => h.enabled);
 
     // 1. Gráfica de Tendencia Diaria (Línea / Área Turquesa Glaciar)
     const trendCanvas = document.getElementById('chart-checklist-trend');
     if (trendCanvas) {
+      try {
+        const oldChart = window.Chart.getChart(trendCanvas) || window.Chart.getChart('chart-checklist-trend');
+        if (oldChart) oldChart.destroy();
+      } catch (e) {}
+      if (this.charts.trend) {
+        try { this.charts.trend.destroy(); } catch (e) {}
+        this.charts.trend = null;
+      }
+
       const labels = weekDays.map(d => `${d.dayShort} ${d.dayNum}`);
       const dataPercent = weekDays.map(d => this.getDayProgress(d.dateStr).percent);
 
@@ -1033,6 +1041,7 @@ class HabitTrackerModule {
           options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: { duration: 250 },
             plugins: {
               legend: { display: false }
             },
@@ -1061,6 +1070,15 @@ class HabitTrackerModule {
     // 2. Gráfica de Éxito por Hábito (Barras Horizontales Cian / Teal)
     const habitsCanvas = document.getElementById('chart-checklist-habits');
     if (habitsCanvas && activeHabits.length > 0) {
+      try {
+        const oldChart = window.Chart.getChart(habitsCanvas) || window.Chart.getChart('chart-checklist-habits');
+        if (oldChart) oldChart.destroy();
+      } catch (e) {}
+      if (this.charts.habits) {
+        try { this.charts.habits.destroy(); } catch (e) {}
+        this.charts.habits = null;
+      }
+
       const habitLabels = activeHabits.map(h => h.name);
       const habitScores = activeHabits.map(h => {
         let score = 0;
@@ -1088,6 +1106,7 @@ class HabitTrackerModule {
             indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
+            animation: { duration: 250 },
             plugins: {
               legend: { display: false }
             },

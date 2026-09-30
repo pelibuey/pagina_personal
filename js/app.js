@@ -401,22 +401,22 @@ class App {
     });
   }
 
-  // --- AUTO-UPDATER & AUTO-RELOAD ENGINE ---
+  // --- AUTO-UPDATER & NOTIFICATION ENGINE ---
   setupAutoUpdater() {
     this.currentVersionHash = null;
-    this._isUpdating = false;
+    this._hasNotifiedUpdate = false;
 
     // Inicializar hash de la versión activa cargada en esta sesión
     this.fetchCurrentVersion();
 
-    // Verificación ligera periódica cada 60 segundos
-    setInterval(() => this.checkServerVersion(), 60000);
+    // Verificación periódica cada 2 minutos
+    setInterval(() => this.checkServerVersion(), 120000);
 
-    // Verificación al volver a la pestaña o desbloquear el móvil (con throttle de 10s)
+    // Verificación al volver a la pestaña (con throttle de 30s)
     this._lastCheckTime = Date.now();
     if (typeof document !== 'undefined') {
       document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible' && Date.now() - this._lastCheckTime > 10000) {
+        if (document.visibilityState === 'visible' && Date.now() - this._lastCheckTime > 30000) {
           this._lastCheckTime = Date.now();
           this.checkServerVersion();
         }
@@ -424,12 +424,6 @@ class App {
     }
 
     if (typeof window !== 'undefined') {
-      window.addEventListener('focus', () => {
-        if (Date.now() - this._lastCheckTime > 10000) {
-          this._lastCheckTime = Date.now();
-          this.checkServerVersion();
-        }
-      });
       window.addEventListener('online', () => this.checkServerVersion());
     }
   }
@@ -448,7 +442,7 @@ class App {
   }
 
   async checkServerVersion() {
-    if (this._isUpdating) return;
+    if (this._hasNotifiedUpdate) return;
     try {
       const res = await fetch(`/version.json?_t=${Date.now()}`, { cache: 'no-store' });
       if (!res.ok) return;
@@ -460,44 +454,45 @@ class App {
         return;
       }
 
+      // Si hay una nueva versión disponible, mostrar aviso NO invasivo (sin recargar a la fuerza)
       if (data.hash !== this.currentVersionHash) {
-        this.performAutoReload(data);
+        this.showUpdateBanner(data);
       }
     } catch (e) {}
   }
 
-  performAutoReload(newVersionData) {
-    if (this._isUpdating) return;
-    this._isUpdating = true;
+  showUpdateBanner(newVersionData) {
+    if (this._hasNotifiedUpdate) return;
+    this._hasNotifiedUpdate = true;
 
-    // Si el usuario está escribiendo en un formulario, esperar un momento
-    const activeEl = document.activeElement;
-    const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
-    const delay = isTyping ? 3000 : 700;
-
-    let toast = document.getElementById('cris-reload-toast');
-    if (!toast) {
-      toast = document.createElement('div');
-      toast.id = 'cris-reload-toast';
-      toast.className = 'fixed top-4 left-1/2 z-[10000] bg-slate-900/95 text-white border border-purple-500/70 shadow-2xl px-4 py-2.5 rounded-2xl flex items-center gap-2.5 backdrop-blur-xl pointer-events-none text-xs font-bold';
-      toast.innerHTML = `
-        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-        <i data-lucide="refresh-cw" class="w-4 h-4 text-purple-300 animate-spin"></i>
-        <span>Nueva versión lista (${newVersionData.version || 'actualizada'}). Actualizando...</span>
+    let banner = document.getElementById('cris-update-banner');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'cris-update-banner';
+      banner.className = 'fixed top-4 right-4 z-[10000] bg-slate-900/95 text-white border border-purple-500/60 shadow-2xl px-4 py-2.5 rounded-2xl flex items-center gap-3 backdrop-blur-xl text-xs font-bold transition-all';
+      banner.innerHTML = `
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping shrink-0"></span>
+        <span class="text-slate-200">✨ Nueva versión disponible (${newVersionData.version || 'actualizada'})</span>
+        <button type="button" onclick="window.app.applyUpdate()" class="px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition cursor-pointer shadow-sm active:scale-95">
+          Actualizar
+        </button>
+        <button type="button" onclick="document.getElementById('cris-update-banner')?.remove()" class="text-slate-400 hover:text-white cursor-pointer ml-1 text-sm leading-none" title="Cerrar">
+          &times;
+        </button>
       `;
-      document.body.appendChild(toast);
+      document.body.appendChild(banner);
       if (window.lucide) window.lucide.createIcons();
     }
+  }
 
-    setTimeout(() => {
-      try {
-        const url = new URL(window.location.href);
-        url.searchParams.set('_v', Date.now());
-        window.location.replace(url.toString());
-      } catch (e) {
-        window.location.reload(true);
-      }
-    }, delay);
+  applyUpdate() {
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('_v', Date.now());
+      window.location.replace(url.toString());
+    } catch (e) {
+      window.location.reload(true);
+    }
   }
 
   updateSidebarActiveState() {

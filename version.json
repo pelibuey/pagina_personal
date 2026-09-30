@@ -1,6 +1,6 @@
 {
-  "version": "1.0.60",
-  "buildTime": 1759244000000,
-  "buildDate": "2026-09-30T14:52:00.000Z",
-  "hash": "cris-v60-habit-tracker-charts-fix-and-full-review"
+  "version": "1.0.61",
+  "buildTime": 1759245000000,
+  "buildDate": "2026-09-30T15:00:00.000Z",
+  "hash": "cris-v61-no-forced-reload-robust-charts"
 }

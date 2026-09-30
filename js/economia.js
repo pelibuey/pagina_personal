@@ -710,8 +710,12 @@ class EconomiaModule {
     const canvas = document.getElementById('chart-personal-categorias');
     if (!canvas || typeof Chart === 'undefined') return;
 
+    try {
+      const old = Chart.getChart(canvas) || Chart.getChart('chart-personal-categorias');
+      if (old) old.destroy();
+    } catch (e) {}
     if (this.chartCategory) {
-      this.chartCategory.destroy();
+      try { this.chartCategory.destroy(); } catch (e) {}
       this.chartCategory = null;
     }
 

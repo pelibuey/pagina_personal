@@ -152,8 +152,13 @@ class StatsModule {
     const data = activeEntries.length > 0 ? activeEntries.map(e => e.minutes) : [1];
     const colors = activeEntries.length > 0 ? activeEntries.map(e => e.color) : ['#CBD5E1'];
 
+    try {
+      const old = window.Chart.getChart(canvas) || window.Chart.getChart('study-distribution-chart');
+      if (old) old.destroy();
+    } catch (e) {}
     if (this.chart) {
-      this.chart.destroy();
+      try { this.chart.destroy(); } catch (e) {}
+      this.chart = null;
     }
 
     const ctx = canvas.getContext('2d');
