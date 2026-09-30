@@ -57,7 +57,7 @@
   </script>
 
   <!-- Estilos Personalizados de la Aplicación -->
-  <link rel="stylesheet" href="css/style.css?v=68">
+  <link rel="stylesheet" href="css/style.css?v=69">
 
   <!-- Pre-verificación de sesión inmediata: Evita parpadeos si ya se inició sesión -->
   <script>
@@ -79,6 +79,24 @@
           if (sessionUnlocked || pinRemembered) {
             document.documentElement.classList.add('cris-unlocked');
           }
+        }
+
+        // Auto-inyección inmediata de hábito Pastilla
+        var rawHabits = localStorage.getItem('cris_daily_habits_v2');
+        var habitData = rawHabits ? JSON.parse(rawHabits) : { habits: [], history: {} };
+        if (habitData && (!Array.isArray(habitData.habits) || !habitData.habits.some(function(h) { return h && (h.id === 'habit_pastilla' || (h.name && h.name.toLowerCase().indexOf('pastilla') !== -1)); }))) {
+          if (!Array.isArray(habitData.habits)) habitData.habits = [];
+          habitData.habits.unshift({
+            id: 'habit_pastilla',
+            name: 'Pastilla',
+            category: 'Salud',
+            goal: 'Toma diaria (15:00 / comida)',
+            icon: 'pill',
+            color: 'rose',
+            enabled: true,
+            createdAt: new Date().toISOString()
+          });
+          localStorage.setItem('cris_daily_habits_v2', JSON.stringify(habitData));
         }
       } catch (e) {}
     })();
@@ -2816,25 +2834,25 @@
   </nav>
 
   <!-- Scripts de la Aplicación -->
-  <script src="js/store.js?v=68"></script>
-  <script src="js/subjects.js?v=68"></script>
-  <script src="js/curriculum.js?v=68"></script>
-  <script src="js/schedule.js?v=68"></script>
-  <script src="js/tfg.js?v=68"></script>
-  <script src="js/mkt-grades.js?v=68"></script>
-  <script src="js/calendar.js?v=68"></script>
-  <script src="js/tasks.js?v=68"></script>
-  <script src="js/pomodoro.js?v=68"></script>
-  <script src="js/notes.js?v=68"></script>
-  <script src="js/stats.js?v=68"></script>
-  <script src="js/checklist.js?v=68"></script>
-  <script src="js/economia.js?v=68"></script>
-  <script src="js/menus.js?v=68"></script>
-  <script src="js/proyectos.js?v=68"></script>
-  <script src="js/cris-hub.js?v=68"></script>
-  <script src="js/auth.js?v=68"></script>
-  <script src="js/supabase.js?v=68"></script>
-  <script src="js/app.js?v=68"></script>
+  <script src="js/store.js?v=69"></script>
+  <script src="js/subjects.js?v=69"></script>
+  <script src="js/curriculum.js?v=69"></script>
+  <script src="js/schedule.js?v=69"></script>
+  <script src="js/tfg.js?v=69"></script>
+  <script src="js/mkt-grades.js?v=69"></script>
+  <script src="js/calendar.js?v=69"></script>
+  <script src="js/tasks.js?v=69"></script>
+  <script src="js/pomodoro.js?v=69"></script>
+  <script src="js/notes.js?v=69"></script>
+  <script src="js/stats.js?v=69"></script>
+  <script src="js/checklist.js?v=69"></script>
+  <script src="js/economia.js?v=69"></script>
+  <script src="js/menus.js?v=69"></script>
+  <script src="js/proyectos.js?v=69"></script>
+  <script src="js/cris-hub.js?v=69"></script>
+  <script src="js/auth.js?v=69"></script>
+  <script src="js/supabase.js?v=69"></script>
+  <script src="js/app.js?v=69"></script>
 </body>
 </html>
 
